@@ -1,0 +1,43 @@
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<!--  <link rel="stylesheet" href="css/jquery-ui.css"> -->
+<link rel="stylesheet" href="css/jquery.mobile-1.4.5.min.css" />
+
+<script type="text/javascript" src="js/jquery.min.js"></script>
+<!-- <script type="text/javascript" src="js/jquery-ui.min.js"></script> -->
+<script type="text/javascript" src="js/jquery.mobile-1.4.5.min.js"></script>
+
+<script type="text/javascript" src="js/jquery.svg.js"></script>
+<script type="text/javascript" src="js/jquery.svgdom.js"></script>
+<script type="text/javascript" src="js/svg.js"></script>
+<script type="text/javascript" src="js/jquery.jqplot.min.js"></script>
+<script type="text/javascript" src="js/jquery.minicolors.min.js"></script>
+
+<link rel="stylesheet" href="css/jquery.minicolors.css">
+
+
+</head>
+<body>
+<div style="padding: 200px">
+<div style="width: 200px; height: 200px; background:blue;" id="button">
+</div>
+</div>
+<script>
+boton_repite = function(selector, func, t) {
+  var intervalId;
+  $(selector).mousedown(function() {
+    intervalId = setInterval(func, t);
+    func();
+  }).on("mouseleave mouseup",function() {
+    clearInterval(intervalId);
+  });
+}
+function do_something() {
+  console.log("do_something");
+}
+boton_repite("#button", do_something, 500);
+</script>
+</body>
+</html>
+

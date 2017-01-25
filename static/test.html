@@ -1,0 +1,1176 @@
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<!--  <link rel="stylesheet" href="css/jquery-ui.css"> -->
+<link rel="stylesheet" href="css/jquery.mobile-1.4.5.min.css" />
+
+<script type="text/javascript" src="js/jquery.min.js"></script>
+<!-- <script type="text/javascript" src="js/jquery-ui.min.js"></script> -->
+<script type="text/javascript" src="js/jquery.mobile-1.4.5.min.js"></script>
+
+<script type="text/javascript" src="js/jquery.svg.js"></script>
+<script type="text/javascript" src="js/jquery.svgdom.js"></script>
+<script type="text/javascript" src="js/svg.js"></script>
+<script type="text/javascript" src="js/jquery.jqplot.min.js"></script>
+<script type="text/javascript" src="js/jquery.minicolors.min.js"></script>
+
+<link rel="stylesheet" href="css/jquery.minicolors.css">
+
+<style type="text/css">
+/* Vias sin tren son semitransparentes y negras */
+[tren=none] {
+  opacity: 0.3;
+}
+#layer3 > g {
+  stroke: black;
+}
+
+/* Los trazos de las vias se colorean segun el tema */
+.c1 * { stroke: #a00; fill: #a00; }
+.c2 * { stroke: #00a; fill: #00a; }
+.c3 * { stroke: #0a0; fill: #0a0; }
+.c4 * { stroke: #aa0; fill: #aa0; }
+.c5 * { stroke: #a0a; fill: #a0a; }
+.c6 * { stroke: #0aa; fill: #0aa; }
+/* Quitar tension provoca trazo discontinuo */
+.stop path { stroke-dasharray: 10,10; }
+
+/* Los controles tambien tienen color */
+.control-tren .ui-slider-handle { background-image: none; }
+.c1 .ui-slider-handle { background-color: #a00; }
+.c2 .ui-slider-handle { background-color: #00a; }
+.c3 .ui-slider-handle { background-color: #0a0; }
+.c4 .ui-slider-handle { background-color: #aa0; }
+.c5 .ui-slider-handle { background-color: #a0a; }
+.c6 .ui-slider-handle { background-color: #0aa; }
+.c1 input { color: #a00; }
+.c2 input { color: #00a; }
+.c3 input { color: #0a0; }
+.c4 input { color: #aa0; }
+.c5 input { color: #a0a; }
+.c6 input { color: #0aa; }
+
+/* Los agarres son visibles solo cuando hay tren */
+[tren="none"] .circuloyflecha {
+  display:none;
+}
+#layer3 > g .circuloyflecha {
+  opacity: 0.3;
+}
+
+/* Avisos de que el estado del tren no es el adecuado */
+#layer3 > g .accesorios polygon {
+  display: none;
+}
+#layer3 > g[estado="1"] .accesorios polygon {
+  display:initial;
+  fill:yellow;
+}
+#layer3 > g[estado="2"] .accesorios polygon {
+  display:initial;
+  fill:red;
+}
+#layer3 > g[estado="3"] .accesorios polygon {
+  display:initial;
+  fill:red;
+}
+#layer3 > g[estado="4"] .accesorios polygon {
+  display:initial;
+  fill:yellow;
+}
+#layer3 > g[estado="5"] .accesorios polygon {
+  display:initial;
+  fill:red;
+  stroke:yellow;
+  stroke-width: 2;
+  transform: scale(2);
+}
+#layer3 > g[estado="5"] .circuloyflecha {
+  stroke: red;
+  fill: red;
+  opacity: 1;
+}
+#layer3 > g[invertido="true"] .circuloyflecha {
+  transform: rotate(180deg);
+}
+
+.id {
+  display:inline-block;
+  text-align: center;
+  width: 2.5em;
+}
+.control-tren .id {
+  background-image: url('estaciones.svg');
+  background-position: center bottom;
+  background-repeat: no-repeat;
+  height: 2em;
+}
+.velocidad {
+  width: 20em;
+  margin-left: 0.1em;
+  margin-right: 0.5em;
+  /*display: inline-block;*/
+}
+.quitado {
+  width: 2em;
+  background: yellow;
+  border: 0.2em solid red;
+}
+.izquierda,
+.derecha {
+  min-width: 27em;
+  max-width: 35em;
+  border: 1px solid #888;
+  display: inline-block;
+  vertical-align: top;
+}
+.control {
+  margin-left: 1em;
+  margin-right: 1em;
+}
+.control > form > * {
+  vertical-align: middle;
+  display: inline-block;
+}
+.control-via.stop {
+  background-color: #ffa;
+}
+form {
+  margin-bottom: 0;
+}
+input[type="number"] {
+  text-align: right;
+}
+input[type="number"].ui-slider-input {
+  width: 3em;
+}
+.ui-slider-track {
+  margin-left: 4em;
+}
+#content {
+  position:relative;
+}
+#processing {
+  position:absolute;
+  top:0;
+  right:0;
+  width: 20px;
+  height: 20px;
+  border: 1px solid #888;
+}
+#antipopup {
+    display: none;
+    position: fixed;
+    top: 34%;
+    width: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    text-align: center;
+}
+#antipopup.show {
+    display: block;
+}
+.popup {
+   display:inline-block;
+   width: 50%;
+   max-width: 35em;
+   min-width: 23em;
+   text-align: center;
+   background-color: rgba(255,255,255,0.5);
+   border: 5px solid white;
+}
+#parametros fieldset, #tiras fieldset {
+   border-width: 1px;
+   border-color: rgba(255,255,255,0.5);
+   margin-left: 0.5em;
+   margin-right: 0.5em;
+   margin-bottom: 0.5em;
+   padding-bottom: 0.5em;
+   padding-top: 0.5em;
+}
+legend {
+   font-size: x-large;
+   padding-left: 0.5em;
+   margin-left: 0.5em;
+   padding-right: 0.5em;
+}
+.parametro {
+   margin: 0.5em;
+   margin-top: 1em;
+}
+.parametro label {
+   margin-bottom: 0;
+}
+.parametro .doc {
+   margin-top: 0;
+   padding-left: 2em;
+   padding-right: 2em;
+   font-size: smaller;
+}
+.ui-state-disabled {
+    opacity: 0.5;
+}
+.ui-state-disabled div.ui-slider {
+    height: 12px;
+}
+
+.ui-slider-track.ui-state-disabled {
+    height: 1px;
+}
+.ui-state-disabled .ui-slider-track .ui-btn.ui-slider-handle {
+    height: 10px;
+    margin-top: -7px
+}
+.ui-state-disabled input {
+    min-height: initial;
+    padding-top: 0;
+}
+#master-controls {
+  position:absolute;
+  bottom:0;
+  right:0;
+  background-color: rgba(255,255,255,0.5);
+  padding: 0.5em;
+}
+#feedly-mini-banner {
+  display: none;
+}
+.boton-tren {
+  display:inline-block;
+  position:relative;
+  margin-right: 0.5em;
+}
+.boton-tren .id {
+    position: absolute;
+    top: 0;
+    color: white;
+    text-align: center;
+    display: block;
+    padding-top: 8px;
+}
+.boton-tren .clase {
+    width: 2.5em;
+    overflow: hidden;
+}
+.grafica {
+    width: 27em;
+}
+.estaciones h4 {
+    border-top: 1px solid white;
+    padding-top: 0.5em;
+    margin: 0;
+    font-weight: normal;
+}
+.estaciones .activas,
+.estaciones .todas {
+    min-height: 4.5em;
+    padding-bottom: 0.4em;
+}
+.estacion {
+    display: inline-block;
+    width: 6em;
+    height: 4em;
+    border: 1px solid #555;
+    position: relative;
+}
+.estacion .action {
+    position: absolute;
+    width: 3em;
+    height: 4em;
+    bottom: 0;
+}
+.invertir {
+}
+.todas .estacion .action.left {
+    left: 0;
+    background: url('ccw-512px-c.svg') bottom left no-repeat;
+    background-size: 2em;
+}
+.todas .estacion .action.right {
+    right: 0;
+    background: url('cw-512px-c.svg') bottom right no-repeat;
+    background-size: 2em;
+}
+.activas .estacion .action.right {
+    right: 0;
+    background: url('menos.svg') bottom right no-repeat;
+    background-size: 2em;
+}
+.activas .estacion.cw .action.left {
+    background: url('cw-512px.svg') bottom left no-repeat;
+    background-size: 2em;
+}
+.activas .estacion.ccw .action.left {
+    background: url('ccw-512px.svg') bottom left no-repeat;
+    background-size: 2em;
+}
+.control_manual {
+  background: url('mano.svg') center no-repeat;
+}
+.control_manual .action {
+    width:30px; height:30px;
+    display: inline-block;
+    font-size: 20px;
+}
+.control_manual .action.f {
+}
+.control_manual .action.r {
+}
+.auto .action {
+    margin-bottom:1ex;
+}
+.auto .action.active {
+    border: 1px solid black;
+    border-radius: 1em;
+}
+.alinear_vertical>* {
+    margin-bottom:1ex;
+}
+.estacion.st1 { background-image: url('estacion1-128.jpg'); }
+.estacion.st2 { background-image: url('estacion2-128.jpg'); }
+
+.sonidos ul {
+    background: url('volume-24.svg') no-repeat top center;
+    padding-left: 0;
+    padding-top: 24;
+    list-style-type: none;
+}
+input.color {
+    min-height: 2em;
+}
+</style>
+</head>
+<body>
+  <div id="content" style="">
+    <div id="antipopup">
+    </div>
+    <div id="processing" style=""></div>
+    <div id="svgbasics">
+    </div>
+    <div id="master-controls">
+      <span id="botones-trenes"></span>
+      <span id="quitar-tension" title="Quitar tension"><img src="stop.jpg" width="60" /></span>
+      <span id="stop" title="Velocidades a cero"><img src="vel0.svg" width="60" /></span>
+    </div>
+  </div>
+  <div id="godown">
+  </div>
+  <div id="columna-izquierda" class="izquierda">
+    <div id="controles-trenes">
+      <h1>Trenes</h1>
+      <div><span id="stop-trenes" title="Velocidades a cero"><img src="vel0.svg" width="60" /></span></div>
+    </div>
+    <div id="datos-velocidad">
+      <h1>Gr&aacute;ficas</h1>
+      <div id="container-graficas"></div>
+    </div>
+    <div id="chat">
+      <h1>Chat</h1>
+      <div id="inbox">
+      </div>
+
+      <div id="input">
+        <form action="/chat/new" method="post" id="messageform">
+          <input type="text" name="body" id="message" style="width:15em" />
+          <input type="submit" value="Enviar" />
+          <input type="hidden" name="next" value="/static/test.html" />
+        </form>
+      </div>
+    </div>
+    <div id="shells">
+      <h1>Comandos especiales</h1>
+    </div>
+    <div id="tiras">
+      <h1>Tiras LED</h1>
+      <div id="container-tiras"></div>
+    </div>
+  </div>
+  <div id="controles-vias" class="derecha">
+    <h1>Vias</h1>
+  </div>
+  <div id="parametros" class="derecha">
+    <h1>Par&aacute;metros</h1>
+    <div id="container-parametros"></div>
+  </div>
+  <div id="templates" style="display:none">
+    <div class="control control-tren">
+      <form action="#">
+      <!-- <div class="boton-cero"><img src="vel0.svg" width="30" /></div> -->
+      <div class="id"></div>
+      <div class="velocidad" style="">
+        <input name="velocidad" type="number" min="-100" max="100" value="0" />
+      </div>
+      <select class="clase" name="clase" data-role="none" data-native-menu="false">
+        <option value="desconocido">?</option>
+        <!-- Otras opciones via JS -->
+      </select>
+      <input type="button" name="quitado" class="quitado" style="display:none;" value="OK" data-role="none" />
+      <div class="estaciones ocultable" style="display:none;">
+        <h4>Ruta actual</h4>
+        <div class="activas"></div>
+        <h4>Estaciones Disponibles</h4>
+        <div class="todas"></div>
+      </div>
+      <div class="alinear_vertical">
+      <div class="invertir ocultable" style="display:none;"></div>
+      <div class="control_manual ocultable" style="display:none;"><div class="r action left" v="-20">&lt;</div><div class="f action right" v="20">&gt;</div></div>
+      <div class="auto ocultable" style="display:none;"><div class="action auto">AUTO</div><div class="action man">MAN</div></div>
+      </div>
+      <div class="sonidos ocultable" style="display:none;"><ul></ul></div>
+      </form>
+    </div>
+    <div class="boton-tren">
+      <svg width="40" height="40" viewbox="-20 -20 40 40">
+        <circle cx="0" cy="0" r="15" />
+        <g class="velocidad">
+           <circle cx="0" cy="-15" r="3" />
+        </g>
+        <g class="v_ef">
+           <circle cx="0" cy="-15" r="1.5" style="fill:white; stroke:none;" />
+           <line x2="0" y2="-8" style="stroke:white;stroke-width:2;opacity:0.7;" x1="0" y1="-15" />
+        </g>
+      </svg>
+      <div class="id"></div>
+      <div class="clase"></div>
+    </div>
+    <div class="control control-via">
+      <form action="#">
+      <div class="boton-cero"><img src="vel0.svg" width="30" /></div>
+      <div class="id"></div>
+      <div class="velocidad" style="">
+        <input name="velocidad" type="number" min="0" max="100" value="0" />
+      </div>
+      </form>
+    </div>
+    <div class="seccion-parametros">
+      <form action="#">
+        <fieldset class="clase-parametros">
+          <legend></legend>
+        </fieldset>
+      </form>
+    </div>
+    <div class="parametro">
+      <label></label>
+      <p class="doc"></p>
+      <input type="number" class="activo" />
+      <input type="number" class="default" disabled="disabled" />
+    </div>
+    <div class="tira">
+      <form action="#">
+        <fieldset class="fieldset-tira">
+          <legend class="desc"></legend>
+          <div class="parametro">
+            <input type="hidden" name="id" class="id" />
+            <select name="imagen" class="imagen" data-role="none">
+              <option value="_color1">Color fijo</option>
+              <option value="_color2">Degradado</option>
+              <option value="__apagar">Apagar</option>
+              <option value="__blanco">Blanco</option>
+            </select>
+            <input type="text" name="color1" class="color color1" data-role="none" />
+            <input type="text" name="color2" class="color color2" data-role="none" />
+          </parametro>
+        </fieldset>
+      </form>
+    </div>
+  </div>
+<script>//<![CDATA[
+$(function() {
+  if (!window.console) window.console = {};
+  if (!window.console.log) window.console.log = function() {};
+
+  $.getJSON( "/locomotoras", function( data ) {
+    var items = [];
+    $.each( data, function( key, val ) {
+      items.push( "<option value='" + key + "'>" + val + "</option>" );
+    });
+    $( items.join( "" ) ).appendTo( "#templates .control-tren select.clase" );
+  });
+
+  $.getJSON( "/estaciones", function( data ) {
+    var items = [];
+    $.each( data, function( key, val ) {
+      items.push( "<div class='estacion " + key + "' name='" + key + "'>" + val.s + "<div class='action left'></div><div class='action right'></div></div>" );
+    });
+    $( items.join( "" ) ).appendTo( "#templates .control-tren .estaciones .todas" );
+  });
+
+  $.getJSON( "/shell", function( data ) {
+    var items = [];
+    $.each( data, function( key, val ) {
+      items.push( "<div class='shell parametro " + key + "' name='shell" + key + "'><a class='action' onclick='shell("+key+")'>" + val.desc + "</a><div class='hint doc'>"+val.cmdline+"</div></div>" );
+    });
+    $( items.join( "" ) ).appendTo( "#shells" );
+  });
+
+  $.getJSON( "/tira", function( data ) {
+    var items = [];
+    $.each( data, function( key, val ) {
+      items.push( "<option value='" + key + "'>" + key + "</option>" );
+    });
+    $( items.join( "" ) ).appendTo( "#templates .tira select.imagen" );
+  });
+
+
+  $.getJSON( "/drawing", function( data ) {
+    var path = "drawing.svg";
+    $.each( data, function( key, val ) {
+      if(key=="path") { path = val; console.log("Using drawing path="+path); }
+    });
+    $('#svgbasics').svg();
+    var svg = $('#svgbasics').svg('get');
+    svg.load(path, {addTo: false, changeSize: true, onLoad: loadDone}); 
+    resetSize(svg, '100%', '100%');
+  });
+
+  $.getJSON( "/sonidos", function( data ) {
+    var base = $("#templates .control-tren .sonidos ul");
+    var items = [];
+    $.each( data, function( clase, sonidos ) {
+      console.log(clase);
+      console.log(sonidos);
+      $.each( sonidos, function( s, file ) {
+        var ex = base.find("li."+s).addClass(clase).addClass(clase+"_"+s);
+        if(ex.length === 0 && s!="gen") {
+          $("<li class='sonido " + clase + " " + s + " " + clase + "_" + s + "' name='" + s + "'>" + s + "</li>").appendTo(base);
+        }
+      });
+    });
+  });
+
+  // Añadir boton de invertir en SVG
+  $('#templates .invertir').svg();
+  var rev = $('#templates .invertir').svg('get');
+  rev.load("./uno-reverse.svg", {addTo: false, changeSize: true, onLoad: function () {} });
+
+  // Botones de paro
+  // Paro total, parando trenes y quitando tension de las vias despues.
+  $('#quitar-tension').click(function() {
+    $.get('/tren',{val: 0}, function() { $.get('/via',{val: 0, stop: 'stop'}); });
+  });
+  // Paro de trenes, y paro en vias, sin quitar tension
+  $('#stop').click(function() {
+    $.get('/tren',{val: 0}, function() { $.get('/via',{val: 0}); });
+  });
+  // Paro de trenes, podria dejar vias con tension
+  $('#stop-trenes').click(function() {
+    $.get('/tren',{val: 0});
+  });
+
+  // Cierre del popup
+  $('#antipopup').on("click",function(evt) {
+    if(evt.target == evt.currentTarget) {
+      $(".popup").removeClass("popup").appendTo("#controles-trenes");
+      $("#antipopup").removeClass("show");
+    }
+  });
+
+
+  // Funcionalidad de chat
+  $("#messageform").submit( function() {
+      newChatMessage($(this));
+      return false;
+  });
+  $("#messageform").keypress( function(e) {
+    if (e.keyCode == 13) {
+      newChatMessage($(this));
+      return false;
+    }
+  });
+
+});
+
+function loadDone() {
+  var svg = $('#svgbasics').svg('get');
+  if(! $("#svgbasics svg").attr("viewBox")) {
+      var w = $("#svgbasics svg").attr("width");
+      var h = $("#svgbasics svg").attr("height");
+      $("#svgbasics svg").attr("viewBox","0 0 "+w+" "+h).attr("width","100%").attr("height","100%");
+  }
+  // Agregar el evento de click en los desvios y semaforos
+  $('#layer1 > g',svg.root()).on('click',pulsado);
+  $('#layer5 > g',svg.root()).on('click',pulsadosemaforo);
+
+  // Eliminar estilo de trazo para poder manipularlo
+  $("#layer3 > g > path",svg.root()).css("stroke","")
+
+  // Agregar puntos de agarre en los tramos
+  $("#layer3 > g",svg.root()).find("path:first").each(function() {
+    var mid  = this.getTotalLength()/2;
+    var p    = this.getPointAtLength(mid);
+    var prev = this.getPointAtLength(mid*0.99);
+    var next = this.getPointAtLength(mid*1.01);
+    var delta = { x: next.x - prev.x,  y: next.y - prev.y };
+    var angle = Math.atan2(delta.y, delta.x);
+    var sizeDelta = Math.sqrt(delta.x ^ 2 + delta.y ^ 2);
+    delta.x /= sizeDelta;
+    delta.y /= sizeDelta;
+
+    var grupo = svg.group({"transform": "translate("+p.x+","+p.y+")"});
+    var rotacionVia = svg.group(grupo,{"transform":"rotate("+(angle*180/Math.PI)+")"});
+    var circuloyFlechaTren = svg.group(rotacionVia,{"class":"circuloyflecha"});
+    svg.circle(circuloyFlechaTren,0,0,10);
+    svg.polygon(circuloyFlechaTren,[[0,10],[30,0],[0,-10]]);
+    var accesorios = svg.group(grupo,{"class":"accesorios"});
+    svg.text(accesorios,10,-5,"");
+    svg.polygon(accesorios,[[-20,-5],[-10,-5],[-15,-14]]);
+    $(this).parent().append(grupo);
+  });
+
+  // Buscar tramos y crear controles de vias
+  $("#layer3 > g",svg.root()).each(function () {
+                var id = this.id;
+                $( "#templates > .control-via" ).clone().attr("id","control-via-"+id).appendTo("#controles-vias");
+                var s = $( "#control-via-"+id+" .velocidad input" ).slider({
+                    stop: function( event, ui ) {
+                        $.get('/via',{via: id, val: this.value});
+                    }
+                });
+                $( "#control-via-"+id+" .boton-cero" ).click(function() {
+                    $.get('/via',{via: id, val: 0});
+                    s.val(0).slider("refresh");
+                });
+                $( "#control-via-"+id+" .id" ).html(id);
+  });
+
+  // Agregar evento de click para sacar el popup del tren correspondiente
+  $("#layer3 > g").click(function () {
+     var id = $(this).attr("idtren");
+     if(id) {
+         var len = $("#control-tren"+id).addClass("popup").appendTo("#antipopup").length;
+         if(len) {
+             $("#antipopup").addClass("show");
+         }
+     }
+  });
+
+  // Estaciones
+  $("#layer6 > *").hide();
+
+  // Luces
+  $("#layer8 > g > path:first").hide()
+  $("#layer8 > g").click(function() {
+     $.get("/luz",{ id: this.id, estado: !this.estado});
+  });
+
+  // Solo empezar el poll cuando el dibujo se haya cargado.
+  updater.poll();
+
+}
+
+function pulsado(evt) {
+  var d = evt.target.parentElement;
+  $.get('/desvio',{ id: d.id.replace("desvio",""), color: (!d.estado?"verde":"rojo")});
+}
+
+function pulsadosemaforo(evt) {
+  //var d = evt.target.parentElement;
+  $.get('/semaforo',{ id: this.id.replace("SEM-","").replace("_"," "), color: (!this.estado?"verde":"rojo")});
+}
+
+function newChatMessage(form) {
+    var message = form.formToDict();
+    var disabled = form.find("input[type=submit]");
+    disabled.disable();
+    $.postJSON("/chat/new", message, function(response) {
+        updater.showMessage(response);
+        if (message.id) {
+            form.find("input[type=text]").val("");
+            form.parent().remove();
+        } else {
+            form.find("input[type=text]").val("").select();
+            disabled.enable();
+        }
+    });
+}
+
+function shell(key) {
+  $.get('/shell',{ id: key });
+}
+
+jQuery.postJSON = function(url, args, callback) {
+    $.ajax({url: url, data: $.param(args), dataType: "text", type: "POST",
+            success: function(response) {
+        if (callback) callback(eval("(" + response + ")"));
+    }, error: function(response) {
+        console.log("ERROR:", response)
+    }});
+};
+
+jQuery.fn.formToDict = function() {
+    var fields = this.serializeArray();
+    var json = {}
+    for (var i = 0; i < fields.length; i++) {
+        json[fields[i].name] = fields[i].value;
+    }
+    if (json.next) delete json.next;
+    return json;
+};
+
+jQuery.fn.disable = function() {
+    this.enable(false);
+    return this;
+};
+
+jQuery.fn.enable = function(opt_enable) {
+    if (arguments.length && !opt_enable) {
+        this.attr("disabled", "disabled");
+    } else {
+        this.removeAttr("disabled");
+    }
+    return this;
+};
+
+
+var updater = {
+    errorSleepTime: 500,
+    cursor: null,
+    cache_trenes: {},
+    charts: {},
+
+    poll: function() {
+        var args = { };
+        if (updater.cursor) args.cursor = updater.cursor;
+        $.ajax({url: "/update", type: "GET", dataType: "text",
+                data: $.param(args),
+                success: updater.onSuccess,
+                error: updater.onError});
+    },
+
+    onSuccess: function(response) {
+        if(updater.errorSleepTime >= 20000) {
+            // Hace mucho que falla, mejor recargar la página entera
+            window.location.reload();
+            return;
+        }
+        try {
+            updater.newMessages(eval("(" + response + ")"));
+        } catch (e) {
+            console.log(e);
+            updater.onError();
+            return;
+        }
+        updater.errorSleepTime = 500;
+        window.setTimeout(updater.poll, 0);
+    },
+
+    onError: function(response) {
+        if(updater.errorSleepTime < 15000) {
+            updater.errorSleepTime *= 2;
+        } else if(updater.errorSleepTime < 30000) {
+            updater.errorSleepTime += 500;
+        }
+        console.log("Poll error; sleeping for ", updater.errorSleepTime, "ms");
+        $("#processing").css("background-color","red");
+        window.setTimeout(updater.poll, updater.errorSleepTime);
+    },
+
+    newMessages: function(response) {
+        if (!response.messages) return;
+        updater.cursor = response.cursor;
+        var messages = response.messages;
+        updater.cursor = messages[messages.length - 1].id;
+        console.log(messages.length, "new messages, cursor:", updater.cursor);
+        for (var i = 0; i < messages.length; i++) {
+            updater.showMessage(messages[i]);
+        }
+        $("#processing").css("background-color","");
+    },
+
+    showMessage: function(message) {
+        if (message.deteccion) {
+            updater.deteccion(message.deteccion);
+        }
+        if (message.desvios) {
+            updater.desvios(message.desvios);
+        }
+        if (message.reservas) {
+            updater.reservas(message.reservas);
+        }
+        if (message.semaforos) {
+            updater.semaforos(message.semaforos);
+        }
+        if (message.trenes_eliminados) {
+            updater.trenes_eliminados(message.trenes_eliminados);
+        }
+        if (message.trenes) {
+            updater.trenes(message.trenes);
+        }
+        if (message.velocidades) {
+            updater.velocidades(message.velocidades);
+        }
+        if (message.chat) {
+            updater.chatMessage(message.id,message.chat);
+        }
+        if (message.datos_velocidad) {
+            updater.datos_velocidad(message.datos_velocidad);
+        }
+        if (message.estaciones) {
+            updater.estaciones(message.estaciones);
+        }
+        if (message.luces) {
+            updater.luces(message.luces);
+        }
+        if (message.parametros) {
+            updater.parametros(message.parametros);
+        }
+        if (message.tiras) {
+            updater.tiras(message.tiras);
+        }
+    },
+
+    deteccion: function(tramos) {
+        for (t in tramos) {
+            if(tramos[t]) {
+                tren = updater.cache_trenes[tramos[t].id];
+                if(!tren) {
+                    tren = updater.nuevo_tren(tramos[t].id,tramos[t].clase);
+                }
+                $('#'+t).attr("tren",tramos[t].clase).attr("idtren",tramos[t].id).attr("estado", tramos[t].estado).attr("invertido",tramos[t].inv).addClass(tren.clase_css).find("text").html(tramos[t].id);
+            } else {
+                for (i in updater.clases_disponibles) {
+                  $('#'+t).attr("tren","none").removeAttr("idtren").removeAttr("estado").removeAttr("invertido").removeClass(updater.clases_disponibles[i]).find("text").html("");
+                }
+            }
+        }
+    },
+    desvios: function(desvios) {
+        var svg = $('#svgbasics').svg('get');
+        for (var id in desvios) {
+            $('#desvio'+id).each( function () {
+              if(desvios[id]=="rojo") {
+                  this.estado = 0;
+              } else {
+                  this.estado = 1;
+              }
+
+              $('path',this).css('stroke-width','1');
+              $('path:nth-of-type('+(this.estado+1)+')',this).css('stroke-width','50');
+            });
+        }
+    },
+    reservas: function(desvios) {
+        var svg = $('#svgbasics').svg('get');
+        for (var id in desvios) {
+            $('#desvio'+id).each( function () {
+              if(desvios[id]) {
+                $('tspan',this).html(desvios[id]);
+              } else {
+                $('tspan',this).html("");
+              }
+            });
+        }
+    },
+    semaforos: function(sem) {
+        var svg = $('#svgbasics').svg('get');
+        for (var id in sem) {
+            /* Los topos de colores estan agrupados para separarlos del path que los rodea */
+            $('#SEM-'+id.replace(" ","_")+" g").each( function () {
+              if(sem[id]=="rojo") {
+                  this.parentNode.estado = 0;
+              } else {
+                  this.parentNode.estado = 1;
+              }
+
+              $('path',this).css('visibility','hidden');
+              $('path:nth-of-type('+(this.parentNode.estado+1)+')',this).css('visibility','visible');
+            })
+
+        }
+    },
+    luces: function(luz) {
+        var svg = $('#svgbasics').svg('get');
+        for (var id in luz) {
+            $('#'+id).each( function () {
+              if(!luz[id]) {
+                  this.estado = 0;
+                  $('path:first',this).hide();
+              } else {
+                  this.estado = 1;
+                  $('path:first',this).show();
+              }
+            })
+        }
+    },
+    trenes: function(lista_trenes) {
+        for (var id in lista_trenes) {
+            if(! (id in updater.cache_trenes)) {
+                updater.nuevo_tren(id, lista_trenes[id].clase);
+            }
+
+            updater.cache_trenes[id].selector_clase.val(lista_trenes[id].clase).selectmenu("refresh");
+            if(updater.cache_trenes[id].slider.attr("old")!=lista_trenes[id].velocidad) {
+                updater.cache_trenes[id].slider.val(lista_trenes[id].velocidad).attr("old",lista_trenes[id].velocidad).slider("refresh");
+            }
+            $( "#boton-tren"+id+" .velocidad").attr("transform","rotate("+lista_trenes[id].velocidad+")");
+            $( "#boton-tren"+id+" .v_ef").attr("transform","rotate("+lista_trenes[id].v_ef+")");
+            $( "#boton-tren"+id+" .clase" ).html(lista_trenes[id].clase);
+            $("#layer3 > g[idtren='"+id+"']").attr("estado", lista_trenes[id].estado);
+
+            $( "#control-tren"+id+" .clase" ).find(".opcion").removeClass("seleccionada");
+            $( "#control-tren"+id+" .clase" ).find("."+lista_trenes[id].clase).addClass("seleccionada");
+            $( "#control-tren"+id+" .sonidos ul li" ).hide();
+            $( "#control-tren"+id+" .sonidos ul" ).find(".gen,."+lista_trenes[id].clase).show();
+
+            $( "#control-tren"+id+" .quitado" ).css("display",lista_trenes[id].estado==5?"":"none");
+
+            var activas = $( "#control-tren"+id+" .estaciones .activas").empty();
+            if(lista_trenes[id].sta) {
+               lista_trenes[id].sta.forEach(function(e,i,a) {
+                var x = $( "#control-tren"+id+" .estaciones .todas").find('[name="'+e.nombre+'"]')
+                //console.log(x);
+                x.clone().addClass(e.sentido).attr("idsta",e.id).click(function () {
+                        $.get("/tren",{id: $(this).parents(".control").attr("idtren"), removeSta: $(this).attr("idsta"), sentido: e.sentido });
+                        //$(this).remove();
+                }).appendTo(activas[0]);
+               });
+            }
+
+            $( "#control-tren"+id+" .auto>.action" ).removeClass("active");
+            $( "#control-tren"+id+" .auto>." + (lista_trenes[id].auto?"auto":"man") ).addClass("active");
+        }
+        for (var id in updater.cache_trenes) {
+            if (!(id in lista_trenes)) {
+                updater.eliminar_tren(id);
+            }
+        }
+        //console.log(updater.cache_trenes)
+    },
+    nuevo_tren: function(id, clase) {
+                console.log("Nuevo tren id="+id+" clase="+clase);
+                var c = updater.buscar_clase_disponible();
+
+                $( "#templates > .control-tren" ).clone().attr("id","control-tren"+id).attr("idtren",id).addClass(c).appendTo("#controles-trenes");                
+                $( "#templates > .boton-tren" ).clone().attr("id","boton-tren"+id).addClass(c).appendTo("#botones-trenes").click(function() {
+                    $(".popup select.clase").selectmenu("destroy");
+                    $(".popup").removeClass("popup").appendTo("#controles-trenes").find(".clase").selectmenu();
+                    $("#control-tren"+id+" select.clase").selectmenu("destroy");
+                    var len = $("#control-tren"+id).addClass("popup").appendTo("#antipopup").length;
+                    if(len) {
+                       $(".popup .clase").selectmenu()
+                       $("#antipopup").addClass("show");
+                    }
+
+                });
+
+                var s = $( "#control-tren"+id+" .velocidad input" ).slider({
+                    stop: function( event, ui ) {
+                        if(this.value*$(this).attr("old") < 0) {
+                          $(this).val(0).slider("refresh");
+                        }
+                        $.get('/tren',{id: id, val: this.value});
+                        $(this).attr("old",this.value);
+                    }
+                }).attr("old",0);
+                $( "#control-tren"+id+" .id" ).html(id).click(function() {
+                    $(this.parentElement).find(".ocultable").toggle();
+                });
+                $( "#control-tren"+id+" .estaciones .todas .estacion .action").click( function() {
+                    var sentido = ($(this).hasClass("left")?"ccw":"cw");
+                    $.get("/tren",{id: id, addSta: $(this.parentElement).attr("name"), sentido: sentido });
+                });
+                $( "#control-tren"+id+" .invertir").click(function() {
+                    $.get("/tren",{id: id, invertir: true });
+                });
+                $( "#boton-tren"+id+" .id" ).html(id);
+                $( "#boton-tren"+id+" .clase" ).html(clase);
+                $( "#control-tren"+id+" .boton-cero" ).click(function() {
+                    $.get('/tren',{id: id, val: 0});
+                    s.val(0).attr("old",0).slider("refresh");
+                });
+                $( "#control-tren"+id+" .quitado" ).click(function() {
+                    $.get('/tren',{id: id, quitar: true});
+                });
+                var sc = $( "#control-tren"+id+" .clase" ).selectmenu().on("change",function () {
+                    $.get('/tren',{id: id, clase: this.value});
+                });
+                $( "#control-tren"+id+" .sonido").on("click", function() {
+                    $.get('/sonidos',{tren: id, sonido: $(this).attr("name")});
+                });
+                $( "#control-tren"+id+" .control_manual .action").on("click", function() {
+                    $.get('/tren',{id: id, manual: true, val: $(this).attr("v")});
+                });
+                $( "#control-tren"+id+" .auto>.auto" ).on("click", function() {
+                    $.get('/tren',{id: id, auto: true});
+                });
+                $( "#control-tren"+id+" .auto>.man" ).on("click", function() {
+                    $.get('/tren',{id: id, auto: false});
+                });
+
+                return updater.cache_trenes[id]={clase_css: c, slider: s, selector_clase: sc}
+    },
+    trenes_eliminados: function(lista_eliminados) {
+       console.log("Trenes eliminados: "+lista_eliminados);
+       for (e in lista_eliminados) {
+          updater.eliminar_tren(lista_eliminados[e]);
+       }
+    },
+    eliminar_tren: function(id) {
+          $( "#control-tren"+id ).remove();
+          $( "#boton-tren"+id ).remove();
+
+          delete updater.cache_trenes[id];
+    },
+    velocidades: function(velocidades_tramos) {
+       for (i in velocidades_tramos) {
+           var id = i;
+           var vel = velocidades_tramos[i];
+           $("#control-via-"+id+" .velocidad input").val(vel.F).slider("refresh"); // TODO: Reverse
+           if (vel.stop) {
+               $("#control-via-"+id).addClass("stop");
+               $("#"+id).addClass("stop"); // La via en el dibujo
+           } else {
+               $("#control-via-"+id).removeClass("stop");
+               $("#"+id).removeClass("stop"); // La via en el dibujo
+           }
+       }
+    },
+    clases_disponibles: [ "c1", "c2", "c3", "c4", "c5", "c6" ],
+    estados_colision_posibles: [ "", "posible", "inminente", "fin", "cerca_fin" ],
+    buscar_clase_disponible: function() {
+        var usadas = [];
+        for (var c in updater.cache_trenes) usadas[updater.cache_trenes[c].clase_css]=updater.cache_trenes[c].clase_css;
+        for (c in updater.clases_disponibles) {
+            if (! (updater.clases_disponibles[c] in usadas)) {
+                return updater.clases_disponibles[c];
+            }
+        }
+        return undefined;
+    },
+    chatMessage: function(id,message) {
+        var existing = $("#m" + id);
+        if (existing.length > 0) return;
+        var node = $(message.html || '<div class="message text" id="m'+ message.id+'">'+message.chat.body+'</div>');
+        node.hide();
+        $("#inbox").append(node);
+        node.slideDown();
+    },
+    datos_velocidad: function(datos) {
+        console.log(datos);
+        var c = updater.charts[datos.tren];
+        if(c) {
+            c.destroy();
+        } else {
+            $("<div></div>").attr("id","grafica-"+datos.tren).appendTo("#container-graficas");
+        }
+
+        var coeffs = datos.coeffs;
+        var regresion = [];
+        for(var x=1; x<=100; x++) {
+           y=0.0
+           for (var a in coeffs) {
+              //console.log("     "+coeffs[a]+" * "+x+" ^ "+a);
+              y += coeffs[a] * Math.pow(x, a);
+           }
+           regresion.push([x,y]);
+        }
+
+        updater.charts[datos.tren] = $.jqplot("grafica-"+datos.tren, [datos.data,regresion,[datos.last]], {
+           title: datos.clase+" - "+datos.tren,
+           series: [
+             { showLine: false, },
+             { markerOptions: { size: 0 }, },
+             { color: "red", },
+           ],
+           axes: {
+             xaxis: { min: 0, max: 100, tickInterval: 10 },
+           },
+        })
+    },
+    estaciones: function(datos) {
+        //console.log(datos);
+        for (var i in datos) {
+            var esta = datos[i];
+            if(esta.a) {
+                $("#"+i).show();
+            } else {
+                $("#"+i).hide();
+            }
+        }
+    },
+    parametros: function(datos) {
+       $( "#container-parametros" ).empty();
+       for(var seccion in datos) {
+          //console.log("Seccion: "+seccion);
+          //console.log(datos[seccion]);
+          $( "#templates > .seccion-parametros" ).clone().attr("id","seccion-parametros-"+seccion).appendTo("#container-parametros").find("fieldset>legend").html(seccion);
+          for(var nombre in datos[seccion]) {
+             updater.un_parametro(datos, seccion,nombre);
+          }
+       }
+    },
+    un_parametro: function(datos, seccion, nombre) {
+             var p = $( "#templates > .parametro" ).clone().attr("id","parametro-"+seccion+"-"+nombre).appendTo("#seccion-parametros-"+seccion+" fieldset");
+             p.find("label").attr("for",seccion+"/"+nombre).html(nombre);
+             if(datos[seccion][nombre].doc) { p.find(".doc").html(datos[seccion][nombre].doc) };
+             var input = p.find("input.activo");
+             var valor = datos[seccion][nombre].a || datos[seccion][nombre].d;
+             input.attr("name", seccion+"/"+nombre);
+             input.attr("value", valor);
+             var f = function(event, ui) {
+                $.get('/parametro',{seccion: seccion, nombre: nombre, val: this.value});
+             }
+             if(nombre.startsWith("VELOCIDAD") || nombre.startsWith("PORCENTAJE")) {
+                input.attr("min",0).attr("max",100);
+                input.slider({ stop: f });
+             } else {
+                input.change(f);
+             }
+             if(nombre.endsWith("_M")) {
+                input.attr("step","0.01");
+             }
+             if(datos[seccion][nombre].a && (datos[seccion][nombre].a != datos[seccion][nombre].d)) {
+                p.addClass("c1");
+             }
+             input = p.find("input.default")
+             input.attr("name", seccion+"/"+nombre);
+             input.attr("value", datos[seccion][nombre].d);
+             if(nombre.startsWith("VELOCIDAD") || nombre.startsWith("PORCENTAJE")) {
+                input.attr("min",0).attr("max",100).slider();
+             }
+    },
+    tiras: function(datos) {
+       $( "#container-tiras select" ).selectmenu("destroy");
+       $( "#container-tiras" ).empty();
+       for(var tira in datos) {
+          console.log("Tira: "+tira);
+          console.log(datos[tira]);
+          var set_visibility = function (val, fieldset) {
+                fieldset.find(".color").parent().hide();
+                if( val == "_color1" ) {
+                    fieldset.find(".color1").parent().show();
+                }
+                if( val == "_color2" ) {
+                    fieldset.find(".color").parent().show();
+                }
+          }
+          var t = $( "#templates > .tira" ).clone().attr("id","tira-"+tira).appendTo("#container-tiras");
+          t.find(".desc").html(datos[tira].desc);
+          t.find(".id").val(tira);
+          t.find(".color1").val(datos[tira].color1);
+          t.find(".color2").val(datos[tira].color2);
+          t.find(".imagen").val(datos[tira].imagen).selectmenu().on("change",function () {
+                var val = $(this).val();
+                var fieldset = $(this).parents("fieldset");
+                set_visibility(val, fieldset);
+                var id = $(this).parents("fieldset").find(".id").val();
+                var c1 = $(this).parents("fieldset").find(".color1").val();
+                var c2 = $(this).parents("fieldset").find(".color2").val();
+                $.get('/tira',{id: id, imagen: val, color1: c1, color2: c2 });
+          });
+          t.find(".color").minicolors({control: "brightness", inline:false, changeDelay: 2000, change: function (hex, opacity) {
+                var id = $(this).parents("fieldset").find(".id").val();
+                var imagen = $(this).parents("fieldset").find("select.imagen").val();
+                var c1 = $(this).parents("fieldset").find(".color1").val();
+                var c2 = $(this).parents("fieldset").find(".color2").val();
+                $.get('/tira',{id: id, imagen: imagen, color1: c1, color2: c2 });
+          } });
+          set_visibility(datos[tira].imagen, t.find("fieldset") );
+       }
+    },
+
+};
+
+//]]></script>
+
+</body>
+</html>

@@ -1,0 +1,433 @@
+
+- Soporte para que varias placas de desvios compartan el rojo y el verde
+    Permite usar la salida roja y la verde de una placa de desvíos con desvíos
+    cuyo común está conectado a otra placa
+
+- Soporte para estaciones
+    En un principio de establecer recorridos para los trenes, se permite
+    especificar en qué estaciones se quiere que pare cada tren.
+
+- Soporte para tramo en X
+    Un tramo en X tiene particularidades como el hecho de que tiene 2 entradas
+    y 2 salidas.
+
+- Posibilidad de que los desvios tengan posicion inicial girada
+    Al añadir el tramo en X a la maqueta, los circuitos "normales" pasan por
+    desvíos en posición "girada". Al encender el programa, esos desvíos
+    se colocan automáticamente en esa posición.
+
+- Al conectar tension, forzar los desvios
+    Para permitir acciones manuales mientras no hay tensión en la maqueta,
+    y conocer el estado real de los desvíos al volver a dar tensión, cada
+    desvío fuerza su posición (sin cambiar respecto al estado anterior a
+    quitar tensión.
+
+- Soporte para implicaciones en desvíos
+    Si poner un desvío en una determinada posición implica que otros desvíos
+    deban estar en otras posiciones, la misma acción girará todos los
+    desvíos necesarios automáticamente.
+
+4 de abril de 2016
+
+- Registro automático de objetos en la maqueta
+    Prerequisito para el refactoring, y permite una configuración más legible
+
+- Refactoring para que el tren_webserver.py sólo tenga:
+   - la configuración de la maqueta, de forma declarativa
+   - una línea "start()" para iniciar el proceso
+
+- Visualización de la velocidad efectiva del tren en el botón
+   La velocidad efectiva se visualiza como una línea más clara y un punto
+   blanco
+
+- Limitación del número de mensajes enviados al cliente
+   Se reduce a 1 mensaje de velocidades cada 5 iteraciones (150ms).
+   Se reduce a 1 mensaje de trenes cada 3 iteraciones (90ms).
+   Con esto, la informacion sigue siendo relevante y casi inmediata, pero
+   se reduce el tráfico, sobre todo en velocidades, que era excesivamente
+   ruidoso.
+
+- Locomotoras configurables junto con el resto de elementos de la maqueta
+   No es ideal, porque al comprar una nueva locomotora habría que cambiar la
+   configuración, pero de todos modos hay que medir la locomotora y guardar
+   los coeficientes en algún sitio.
+
+7 de abril de 2016
+
+- Soporte para luces "sueltas"
+   Las luces sueltas se utilizan para iluminación o decoración, y se alimentan
+   igual que las de un semáforo, desde la placa de desvíos.
+   Se añaden en una capa de luces en el dibujo.
+   Al quitar tensión de la maqueta, se apagan todas y se quedan apagadas
+   incluso al volver a dar tensión.
+
+8 de abril de 2016
+
+- Arreglos varios
+   - Al reducir la frecuencia de actualizacion de la interfaz se perdian los
+     eliminados
+   - Al parar los trenes se daba un toque a los desvios
+   - Con trenes en marcha, el paro de emergencia no los paraba
+
+9 de abril de 2016
+
+- Arreglos
+   - A veces no quitaba estaciones, porque cogía mal el ID del tren
+
+- Nueva medida de la locomotora de humo y luz
+   Es mucho más rápida que la otra
+
+- Reducción del número de mensajes que se almacenan
+   De 200 a 100, para acelerar la carga.
+
+- Código para poder invertir un tren (parado)
+   Permite indicar el sentido en el que está un tren cuando lo añades a la
+   maqueta
+
+- Tipo de tren bajo los botones
+   Facilita la interacción con los trenes
+
+- Aceleración más lenta
+
+15 de abril de 2016
+
+- Minimo de tension diferente para cada tren
+
+30 de abril de 2016
+
+- Indicador de tren parado en estación (encendido mientras el tren está parado)
+- Documentar las salidas a vias que corresponden a cada pin
+- Sistema de eventos
+  - Evento: EventoEstacion: EventoTrenParado, EventoTrenArrancando
+
+1 de mayo de 2016
+
+- Reorganizacion del test.html
+  - El updater solo se inicia cuando el SVG está cargado: evita presentación en
+    negro
+  - Permite escoger la ruta del SVG
+
+2 de mayo de 2016
+
+- Timeout máximo de 30s en el test.html
+- Si lleva mucho tiempo, recargar toda la página para pedir update completo
+- Tramo E7 en la parte trasera de la maqueta
+- Eventos de tren: EventoTren como clase padre de:
+   EventoAtributosModificados
+   EventoCambioVelocidad: EventoVelocidadCero
+   EventoCambioVelocidadEfectiva: EventoVelocidadEfectivaCero
+   EventoDesaparecido
+   EventoEncontrado
+   EventoMovido
+   EventoNuevo
+   EventoQuitado
+- Evento de cambio de desvios, semaforos y luces
+- Cambio de los ID de los chips a hexadecimal, para mejor legibilidad
+
+12 de mayo de 2016
+
+- Las gráficas de velocidad aparecen por tren, no por clase
+- Se introduce el concepto de parámetro ajustable por la interfaz
+- Expuestos los parámetros de comportamiento de los límites de velocidad
+
+13 de mayo de 2016
+
+- Cambio automático de semáforos en evento
+- Opción "si" además de la opción "cuando" en un SuscriptorEvento
+
+15 de mayo de 2016
+
+- Zonas
+
+17 de mayo de 2016
+
+- Añadido pympler para monitorización de memoria
+
+24 de mayo de 2016
+
+- Pruebas de sonido
+
+22 de julio de 2016
+
+- Mejoras de rendimiento:
+   - Pequeñas mejoras de rendimiento en chips_maqueta
+   - La velocidad programada pasa a ser el primer límite de
+     velocidad, así hay un límite menos que calcular.
+   - Nuevas funciones [decoradores] para monitorizar el rendimiento
+   - Mayor control de los tiempos de ejecución de varias funciones
+- Avances en funcionalidad existente:
+   - Avances en funcionalidad de sonido (sin probar a fondo)
+      - Biblioteca "wavefile"
+      - Principio de soporte para sonidos en la interfaz
+      - Un tren puede emitir un sonido
+      - El tren recibe los eventos de cambio de zona para ajustar sus altavoces
+   - Mejor soporte para configuraciones incompletas (tramo sin chip de vias)
+   - Ajuste de parámetros de velocidad (mínimo e inercia) sin cambiar tipo de tren
+   - Refactoring: Maqueta es un singleton. Facilita el acceso desde cualquier punto
+   - Eliminación de información de depuración excesiva en parametros
+- Nuevas características:
+   - Nueva configuración con puente
+   - Filtro para añadir inercia a una locomotora
+- Experimentos:
+   - Abandono de la implementación original de shortestpath
+      - Resultados no consistentes, errores frecuentes
+   - Búsqueda de rutas basada en Bellman Ford
+      - Resultados correctos
+      - Demasiado costosa en tiempo de CPU
+   - Búsqueda de rutas basada en Dijkstra
+      - Resultados correctos
+      - Rendimiento adecuado
+   - Modo manual (solo servidor, falta UI)
+   - Experimento: Posibilidad de reducir la tensión del tramo siguiente y anterior
+     durante el cambio de tramo, para evitar acelerones
+      - Causa frenada brusca
+   - Límite de velocidad como una proporción de la velocidad programada del tren
+      - Evita que aceleren demasiado en pendientes pronunciadas
+
+23 de julio de 2016
+
+- Circulación automática
+   - Reserva automática de desvios en circulación automática
+   - Liberación automática de desvios tras pasar por ellos
+   - Rotado de estaciones al parar en una
+
+- Cambios en UI
+   - Automático / manual
+   - Avance manual
+
+- ZonaRestringida
+   - control automático de desvios para la X, simplificando configuración
+- ColeccionTramos (Clase base para representar conjuntos de tramos que comparten algo)
+   - TramosConDeteccionCompartida
+      - Conjunto de tramos que comparten chip detector
+      - Permite reimplementar la X
+   - TramosConAlimentacionCompartida
+      - Conjunto de tramos que comparten chip de vias
+      - Permite reimplementar la X
+      - Permitirá implementar un puente giratorio
+
+24 de julio de 2016
+
+- Circulación automática
+   - Pesos variables
+
+26 de julio de 2016
+
+- Posibilidad de ejecutarse como servicio del sistema (arranque automático)
+   INSTALACION:
+
+   $ cp tren/start.sh tren/start_XXX.sh
+   $ nano tren/start_XXX.sh
+       Cambiar con_puente.py por el .py de arranque personalizado
+
+   $ sudo cp tren/tren.service /lib/systemd/system
+   $ sudo nano /lib/systemd/system/tren.service
+       Ajustar ruta, usuario y cambiar start.sh por start_XXX.sh
+
+   $ sudo systemctl enable tren
+
+   USO:
+   $ sudo service tren start
+   $ sudo service tren stop
+   $ sudo service tren restart
+   $ sudo service tren status
+
+28 de julio de 2016
+
+- Intentar corregir que no va hacia atras en manual en ciertas circunstancias
+- Al detectar colision inminente, liberar los desvios del tren con el que vamos a colisionar
+   - Sólo si estamos esperando alguno de los desvios que tenga reservados
+
+14 de agosto de 2016
+
+- Fader no cambia si la configuración final es la que ya tiene
+- Recolocación de las zonas de altavoces
+
+16 de agosto de 2016
+
+- Reserva de desvios ignora tramos menores que el margen de seguridad
+
+19 de agosto de 2016
+
+- Soporte para comandos de shell arbitrarios
+   Ej.: Shell(1, "Apagar", "sudo shutdown -h now")
+- Arranque sin poner tensión
+
+21 de agosto de 2016
+
+- Soporte para tiras de led controladas por un arduino
+  - Color fijo, degradado, o basado en imagen
+
+23 de agosto de 2016
+
+- Soporte para control de volumen (controlable como parámetro)
+  - sudo apt-get install python-alsaaudio
+
+24 de agosto de 2016
+
+- Reducción de ruido en los logs
+  - Eliminación de IDs de objeto en la mayoria de los casos
+
+27 de agosto de 2016
+
+- SonidoTren es un SuscriptorEvento
+   - Funciona con eventos que tengan un atributo tren
+   - Hace que el tren del atributo reproduzca un sonido determinado
+- Documentacion sobre paquetes necesarios para la ejecucion en fichero README
+- EventoTren tiene un atributo tren
+- Documentacion de que significa cada evento
+- Nuevos suscriptores de evento: EncenderLuz, ApagarLuz, CambiarLuz (con parametro)
+
+29 de agosto de 2016
+
+- Reducción del tamaño del botón de inversión del sentido en Safari (y cross-browser)
+- Textos facilitadores para la gestión de estaciones/rutas
+- Mostrar sólo los sonidos relevantes para cada clase de tren
+
+31 de agosto de 2016
+
+- Sensor de paso, como sistema de detección de cambio de tramo entre tramos con
+  detección (y alimentación) compartida.
+- test_trolebus
+- Modificaciones al driver de I2C para poder enviar strings como listas
+
+3 de septiembre de 2016
+
+- Gamma 2.8, ajustable, para las tiras LED
+
+4 de septiembre de 2016
+
+- Documentación de parámetros, incluso en la interfaz.
+- Mejoras de estilo en la interfaz avanzada (márgenes).
+- El PulsoDeLuz sólo actúa si la luz está apagada.
+
+5 de septiembre de 2016
+
+- El programa del arduino para la tira guarda la longitud en la EEPROM.
+- Cambia la forma de inicializar la longitud de la tira.
+- Número de pasos de la transición expuestos como parámetros.
+
+8 de septiembre de 2016
+
+- Tira permite dobleces
+- Documentación en tira.py
+
+20 de septiembre de 2016
+
+- Nuevo layout, con los botones a la derecha. (newlayout.html)
+- newlayout: Botones en forma de velocímetro, con doble aguja.
+- newlayout: El velocímetro indica el valor absoluto de la velocidad, sin signo.
+- newlayout: Click en el velocímetro ajusta la velocidad, sólo hacia adelante.
+- newlayout: Click por debajo de 0 o encima de 100 ajusta a 0 o 100 respectivamente.
+- newlayout: Mejoras de interacción: debería aparecer una mano en los puntos
+  que permiten acción aunque quizá no estén todos.
+
+21 de septiembre de 2016
+
+- newlayout: Botones de avance manual "continuo" --con repetición automática--.
+- newlayout: Click en el velocímetro también en Firefox
+- newlayout: Contraste en el topo central del velocímetro
+- newlayout: Puntero de apunte fino para el velocímetro
+
+3 de octubre de 2016
+
+- newlayout: Corregido mouseleave del control manual
+- newlayout: Nueva interfaz de opciones para cada tren
+- maqueta, newlayout: Paro progresivo
+- maqueta, evento: Soporte para opciones activables por tren
+- newlayout: Mejoras estéticas
+- newlayout: Responsive por encima de 600px. Por debajo no es realmente usable.
+
+22 de octubre de 2016
+
+- tira: Ambientes que evolucionan durante el dia.
+
+6 de noviembre de 2016
+
+- weather: Nueva implementación de control del tiempo atmosférico. Aun no funciona.
+- newlayout: Interfaz para weather.
+- tira: Soporte para relámpagos.
+- maqueta: Separación de acciones para simulación (aun no simula automáticamente).
+
+7 de noviembre de 2016
+
+- weather: Funcionalidad de control de la tira según el tiempo. Faltan relámpagos.
+- weather: Audio asociado al tiempo (lluvia, tormenta). Faltan truenos.
+- El sonido presenta cortes al activar la lluvia, o al combinar varias fuentes.
+
+8 de noviembre de 2016
+
+- Migración a Python 3. Cambios por todos lados.
+- audio_maqueta: Separación de funcionalidades.
+- audio_maqueta: Nueva implementación basada en sounddevice, reduce cortes de sonido.
+  - El sonido ahora no se corta con 5-6 fuentes simultáneas.
+- Antonio_I2C: Migración de smbus a Adafruit_PureIO.
+
+20 de noviembre de 2016
+
+- maqueta: Soporte para simulación de circulación de trenes sin maqueta.
+- newlayout: Visualización basada en la posición del tren y no sólo en detección.
+
+6 de diciembre de 2016
+
+- maqueta: Mejoras de circulación de trenes, evitando colision frontal.
+
+9 de diciembre de 2016
+
+- maqueta: Cambios en la reserva de desvios para mejorar el comportamiento de la X.
+- newlayout: Identificadores de desvíos y de vías en el dibujo.
+
+13 de diciembre de 2016
+
+- newlayout: Barra indicadora del tiempo de proceso en cliente, en el cuadro de
+  indicador de error.
+
+25 de diciembre de 2016
+
+- Mejora en el amanecer/atardecer.
+- Estilos para eventos de parado o arranque en estación.
+
+26 de diciembre de 2016
+
+- Separar colision frontal del resto de colisiones, para permitir que detecte
+  colisión inminente cuando está en colisión frontal.
+
+30 de diciembre de 2016
+
+- Nuevos coeficientes maquina Kato
+- newlayout: mejora de rendimiento al no actualizar trenes que no han cambiado.
+
+1 de enero de 2017
+
+- newlayout: mejora de rendimiento al no actualizar estaciones u opciones de trenes
+  para los que no han cambiado.
+- Día "blanco" para que se pueda iluminar la tira completamente desde la interfaz.
+
+2 de enero de 2017
+
+- maqueta: Asociación de estaciones.
+- maqueta: Dejar de reclamar desvíos (porque reclamaba al tren de delante).
+- dijkstra: Usar el peso del tramo de origen, pasando el de destino como parámetro.
+
+5 de enero de 2017
+
+- Megafonía en las estaciones.
+
+6 de enero de 2017
+
+- Megafonía "internacionalizada" (soporta acentos)
+- Transición suave entre canales
+
+8 de enero de 2017
+
+- maqueta: Soporte para restauración de velocidades después de "pausa".
+- newlayout: Boton de "pausa" y de restauración de velocidades ("play"). Botón "Stop"
+  para borrar las velocidades guardadas.
+- Nuevas imágenes para los días nublado y tormentoso, de día completo.
+- Encendido y apagado automático de las luces según la luz ambiente.
+
+21 de enero de 2017
+
+- con_puente: Nueva medición de la locomotora de vapor.
+- Día soleado menos azul, menos saturado y un poco menos brillante.
+

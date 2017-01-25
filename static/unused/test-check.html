@@ -1,0 +1,436 @@
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<!--<link rel="stylesheet" href="css/jquery-ui.css">-->
+<link rel="stylesheet" href="css/jquery.mobile-1.4.5.min.css" />
+
+<script type="text/javascript" src="js/jquery.min.js"></script>
+<!--<script type="text/javascript" src="js/jquery-ui.min.js"></script>-->
+<script type="text/javascript" src="js/jquery.mobile-1.4.5.min.js"></script>
+
+<script type="text/javascript" src="js/jquery.svg.js"></script>
+<script type="text/javascript" src="js/jquery.svgdom.js"></script>
+<script type="text/javascript" src="js/svg.js"></script>
+<script type="text/javascript" src="js/jquery.jqplot.min.js"></script>
+<script type="text/javascript" src="js/jquery.minicolors.min.js"></script>
+
+<link rel="stylesheet" href="css/jquery.minicolors.css">
+
+<style type="text/css">
+/* Vias sin tren son semitransparentes y negras */
+[tren=none] {
+  opacity: 0.3;
+}
+#layer3 > g {
+  stroke: black;
+}
+
+/* Los trazos de las vias se colorean segun el tema */
+.c1 .coloreado, g.c1 *, .c1 .invertir { stroke: #a00; fill: #a00; }
+.c2 .coloreado, g.c2 *, .c2 .invertir { stroke: #00a; fill: #00a; }
+.c3 .coloreado, g.c3 *, .c3 .invertir { stroke: #0a0; fill: #0a0; }
+.c4 .coloreado, g.c4 *, .c4 .invertir { stroke: #aa0; fill: #aa0; }
+.c5 .coloreado, g.c5 *, .c5 .invertir { stroke: #a0a; fill: #a0a; }
+.c6 .coloreado, g.c6 *, .c6 .invertir { stroke: #0aa; fill: #0aa; }
+/* Quitar tension provoca trazo discontinuo */
+.stop path { stroke-dasharray: 10,10; }
+
+/* Los controles tambien tienen color */
+.control-tren .ui-slider-handle { background-image: none; }
+.ajustado .ui-slider-handle,
+.c1 .ui-slider-handle { background-color: #a00; }
+.c2 .ui-slider-handle { background-color: #00a; }
+.c3 .ui-slider-handle { background-color: #0a0; }
+.c4 .ui-slider-handle { background-color: #aa0; }
+.c5 .ui-slider-handle { background-color: #a0a; }
+.c6 .ui-slider-handle { background-color: #0aa; }
+.ajustado input, .ajustado .coloreado, 
+.c1 input, .c1 .coloreado { color: #a00; }
+.c2 input, .c2 .coloreado { color: #00a; }
+.c3 input, .c3 .coloreado { color: #0a0; }
+.c4 input, .c4 .coloreado { color: #aa0; }
+.c5 input, .c5 .coloreado { color: #a0a; }
+.c6 input, .c6 .coloreado { color: #0aa; }
+
+/* Los agarres son visibles solo cuando hay tren */
+[tren="none"] .circuloyflecha {
+  display:none;
+}
+#layer3 > g .circuloyflecha {
+  opacity: 0.3;
+}
+
+/* Avisos de que el estado del tren no es el adecuado */
+#layer3 > g .accesorios polygon {
+  display: none;
+}
+#layer3 > g[estado="1"] .accesorios polygon {
+  display:initial;
+  fill:yellow;
+}
+#layer3 > g[estado="2"] .accesorios polygon {
+  display:initial;
+  fill:red;
+}
+#layer3 > g[estado="3"] .accesorios polygon {
+  display:initial;
+  fill:red;
+}
+#layer3 > g[estado="4"] .accesorios polygon {
+  display:initial;
+  fill:yellow;
+}
+#layer3 > g[estado="5"] .accesorios polygon {
+  display:initial;
+  fill:red;
+  stroke:yellow;
+  stroke-width: 2;
+  transform: scale(2);
+}
+#layer3 > g[estado="5"] .circuloyflecha {
+  stroke: red;
+  fill: red;
+  opacity: 1;
+}
+#layer3 > g[invertido="true"] .circuloyflecha {
+  transform: rotate(180deg);
+}
+
+.id {
+  display:inline-block;
+  text-align: center;
+  width: 2.5em;
+}
+.control-tren .id {
+  background-image: url('estaciones.svg');
+  background-position: center bottom;
+  background-repeat: no-repeat;
+  height: 2em;
+}
+.velocidad {
+  width: 20em;
+  margin-left: 0.1em;
+  margin-right: 0.5em;
+}
+.quitado {
+  width: 2em;
+  background: yellow;
+  border: 0.2em solid red;
+}
+.izquierda,
+.derecha {
+  min-width: 27em;
+  max-width: 35em;
+  border: 1px solid #888;
+  display: inline-block;
+  vertical-align: top;
+}
+.control {
+  margin-left: 1em;
+  margin-right: 1em;
+}
+.control > form > * {
+  vertical-align: middle;
+  display: inline-block;
+}
+.control-via.stop {
+  background-color: #ffa;
+}
+form {
+  margin-bottom: 0;
+}
+input[type="number"] {
+  text-align: right;
+}
+input[type="number"].ui-slider-input {
+  width: 3em;
+}
+.ui-slider-track {
+  margin-left: 4em;
+}
+#content {
+  position:relative;
+}
+#processing {
+  position:absolute;
+  top:0;
+  right:0;
+  width: 20px;
+  height: 20px;
+  border: 1px solid #888;
+}
+#antipopup {
+    /*
+    display: none;
+    position: fixed;
+    top: 34%;
+    width: 100%;
+    text-align: center;
+    background-color: rgba(0, 0, 0, 0.5);
+    */
+
+    background-color: rgba(0, 0, 0, 0.1);
+
+    margin-right: 170px;
+    height: 106px;
+}
+/*
+#antipopup.show {
+    display: block;
+}
+*/
+.popup {
+   display:inline-block;
+   /*
+   width: 50%;
+   max-width: 35em;
+   min-width: 23em;
+   */
+   text-align: center;
+   /*
+   background-color: rgba(255,255,255,0.5);
+   border: 5px solid white;
+   */
+}
+/* Ocultar velocimetro, mostrar controles iniciales, para tren nuevo */
+.boton-tren.nuevo .setup { display: block; }
+.boton-tren.nuevo .velocimetro { display: none; }
+.setup {
+   width: 125px;
+   height: 120px;
+   text-align: left;
+   display: none;
+}
+.setup .invertir, .setup .control_manual, .setup .volver {
+   text-align: center;
+   display: inline-block;
+   vertical-align: top;
+}
+.setup .volver {
+   float:right;
+}
+.setup .id {
+   margin-bottom: -7px;
+}
+#parametros fieldset, #tiras fieldset {
+   border-width: 1px;
+   border-color: rgba(255,255,255,0.5);
+   margin-left: 0.5em;
+   margin-right: 0.5em;
+   margin-bottom: 0.5em;
+   padding-bottom: 0.5em;
+   padding-top: 0.5em;
+}
+legend {
+   font-size: x-large;
+   padding-left: 0.5em;
+   margin-left: 0.5em;
+   padding-right: 0.5em;
+}
+.parametro {
+   margin: 0.5em;
+   margin-top: 1em;
+}
+.parametro label {
+   margin-bottom: 0;
+}
+.parametro .doc {
+   margin-top: 0;
+   padding-left: 2em;
+   padding-right: 2em;
+   font-size: smaller;
+}
+.ui-state-disabled {
+    opacity: 0.5;
+}
+.ui-state-disabled div.ui-slider {
+    height: 12px;
+}
+
+.ui-slider-track.ui-state-disabled {
+    height: 1px;
+}
+.ui-state-disabled .ui-slider-track .ui-btn.ui-slider-handle {
+    height: 10px;
+    margin-top: -7px
+}
+.ui-state-disabled input {
+    min-height: initial;
+    padding-top: 0;
+}
+/*
+#master-controls {
+  position:absolute;
+  bottom:0;
+  right:0;
+  background-color: rgba(255,255,255,0.5);
+  padding: 0.5em;
+}
+*/
+
+#container {
+    margin-right: -150px;
+    float:left;
+    width:100%;
+    height:100%;
+}
+#svgbasics {
+    margin-right: 170px; /* 20px added for center margin */
+}
+#master-controls {
+    width:150px;
+    float:left;
+}
+
+#feedly-mini-banner {
+  display: none;
+}
+.boton-tren {
+  display:inline-block;
+  position:relative;
+  margin-right: 0.5em;
+}
+/*
+.boton-tren .id {
+    position: absolute;
+    top: 0;
+    color: white;
+    text-align: center;
+    display: block;
+    padding-top: 8px;
+}
+.boton-tren .clase {
+    width: 2.5em;
+    overflow: hidden;
+}
+*/
+.grafica {
+    width: 27em;
+}
+.estaciones h4 {
+    /* border-top: 1px solid white; */
+    padding-top: 0.5em;
+    margin: 0;
+    font-weight: normal;
+}
+.estaciones .activas,
+.estaciones .todas {
+    min-height: 4.5em;
+    padding-bottom: 0.4em;
+}
+.estacion {
+    display: inline-block;
+    width: 6em;
+    height: 4em;
+    border: 1px solid #555;
+    position: relative;
+    background-position: center;
+}
+.estacion .action {
+    position: absolute;
+    width: 50%;
+    height: 4em;
+    bottom: 0;
+}
+.invertir {
+}
+.activas .estacion {
+    width: 4em;
+}
+.todas .estacion .action.left {
+    left: 0;
+    background: url('ccw-512px-c.svg') bottom left no-repeat;
+    background-size: 2em;
+}
+.todas .estacion .action.right {
+    right: 0;
+    background: url('cw-512px-c.svg') bottom right no-repeat;
+    background-size: 2em;
+}
+.activas .estacion .action.right {
+    right: 0;
+    background: url('menos.svg') bottom right no-repeat;
+    background-size: 2em;
+}
+.activas .estacion.cw .action.left {
+    background: url('cw-512px.svg') bottom left no-repeat;
+    background-size: 2em;
+}
+.activas .estacion.ccw .action.left {
+    background: url('ccw-512px.svg') bottom left no-repeat;
+    background-size: 2em;
+}
+.control_manual {
+  background: url('mano.svg') center no-repeat;
+}
+.control_manual .action {
+    width:30px; height:30px;
+    display: inline-block;
+    font-size: 20px;
+}
+.control_manual .action.f {
+  cursor: e-resize;
+}
+.control_manual .action.r {
+  cursor: w-resize;
+}
+.auto .action {
+    margin-bottom:1ex;
+}
+.auto .action.active {
+    border: 1px solid black;
+    border-radius: 1em;
+}
+.alinear_vertical>* {
+    margin-bottom:1ex;
+}
+.estacion.st1 { background-image: url('estacion1-128.jpg'); }
+.estacion.st2 { background-image: url('estacion2-128.jpg'); }
+
+.sonidos ul {
+    background: url('volume-24.svg') no-repeat top center;
+    padding-left: 0;
+    padding-top: 24;
+    list-style-type: none;
+}
+input.color {
+    min-height: 2em;
+}
+/* Acciones, desvios, semaforos, luces, vias con tren */
+.action, #layer1, #layer5, #layer8, #layer3>g[estado] {
+    cursor: pointer;
+}
+g.velocidad-input {
+    cursor: crosshair;
+}
+.opciones {
+    position: relative;
+}
+.opciones-tren {
+    position: absolute;
+    left: -50px;
+    width: 500px;
+    padding-top: 20px;
+    background: url(popup.svg);
+}
+</style>
+</head>
+<body>
+  <div style="">
+   <form>
+    <div class="opciones-tren">
+       <label for="a">AAAAAAAAAAAAAAAAA</label>
+       <input type="checkbox" name="a" id="a" data-role="none">
+       <label for="z z">ZZZZZZZZZZZZZZZZzz</label>
+       <input type="checkbox" name="z z" id="z z" data-role="none">
+    </div>
+  </div>
+ </form>
+<script>//<![CDATA[
+$(function() {
+  $("input").checkboxradio();
+});
+//]]></script>
+
+</body>
+</html>
