@@ -431,3 +431,13 @@
 - con_puente: Nueva medición de la locomotora de vapor.
 - Día soleado menos azul, menos saturado y un poco menos brillante.
 
+29 de enero de 2017
+
+- con_puente: Nuevas locomotoras.
+- maqueta: evitar que un "parpadeo" en el tramo anterior pare el tren
+  que está en el siguiente.
+
+4 de febrero de 2017
+
+- maqueta: eliminar restos de algoritmo bellman_ford
+

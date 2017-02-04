@@ -1358,7 +1358,7 @@ class Tren(Id, object):
             print("Tren "+str(self.id)+" =====> ANTERIOR")
             anterior.poner_velocidad(velocidad_anterior, minimo=self.datos_velocidad.minimo)
         ######
-        if siguiente and self.estado_colision not in ( Tren.COLISION_INMINENTE, Tren.DESAPARECIDO ):
+        if siguiente and (self.estado_colision not in ( Tren.COLISION_INMINENTE, Tren.DESAPARECIDO )) and (siguiente.tren==self or not siguiente.tren):
             print("Tren "+str(self.id)+" =====> SIGUIENTE")
             siguiente.poner_velocidad(velocidad_siguiente, minimo=self.datos_velocidad.minimo)
 
@@ -2452,8 +2452,8 @@ class Maqueta:
            except:
                print("ERROR validando nodo "+str(n))
                raise
-        from bellman_ford import Graph
-        self.bf_graph = Graph()
+        #from bellman_ford import Graph
+        #self.bf_graph = Graph()
         self.graph = {}
         for n in Nodo.nodos:
             destinos = {}
@@ -2462,7 +2462,7 @@ class Maqueta:
                 try: dist = d.longitud
                 except: pass
                 destinos[d] = dist
-                self.bf_graph.add_edge(n,d,dist)
+                #self.bf_graph.add_edge(n,d,dist)
             #destinos[n.inv] = 999999
             self.graph[n] = destinos
         print("==========================================")
@@ -2470,7 +2470,7 @@ class Maqueta:
             if isinstance(e,Estacion):
                 self.graph[e.tramo][e] = 0
                 self.graph[e] = {}
-                self.bf_graph.add_edge(e.tramo,e,0)
+                #self.bf_graph.add_edge(e.tramo,e,0)
                 print(e)
 
         for e in Maqueta.estaciones.values():
@@ -2478,7 +2478,7 @@ class Maqueta:
                 for x in e.estaciones:
                     self.graph[x][e] = 0
                     self.graph[e] = {}
-                    self.bf_graph.add_edge(e,x,0)
+                    #self.bf_graph.add_edge(e,x,0)
                 print(e)
         print("==========================================")
 
