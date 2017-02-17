@@ -191,7 +191,7 @@ if __name__ == "__main__":
 
 
     # Listado de estaciones
-    #Estacion(nombre,sentido,tramo,%),
+    #Estacion(nombre,sentido,tramo,%,desc=descripcion).controlar_tramo_previo(velocidad_de_traspaso_entre_tramos)
     Estacion("st1","cw", Maqueta.tramos["S1"],20, desc="Salóu centro").controlar_tramo_previo(15)
     Estacion("st1","ccw",Maqueta.tramos["I6"].inv,63, desc="Salóu centro")
 
@@ -201,6 +201,7 @@ if __name__ == "__main__":
     Estacion("st2","cw", Maqueta.tramos["I2"],65, desc="Centro")
     Estacion("st2","ccw",Maqueta.tramos["I2"].inv,70, desc="Centro")
 
+    #AsociacionEstaciones(nombre, sentido, [ __estaciones__ ], desc=descripcion)
     AsociacionEstaciones("detras", "cw", [
         Estacion("st3", "cw", Maqueta.tramos["E3"], 80),
         Estacion("st3e", "cw", Maqueta.tramos["E7"], 80),
@@ -209,6 +210,7 @@ if __name__ == "__main__":
         Estacion("st3", "ccw", Maqueta.tramos["E3"].inv, 80),
         Estacion("st3e", "ccw", Maqueta.tramos["E7"].inv, 80),
     ], desc="Lejos")
+
 
     # Listado de zonas
     Zona("Tunel1").incluye(tramos["E2"],desde=0,hasta=85).incluye(tramos["I1"],desde=42,hasta=73)
@@ -362,16 +364,17 @@ if __name__ == "__main__":
             desvios[17]:  ChipDesvios.BL_NARANJA_D2,
     }, chip_rv=chip1)
 
-    #Locomotora(id="vapor", desc="Vapor", coeffs=[0.030598368520900296, 0.006112721300524377, -3.525936355581414e-05], minimo=1400, muestras_inercia=2)
     Locomotora(id="vapor", desc="Vapor", coeffs=[0.11798049502618266, 0.00304658416577914, -1.228381595259825e-05], minimo=1400, muestras_inercia=2)
     Locomotora(id="humo", desc="Humo y luz", coeffs=[0.04602868437873745, 0.0044200608178752016, -1.932449180697901e-05], minimo=1400, muestras_inercia=2)
-    Locomotora(id="diesel", desc="Diesel", coeffs=[0.07409022857194827, 0.006888871942219088, -4.105773701684626e-05], minimo=550)
+    Locomotora(id="alco1800", desc="Alco 1800 (Diesel)", coeffs=[0.07409022857194827, 0.006888871942219088, -4.105773701684626e-05], minimo=550)
     Locomotora(id="talgo", desc="Talgo", coeffs=[0.0705067098, 0.0085391554, -4.4265621878004e-5  ], minimo=1000, muestras_inercia=10)
-    #Locomotora(id="comsa", desc="Comsa", coeffs=[0.04874525776472234, 0.003503784264754981, -1.2409169341061733e-05], minimo=1600)
     Locomotora(id="comsa", desc="Comsa", coeffs=[0.12077762631211575, 0.003107459392643413, -1.0492061779321495e-05], minimo=1600, muestras_inercia=50)
-    #Locomotora(id="kato", desc="Kato", coeffs=[0.014728121603821684, 0.00950585248797686, -5.4883927682274284e-05], minimo=380, muestras_inercia=10)
-    Locomotora(id="kato", desc="Kato", coeffs=[0.01958548268810128, 0.00478287434306379, -2.5501116465710806e-05], minimo=780, muestras_inercia=10)
+    Locomotora(id="ef-55", desc="EF-55 (Kato)", coeffs=[0.01958548268810128, 0.00478287434306379, -2.5501116465710806e-05], minimo=780, muestras_inercia=10)
     Locomotora(id="cercanias", desc="Cercanías", coeffs=[0.031261934662692115, 0.006996998827739664, -3.528356235287542e-05], minimo=550, muestras_inercia=20)
+    Locomotora(id="c61-006", desc="SNCF C61-006", coeffs=[0.061291493686289084, 0.005144162475490486, -3.1719614648088305e-05], minimo=1060, muestras_inercia=2) # 3N
+    #Locomotora(id="v200", desc="V200", coeffs=[0.03322775970273929, 0.008429926457401718, -4.129186032447935e-05], minimo=1545, muestras_inercia=2) # 3N Helena
+    Locomotora(id="v200", desc="V200", coeffs=[-0.017070525390169747, 0.011210285639240654, -6.292727347601206e-05], minimo=1000, muestras_inercia=10) # 3N Helena
+    Locomotora(id="2100", desc="2100", coeffs=[0.07240401047268205, 0.0055405416238591115, -3.1329731145268906e-05], minimo=1862, muestras_inercia=2) # 3N
 
     cond1 = lambda evento: Maqueta().desvios[11].estado==Desvio.VERDE and Maqueta().desvios[12].estado==Desvio.VERDE
     cond2 = lambda evento: Maqueta().desvios[11].estado==Desvio.VERDE and Maqueta().desvios[12].estado==Desvio.ROJO
