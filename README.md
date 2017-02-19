@@ -1,7 +1,8 @@
 # tren
 Sistema de control automático de maqueta de tren
 
-# Descripción
+
+## Descripción
 
 Este proyecto es el resultado del desarrollo de un sistema avanzado de control para una maqueta de tren completamente analógica.
 
@@ -22,7 +23,7 @@ El proyecto ha tenido como frutos:
 - Sistema de sonidos que "sigue" al tren (altavoces por zonas) y funcionalidad de texto-a-voz en las estaciones.
 
 
-# Hardware
+## Hardware
 
 El controlador principal del sistema es una Raspberry Pi 2 (o superior) ejecutando un sistema operativo Linux y Python 3.
 
@@ -31,20 +32,20 @@ Dicho controlador principal se comunica con las diferentes placas desarrolladas 
 Es posible utilizar varias placas de cada tipo (en algunos casos hasta un máximo de 8), lo que permite controlar maquetas de complejidad significativa.
 
 
-# Instalación del Software
+## Instalación del Software
 
 Cómo instalar los paquetes de sistema operativo necesarios para la ejecución en python 3:
-'''
+```
 sudo apt-get install python3-pip libasound2-dev libffi-dev python3-dev python3-numpy python3-pyaudio python3-tornado python3-pil
-'''
+```
 
 Para el módulo de text-to-speech de los mensajes de las estaciones:
-'''
+```
 sudo apt-get install libttspico-utils sox
-'''
+```
 
 Y además hay que instalar módulos directamente en Python3 (que no están disponibles en versiones adecuadas como paquetes de la distribución):
-'''
+```
 python3 -m pip install pyalsaaudio cffi sounddevice numpy Adafruit_PureIO --user
-'''
+```
 
