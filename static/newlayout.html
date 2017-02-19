@@ -1126,12 +1126,13 @@ $.fn.checked = function(value) {
 jQuery.fn.boton_repite = function(func, t) {
   var intervalId;
   this.on("mousedown touchstart",function(evt) {
-    if(evt.button != 0) { return false; }
+    if(evt.button != undefined && evt.button != 0) { return false; }
     // https://developer.mozilla.org/en/docs/Web/JavaScript/Reference/Operators/this
     // Todo este jaleo para que "this" en la función sea el propio elemento
     var xxx = this;
     xxx.func=func;
     $(this).addClass("pulsado");
+    if(intervalId) clearInterval(intervalId);
     intervalId = setInterval(function() { xxx.func(); }, t);
     xxx.func(); // Llamada una primera vez para que el efecto sea inmediato.
     return false;
@@ -1489,6 +1490,26 @@ var updater = {
                 }).on("click", "g.velocidad-input", function(evt) {
                     var r = $(".esfera", this).attr("r");
                     var elementOffset=$(this).offset();
+if(1==1) { // Hack para corregir la posición cuando hay zoom en dispositivo movil (quiza haya que poner una condicion para detectar Webkit)
+// https://github.com/jquery/jquery/issues/3187
+var offset = elementOffset;
+//get document element width without scrollbar
+var prevStyle = document.body.style.overflow || "";
+document.body.style.overflow = "hidden";
+var docWidth = document.documentElement.clientWidth;
+document.body.style.overflow = prevStyle;
+
+if(docWidth / window.innerWidth !== 1) { //kind of a hack to determine if the viewport has been scaled
+    var docRect = document.documentElement.getBoundingClientRect();
+    offset = {
+        top: offset.top - window.pageYOffset - docRect.top,
+        left: offset.left - window.pageXOffset - docRect.left
+    };
+    console.log("elementOffset=",elementOffset);
+    console.log("offset=",offset);
+    elementOffset = offset;
+}
+}
                     //console.log([evt.pageX-elementOffset.left-r, r-(evt.pageY-elementOffset.top)]);
                     var angulo = Math.atan2(evt.pageX-elementOffset.left-r, r-(evt.pageY-elementOffset.top));
                     var v = Math.floor((angulo * 200 / 3 / Math.PI)+50);
