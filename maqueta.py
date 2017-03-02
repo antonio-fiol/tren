@@ -566,15 +566,19 @@ class Tramo(Nodo):
                 tr.desaparecido(False)
             else:
                 # Hay un tren en este tramo. Ver si viene de algun tramo anterior
-                tren_encontrado = self.buscar_tren_en_tramo_anterior()
+                tren_encontrado, tramo_encontrado = self.buscar_tren_en_tramo_anterior()
                 if(tren_encontrado):
                     if Tramo.debug:
                         print("... encontrado tren " + str(tren_encontrado))
                     ret = tren_encontrado.tramo
-                    self.tren = tren_encontrado.mover(self)
-                    print("Movido tren " + str(self.tren) + " a " + str(self))
+                    self.tren = tren_encontrado
+                    if tren_encontrado.tramo == tramo_encontrado:
+                        tren_encontrado.mover(self)
+                        print("Movido tren " + str(self.tren) + " a " + str(self))
+                    else:
+                        print("Movido tren (no movida cabecera) " + str(self.tren) + " a " + str(self))
                 else:
-                    tren_encontrado_en_inv = self.inv.buscar_tren_en_tramo_anterior()
+                    tren_encontrado_en_inv, tramo_encontrado = self.inv.buscar_tren_en_tramo_anterior()
                     if tren_encontrado_en_inv:
                         ret = self.inv.tiene_tren(t)
                     else:
@@ -627,7 +631,7 @@ class Tramo(Nodo):
             if(tramo.tren):
                 if Tramo.debug:
                     print("Encontrado tren " + str(tramo.tren))
-                return tramo.tren
+                return tramo.tren, tramo
             desvio = tramo.desvio
             if(desvio):
                 encontrado = None
@@ -636,22 +640,22 @@ class Tramo(Nodo):
                 if(desvio.centro == tramo):
                     if Tramo.debug:
                         print("y es el centro")
-                    encontrado = desvio.tramo_activo().buscar_tren_en_tramo_anterior(signo_velocidad)
+                    encontrado, t_e = desvio.tramo_activo().buscar_tren_en_tramo_anterior(signo_velocidad)
                 if(desvio.centro.inv == tramo):
                     if Tramo.debug:
                         print("y es el centro invertido")
-                    encontrado = desvio.tramo_activo().inv.buscar_tren_en_tramo_anterior(signo_velocidad)
+                    encontrado, t_e = desvio.tramo_activo().inv.buscar_tren_en_tramo_anterior(signo_velocidad)
                 if(desvio.tramo_activo() == tramo):
                     if Tramo.debug:
                         print("y es el tramo activo (r/v)")
-                    encontrado =  desvio.centro.buscar_tren_en_tramo_anterior(signo_velocidad)
+                    encontrado, t_e =  desvio.centro.buscar_tren_en_tramo_anterior(signo_velocidad)
                 if desvio.tramo_activo().inv == tramo:
                     if Tramo.debug:
                         print("y es el tramo activo (r/v) invertido")
-                    encontrado = desvio.centro.inv.buscar_tren_en_tramo_anterior(signo_velocidad)
+                    encontrado, t_e = desvio.centro.inv.buscar_tren_en_tramo_anterior(signo_velocidad)
                 if encontrado:
-                    return encontrado
-        return None
+                    return encontrado, t_e
+        return None, None
 
     def nodos_siguientes(self, signo_velocidad):
         if signo_velocidad > 0:
@@ -805,7 +809,7 @@ class TramosConDeteccionCompartida(ColeccionTramos):
         return next(((tramo.tren, tramo) for tramo in self.tramos if tramo.tren), (None,None))
 
     def buscar_tren_en_tramos_anteriores(self):
-        return next( ( (tren, tramo) for tren, tramo in ((tramo.buscar_tren_en_tramo_anterior(), tramo) for tramo in self.tramos) if tren), (None,None) )
+        return next( ( (tren, tramo) for (tren,tramo_encontrado), tramo in ((tramo.buscar_tren_en_tramo_anterior(), tramo) for tramo in self.tramos) if tren), (None,None) )
 
 class SensorDePaso(TramosConDeteccionCompartida):
     """ Idea alternativa para tramos que no se pueden cortar, usando un sensor de paso. """
@@ -2426,6 +2430,7 @@ class Maqueta:
                 if tren.espacio_recorrido_en_tramo >= tren.tramo.longitud:
                     t0 = tren.tramo
                     t1 = t0.tramo_siguiente()
+                    print("modo_dummy: Tren "+str(tren)+" en tramo "+str(t0)+" saltando a "+str(t1))
                     t1.tiene_tren(True)
                     t0.tiene_tren(False)
 

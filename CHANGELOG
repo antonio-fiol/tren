@@ -446,3 +446,8 @@
 - con_puente: Mediciones de nuevas locomotoras; Documentación
 - newlayout: eventos touch*
 
+1 de marzo de 2017
+
+- maqueta: Evitar que se mueva un tren cuando lo que cambia de posición es el vagón
+  de cola. Fix #1
+
