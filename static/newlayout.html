@@ -1271,7 +1271,10 @@ var updater = {
                 if(!tren) {
                     tren = updater.nuevo_tren(tramos[t].id,tramos[t].clase);
                 }
-                $('#'+t).attr("tren",tramos[t].clase).attr("idtren",tramos[t].id).attr("estado", tramos[t].estado).attr("invertido",tramos[t].inv).addClass(tren.clase_css).find("text.idTren").html(tramos[t].id);
+                var temp = $('#'+t).addClass(tren.clase_css).attr("tren",tramos[t].clase);
+                if(tramos[t].tramo.split(" ")[0] == t) {
+                    temp.attr("idtren",tramos[t].id).attr("estado", tramos[t].estado).attr("invertido",tramos[t].inv).find("text.idTren").html(tramos[t].id);
+                }
             } else {
                 for (i in updater.clases_disponibles) {
                   $('#'+t).attr("tren","none").removeAttr("idtren").removeAttr("estado").removeAttr("invertido").removeClass(updater.clases_disponibles[i]).find("text.idTren").html("");

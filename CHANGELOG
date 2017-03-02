@@ -450,4 +450,6 @@
 
 - maqueta: Evitar que se mueva un tren cuando lo que cambia de posición es el vagón
   de cola. Fix #1
+- newlayout: Alinear la visualización de la detección con la visualización de trenes
+  (evitar que salga el indicador del tren en todos los tramos). Fix #2
 
