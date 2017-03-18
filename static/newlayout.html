@@ -548,7 +548,7 @@ g.velocidad-input {
                <input type="radio" name="weather" id="weather-off" value="off">
                <label for="weather-off"><svg xmlns="http://www.w3.org/2000/svg" version="1.1" width="24" height="24" viewBox="0 0 24 24"><path d="M16.56,5.44L15.11,6.89C16.84,7.94 18,9.83 18,12A6,6 0 0,1 12,18A6,6 0 0,1 6,12C6,9.83 7.16,7.94 8.88,6.88L7.44,5.44C5.36,6.88 4,9.28 4,12A8,8 0 0,0 12,20A8,8 0 0,0 20,12C20,9.28 18.64,6.88 16.56,5.44M13,3H11V13H13" /></svg></label>
                <input type="radio" name="weather" id="weather-blanco" value="blanco">
-               <label for="weather-blanco"><svg height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+               <label for="weather-blanco"><svg height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg">
     <path d="M9 21c0 .55.45 1 1 1h4c.55 0 1-.45 1-1v-1H9v1zm3-19C8.14 2 5 5.14 5 9c0 2.38 1.19 4.47 3 5.74V17c0 .55.45 1 1 1h6c.55 0 1-.45 1-1v-2.26c1.81-1.27 3-3.36 3-5.74 0-3.86-3.14-7-7-7zm2.85 11.1l-.85.6V16h-4v-2.3l-.85-.6C7.8 12.16 7 10.63 7 9c0-2.76 2.24-5 5-5s5 2.24 5 5c0 1.63-.8 3.16-2.15 4.1z"/><path
      d="m 10.067797,14.810124 0,-1.155978 -0.4322038,-0.285495 C 7.9888934,12.280911 7.0921211,10.746512 7.0848798,9.00432 7.0717645,5.8489489 10.140923,3.4357699 13.165266,4.2235111 c 3.201644,0.8339225 4.710299,4.3533957 3.096713,7.2241849 -0.314986,0.560405 -1.21093,1.467388 -1.897572,1.920955 l -0.432204,0.285495 0,1.155978 0,1.155978 -1.932203,0 -1.932203,0 0,-1.155978 z" style="fill:white;stroke:white;stroke-width:0.5;" /></svg></label>
                <input type="radio" name="weather" id="weather-sunny" value="sunny">
@@ -675,6 +675,7 @@ g.velocidad-input {
         <circle cx="59.5" cy="59.5" r="54" stroke="black" stroke-width="1" fill="black" />
       </g>
     </mask>
+    <mask id="foto"><circle cx="59.5" cy="59.5" r="48" fill="#555"></circle></mask>
   </defs>
   <g>
     <g class="coloreado action abrir" stroke="#333333" stroke-width="1" fill-opacity="0.7" fill="#333333">
@@ -686,6 +687,7 @@ g.velocidad-input {
     </g>
     <g class="velocidad-input">
        <circle class="esfera" cx="59.5" cy="59.5" r="48" stroke="#e0e0e0" stroke-width="2" fill="#f7f7f7"></circle>
+       <image class="foto" xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="" x="11.5" y="11.5" width="96" height="96" mask="url(#foto)" onload="$(this).show()" style="display:none"></image>
        <!-- Areas aviso -->
        <path class="naranja" d="M100.65 43.162a44 44 0 0 1 1.196 30.435l-10.46-3.4a33 33 0 0 0-.898-22.826z" fill="#f90"/>
        <path class="rojo" d="M101.846 73.597a44 44 0 0 1-10.733 17.516l-7.778-7.778a33 33 0 0 0 8.05-13.137z" fill="#dc3912"/>
@@ -1385,6 +1387,7 @@ var updater = {
             }
 
             $( "#boton-tren"+id+" .info.clase" ).html(lista_trenes[id].clase);
+            $( "#boton-tren"+id+" .foto" ).attr("xlink:href","/static/locomotoras/"+lista_trenes[id].clase+".jpg");
             $("#layer3 > g[idtren='"+id+"']").attr("estado", lista_trenes[id].estado);
 
             $( "#control-tren"+id+" select.clase, #boton-tren"+id+" select.clase .opcion.seleccionada").removeClass("seleccionada");
