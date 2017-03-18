@@ -453,3 +453,7 @@
 - newlayout: Alinear la visualización de la detección con la visualización de trenes
   (evitar que salga el indicador del tren en todos los tramos). Fix #2
 
+18 de marzo de 2017
+
+- maqueta, chips_maqueta: Permitir configurar la duración del pulso de los desvíos. Fix #3
+

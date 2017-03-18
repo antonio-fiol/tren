@@ -32,10 +32,10 @@ class ChipDesvios(MCP23017):
         for d in desvios:
             d.registrar_chip_desvios(self, pin=desvios[d], chip_rv=self.chip_rv)
 
-    def pulso(self, pines):
+    def pulso(self, pines, duracion_pulso=None):
         self.working = True
         self.activar(pines)
-        time.sleep(0.1)
+        time.sleep(duracion_pulso or 0.1)
         self.desactivar(pines)
         self.working = False
 

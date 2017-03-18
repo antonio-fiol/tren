@@ -403,7 +403,7 @@ class Desvio(Desc, Coloreado):
             self.por_cambio = por_cambio
             self.por_tren = por_tren
 
-    def __init__(self, num, inv=False, estado_inicial=Coloreado.VERDE):
+    def __init__(self, num, inv=False, estado_inicial=Coloreado.VERDE, duracion_pulso=None):
         self.desc = "Desvio " + str(num)
         self.centro = Tramo(desc=self.desc + " centro", longitud=0.05, desvio=self, registrar=False)
         self.verde = Tramo(desc=self.desc + " verde", longitud=0.05, desvio=self, registrar=False)
@@ -416,6 +416,7 @@ class Desvio(Desc, Coloreado):
            conexion(self.centro.inv, self.rojo.inv)
         self.estado = estado_inicial
         self.auto = { Coloreado.VERDE: {}, Coloreado.ROJO: {} }
+        self.duracion_pulso = duracion_pulso
         self.reserva = None
         self.t_reserva = None
         Maqueta.desvios.update({ num: self })
@@ -443,7 +444,7 @@ class Desvio(Desc, Coloreado):
 
         if(forzar or estado != self.estado):
             self.chip_rv.activar(self.pines_colores[estado])
-            self.chip.pulso(self.pin)
+            self.chip.pulso(self.pin, self.duracion_pulso)
             self.chip_rv.desactivar(self.pines_colores[estado])
             self.estado = estado
             print("Cambiado "+self.desc+" a "+self.color())
