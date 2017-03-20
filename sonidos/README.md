@@ -6,3 +6,4 @@ En el directorio `gen` con los sonidos genéricos, que suenan si una locomotora 
 
 En el directorio `weather` hay sonidos relacionados con efectos atmosféricos (viento, truenos, ...).
 
+Todos los sonidos deben ser WAV, a 44100 Hz, mono (1 canal).
