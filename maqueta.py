@@ -963,7 +963,9 @@ class Muerta(Nodo):
         return 999999999
 
 class Locomotora(object):
-    def __init__(self, id, desc, coeffs=None, minimo=None, muestras_inercia=None):
+    def __init__(self, id, desc, coeffs=None, minimo=None, porcentaje_minimo=None, muestras_inercia=None):
+        if porcentaje_minimo and not minimo:
+            minimo = int(porcentaje_minimo * 4096 / 100)
         Maqueta.locomotoras.update({id:desc})
         if coeffs:
             DatosVelocidad.COEFFS_INICIO.update({id:coeffs})
