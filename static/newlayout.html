@@ -675,7 +675,7 @@ g.velocidad-input {
         <circle cx="59.5" cy="59.5" r="54" stroke="black" stroke-width="1" fill="black" />
       </g>
     </mask>
-    <mask id="foto"><circle cx="59.5" cy="59.5" r="48" fill="#555"></circle></mask>
+    <clipPath id="foto"><circle cx="59.5" cy="59.5" r="48"></circle></clipPath>
   </defs>
   <g>
     <g class="coloreado action abrir" stroke="#333333" stroke-width="1" fill-opacity="0.7" fill="#333333">
@@ -687,7 +687,7 @@ g.velocidad-input {
     </g>
     <g class="velocidad-input">
        <circle class="esfera" cx="59.5" cy="59.5" r="48" stroke="#e0e0e0" stroke-width="2" fill="#f7f7f7"></circle>
-       <image class="foto" xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="" x="11.5" y="11.5" width="96" height="96" mask="url(#foto)" onload="$(this).show()" style="display:none"></image>
+       <image class="foto" xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="" x="11.5" y="11.5" width="96" height="96" clip-path="url(#foto)" opacity=".3" onload="$(this).show()" style="display:none"></image>
        <!-- Areas aviso -->
        <path class="naranja" d="M100.65 43.162a44 44 0 0 1 1.196 30.435l-10.46-3.4a33 33 0 0 0-.898-22.826z" fill="#f90"/>
        <path class="rojo" d="M101.846 73.597a44 44 0 0 1-10.733 17.516l-7.778-7.778a33 33 0 0 0 8.05-13.137z" fill="#dc3912"/>
