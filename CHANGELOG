@@ -462,5 +462,6 @@
 
 - maqueta: Permitir inicialización de Locomotora con porcentaje_minimo en lugar de
   minimo. Fix #5
+- Documentación de algunos directorios
 
 
