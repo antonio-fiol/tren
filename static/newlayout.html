@@ -411,7 +411,6 @@ legend {
 .alinear_vertical>* {
     margin-bottom:1ex;
 }
-
 .sonidos ul {
     background: url('volume-24.svg') no-repeat top center;
     padding-left: 0;
@@ -494,6 +493,11 @@ g.velocidad-input {
     fill: white;
 }
 
+.select_clase li a {
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position-x: right;
+}
 @media (max-width: 1024px) {
   #antipopup {
     height: 212px;
@@ -831,7 +835,7 @@ $(function() {
   $.getJSON( "/locomotoras", function( data ) {
     var items = [];
     $.each( data, function( key, val ) {
-      items.push( "<option value='" + key + "'>" + val + "</option>" );
+      items.push( "<option data-image='/static/locomotoras/"+key+".jpg' value='" + key + "'>" + val + "</option>" );
     });
     $( items.join( "" ) ).appendTo( "#templates .control-tren select.clase" );
     $( items.join( "" ) ).appendTo( "#templates .boton-tren select.clase" );
@@ -938,6 +942,23 @@ $(function() {
       return false;
     }
   });
+
+  var evh=function (event, ui) {
+    console.log(event);
+    console.log(event.target.id);
+    if(!event.target.id.startsWith("select-clase-")) return;
+    var opts = $("#templates select.clase option");
+    $(event.target).addClass("select_clase");
+    $("li a",event.target).each(function(index){
+        console.log(index);
+        var imageURL = opts.eq(index).data("image");
+        if(imageURL) {
+            $(this).css("background-image","url("+imageURL+")");
+        }
+    });
+  }
+  $(document).on("popupbeforeposition", ".ui-selectmenu", evh).on("pageshow", ".ui-selectmenu", evh);
+
 
 });
 
@@ -1556,7 +1577,7 @@ if(docWidth / window.innerWidth !== 1) { //kind of a hack to determine if the vi
                 var cambiar_clase = function () {
                     $.get('/tren',{id: id, clase: this.value});
                 }
-                var sc_boton = $( "#boton-tren"+id+" select.clase" ).selectmenu().on("change",cambiar_clase);
+                var sc_boton = $( "#boton-tren"+id+" select.clase" ).attr("id","select-clase-"+id).selectmenu().on("change",cambiar_clase);
 
                 $( "#control-tren"+id+" .sonido, #boton-tren"+id+" .sonido").on("click", function() {
                     $.get('/sonidos',{tren: id, sonido: $(this).attr("name")});

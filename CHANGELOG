@@ -466,6 +466,7 @@
 
 21 de marzo de 2017
 
-- newlayout: Mover fotos de estaciones al directorio "static/estaciones".
+- newlayout: Mover fotos de estaciones al directorio "static/estaciones". Fix #6
+- newlayout: Fotos de locomotoras en los selectores de clase.
 
 
