@@ -411,9 +411,6 @@ legend {
 .alinear_vertical>* {
     margin-bottom:1ex;
 }
-.estacion.st1 { background-image: url('estacion1-128.jpg'); }
-.estacion.st2 { background-image: url('estacion2-128.jpg'); }
-.estacion.st1e { background-image: url('estacion3-128.jpg'); }
 
 .sonidos ul {
     background: url('volume-24.svg') no-repeat top center;
@@ -843,7 +840,7 @@ $(function() {
   $.getJSON( "/estaciones", function( data ) {
     var items = [];
     $.each( data, function( key, val ) {
-      items.push( "<div class='estacion " + key + "' name='" + key + "'>" + val.s + "<div class='action left'></div><div class='action right'></div></div>" );
+      items.push( "<div class='estacion " + key + "' name='" + key + "' style='background-image: url(estaciones/"+key+".jpg)'>" + val.s + "<div class='action left'></div><div class='action right'></div></div>" );
     });
     $( items.join( "" ) ).appendTo( "#templates .control-tren .estaciones .todas" );
   });
