@@ -365,11 +365,17 @@ legend {
 }
 .todas .estacion .action.left {
     left: 0;
+}
+.todas .estacion.sentidos-ccw .action.left,
+.todas .estacion.sentidos-ccw-cw .action.left {
     background: url('ccw-512px-c.svg') bottom left no-repeat;
     background-size: 2em;
 }
 .todas .estacion .action.right {
     right: 0;
+}
+.todas .estacion.sentidos-cw .action.right,
+.todas .estacion.sentidos-ccw-cw .action.right {
     background: url('cw-512px-c.svg') bottom right no-repeat;
     background-size: 2em;
 }
@@ -844,7 +850,7 @@ $(function() {
   $.getJSON( "/estaciones", function( data ) {
     var items = [];
     $.each( data, function( key, val ) {
-      items.push( "<div class='estacion " + key + "' name='" + key + "' style='background-image: url(estaciones/"+key+".jpg)'>" + val.s + "<div class='action left'></div><div class='action right'></div></div>" );
+      items.push( "<div class='estacion " + key + " sentidos-"+val.s.sort().join("-")+"' name='" + key + "' style='background-image: url(estaciones/"+key+".jpg)'>" + val.s + "<div class='action left'></div><div class='action right'></div></div>" );
     });
     $( items.join( "" ) ).appendTo( "#templates .control-tren .estaciones .todas" );
   });

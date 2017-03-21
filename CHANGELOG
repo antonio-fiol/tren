@@ -468,5 +468,5 @@
 
 - newlayout: Mover fotos de estaciones al directorio "static/estaciones". Fix #6
 - newlayout: Fotos de locomotoras en los selectores de clase.
-
+- newlayout: Estaciones sólo CW o sólo CCW visualizan sólo el botón correspondiente.
 
