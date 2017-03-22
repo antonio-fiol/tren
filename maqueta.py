@@ -2647,7 +2647,7 @@ class Maqueta:
             ek = Maqueta.estaciones[k]
             if (asociaciones and isinstance(ek, AsociacionEstaciones)) or (isinstance(ek, Estacion) and ((not ek.asociacion) or (not solo_en_listado))):
                 if k[0] not in est:
-                    est[k[0]] = {"s":[],"a":False}
+                    est[k[0]] = {"s":[],"a":False,"d":ek.desc}
                 est[k[0]]["s"].append(k[1])
                 if isinstance(ek, Estacion):
                     est[k[0]]["a"] = est[k[0]]["a"] or ek.activa()

@@ -470,3 +470,11 @@
 - newlayout: Fotos de locomotoras en los selectores de clase.
 - newlayout: Estaciones sólo CW o sólo CCW visualizan sólo el botón correspondiente.
 
+22 de marzo de 2017
+
+- maqueta: Exponer descripciones de las estaciones en la exportación.
+- newlayout: Las locomotoras aparecen ordenadas alfabéticamente por ID.
+- newlayout: Las estaciones aparecen ordenadas por ID.
+- newlayout: Las estaciones muestran la descripción en lugar del sentido.
+
+

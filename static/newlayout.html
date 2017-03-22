@@ -351,6 +351,7 @@ legend {
     border: 1px solid #555;
     position: relative;
     background-position: center;
+    vertical-align: top;
 }
 .estacion .action {
     position: absolute;
@@ -840,7 +841,8 @@ $(function() {
 
   $.getJSON( "/locomotoras", function( data ) {
     var items = [];
-    $.each( data, function( key, val ) {
+    $.each( Object.keys(data).sort(), function( index, key ) {
+      var val = data[key];
       items.push( "<option data-image='/static/locomotoras/"+key+".jpg' value='" + key + "'>" + val + "</option>" );
     });
     $( items.join( "" ) ).appendTo( "#templates .control-tren select.clase" );
@@ -849,8 +851,10 @@ $(function() {
 
   $.getJSON( "/estaciones", function( data ) {
     var items = [];
-    $.each( data, function( key, val ) {
-      items.push( "<div class='estacion " + key + " sentidos-"+val.s.sort().join("-")+"' name='" + key + "' style='background-image: url(estaciones/"+key+".jpg)'>" + val.s + "<div class='action left'></div><div class='action right'></div></div>" );
+    $.each( Object.keys(data).sort(), function( index, key ) {
+      var val = data[key];
+      console.log(val);
+      items.push( "<div class='estacion " + key + " sentidos-"+val.s.sort().join("-")+"' name='" + key + "' style='background-image: url(estaciones/"+key+".jpg)'>" + val.d + "<div class='action left'></div><div class='action right'></div></div>" );
     });
     $( items.join( "" ) ).appendTo( "#templates .control-tren .estaciones .todas" );
   });
