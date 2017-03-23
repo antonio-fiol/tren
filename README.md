@@ -36,11 +36,13 @@ Es posible utilizar varias placas de cada tipo (en algunos casos hasta un máxim
 
 Cómo instalar los paquetes de sistema operativo necesarios para la ejecución en python 3:
 ```
+sudo apt-get update
 sudo apt-get install python3-pip libasound2-dev libffi-dev python3-dev python3-numpy python3-pyaudio python3-tornado python3-pil
 ```
 
 Para el módulo de text-to-speech de los mensajes de las estaciones:
 ```
+sudo apt-get update
 sudo apt-get install libttspico-utils sox
 ```
 
