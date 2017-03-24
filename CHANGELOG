@@ -477,4 +477,8 @@
 - newlayout: Las estaciones aparecen ordenadas por ID.
 - newlayout: Las estaciones muestran la descripción en lugar del sentido.
 
+24 de marzo de 2017
+
+- eventos: Posibilidad de retrasar la propagación de un evento .tras(...). Fix #9
+
 

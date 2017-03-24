@@ -1,5 +1,6 @@
 from singleton import singleton
 import tornado.ioloop
+from datetime import timedelta
 
 class Suscripcion(object):
     def __init__(self, suscriptor,emisor=None):
@@ -38,7 +39,13 @@ class SuscriptorEvento(object):
     def comprobar_y_recibir(self, evento):
         if not hasattr(self, "condicion") or not self.condicion or self.condicion(evento):
            if not hasattr(self, "activo") or not self.activo or self.activo(evento):
-              self.recibir(evento)
+              if hasattr(self, "retardo") and self.retardo:
+                  def rr():
+                      print("propagacion retardada: "+str(evento))
+                      self.recibir(evento)
+                  tornado.ioloop.IOLoop.current().add_timeout(timedelta(seconds=self.retardo), rr)
+              else:
+                  self.recibir(evento)
 
     def cuando(self, tipo_evento, emisor=None): # El metodo es encadenable: xxx.cuando(Evento).cuando(Evento)...
         GestorEventos().suscribir_evento(tipo_evento, self.comprobar_y_recibir, emisor)
@@ -51,6 +58,9 @@ class SuscriptorEvento(object):
            ev = { "tipo_evento": tipo_evento.__name__ }
         self.eventos.append(ev)
         return self
+
+    def tras(self, segundos):
+        self.retardo = segundos
 
     def __repr__(self):
         ret = type(self).__name__
