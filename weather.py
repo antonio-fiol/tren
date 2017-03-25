@@ -4,8 +4,7 @@ from tornado            import gen
 from eventos            import Evento
 from singleton          import singleton
 from datetime           import timedelta
-#from tornado.concurrent import Future
-from parametros         import expuesto#, Parametros, ParametroHandler, EventoParametros, Seccion
+from parametros         import expuesto
 
 from audio_maqueta import AudioSystem, RepeatingWav, NoHaySonidoPara, Combi, UnCanal, Fader, Wav
 from proceso_pasos import ProcesoPasos
@@ -38,6 +37,7 @@ class Relampago(ProcesoPasos):
            tornado.ioloop.IOLoop.current().add_timeout(timedelta(seconds=Relampago.RETRASO_TRUENO_S), self.trueno)
            self.iniciar()
 
+       @gen.coroutine
        def paso(self):
            (tf, ti, prob) = self.pasos.pop()
            ejecutar = (prob > random.random())
@@ -83,12 +83,14 @@ class Weather(object):
         def __init__(self):
             self.iniciar()
 
+        @gen.coroutine
         def primer_paso(self):
             return timedelta(seconds=duracion_aleatoria(Weather.TIEMPO_ENTRE_RELAMPAGOS_S,rand_pct=Weather.PORCENTAJE_ALEATORIEDAD_TIEMPO_ENTRE_RELAMPAGOS))
 
+        @gen.coroutine
         def paso(self):
             self.r = Relampago(Weather().tira)
-            self.r.esperar()
+            yield self.r.esperar()
             return timedelta(seconds=duracion_aleatoria(Weather.TIEMPO_ENTRE_RELAMPAGOS_S,rand_pct=Weather.PORCENTAJE_ALEATORIEDAD_TIEMPO_ENTRE_RELAMPAGOS))
 
     class AutoLuces(object):

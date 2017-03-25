@@ -481,4 +481,8 @@
 
 - eventos: Posibilidad de retrasar la propagación de un evento .tras(...). Fix #9
 
+25 de marzo de 2017
+
+- proceso_pasos, weather: Corregir la espera del final de un proceso.
+
 
