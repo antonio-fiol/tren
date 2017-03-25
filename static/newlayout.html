@@ -843,7 +843,7 @@ $(function() {
     var items = [];
     $.each( Object.keys(data).sort(), function( index, key ) {
       var val = data[key];
-      items.push( "<option data-image='/static/locomotoras/"+key+".jpg' value='" + key + "'>" + val + "</option>" );
+      items.push( "<option data-image='/static/locomotoras/"+key+".png' value='" + key + "'>" + val + "</option>" );
     });
     $( items.join( "" ) ).appendTo( "#templates .control-tren select.clase" );
     $( items.join( "" ) ).appendTo( "#templates .boton-tren select.clase" );
@@ -1415,7 +1415,7 @@ var updater = {
             }
 
             $( "#boton-tren"+id+" .info.clase" ).html(lista_trenes[id].clase);
-            $( "#boton-tren"+id+" .foto" ).attr("xlink:href","/static/locomotoras/"+lista_trenes[id].clase+".jpg");
+            $( "#boton-tren"+id+" .foto" ).attr("xlink:href","/static/locomotoras/"+lista_trenes[id].clase+".png");
             $("#layer3 > g[idtren='"+id+"']").attr("estado", lista_trenes[id].estado);
 
             $( "#control-tren"+id+" select.clase, #boton-tren"+id+" select.clase .opcion.seleccionada").removeClass("seleccionada");
