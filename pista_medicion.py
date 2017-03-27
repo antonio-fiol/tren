@@ -1,0 +1,162 @@
+
+
+@singleton
+class PistaMedicion(ColeccionTramos):
+    class MedicionMinimo(ProcesoPasos):
+        def __init__(self):
+            self.moviendo = False
+            self.movido = False
+            self.direccion = 1
+            self.rango = ( 0, 100 )
+            self.iniciar()
+
+        @gen.coroutine
+        def paso(self):
+            if not self.moviendo:
+               print("Estoy parado. Calcular velocidad e iniciar movimiento.")
+               if self.direccion > 0:
+                   self.v = sum(self.rango)/2
+               else:
+                   self.v = -100
+               self.moviendo = True
+               self.movido = False
+               print(PistaMedicion().midiendo, " midiendo a velocidad ",self.v)
+               GestorEventos().suscribir_evento(Tren.EventoMovido, self.evento_tren_movido, PistaMedicion().midiendo)
+               PistaMedicion().midiendo.poner_velocidad(self.v)
+               if self.v<0: return timedelta(seconds=2)
+
+            else:
+               print("Estoy moviendo. Parar y decidir.")
+               GestorEventos().eliminar_suscriptor(self.evento_tren_movido)
+               PistaMedicion().midiendo.poner_velocidad(0)
+               
+               m, M = self.rango
+               if self.movido:
+                   print("Se ha movido.")
+                   if self.direccion > 0:
+                       self.rango = (m, self.v)
+                   self.direccion *= -1
+               else:
+                   print("No se ha movido.")
+                   self.rango = (self.v, M)
+               self.moviendo = False
+               self.movido = False
+
+               m, M = self.rango
+               if (M-m)<2:
+                   self.parar()
+                   return None
+               return timedelta(seconds=1)
+
+            return timedelta(seconds=10)
+
+        def limpieza(self):
+               import traceback
+               traceback.print_stack()
+               GestorEventos().eliminar_suscriptor(self.evento_tren_movido)
+               GestorEventos().eliminar_suscriptor(self.evento_tren_desaparecido)
+               tren = PistaMedicion().midiendo
+               if tren:
+                   tren.poner_velocidad(0)
+                   tren.estado_colision = None
+                   print("*************************** CONCLUSION MEDICION *************************")
+                   print(tren)
+                   print(self.rango)
+                   print("*************************** CONCLUSION MEDICION *************************")
+
+        def evento_tren_movido(self, evento):
+            self.movido = True
+            self.siguiente_paso_inmediato()
+
+    class MedicionCurva(ProcesoPasos):
+        def __init__(self):
+            print("MedicionCurva.__init__")
+            self.iniciar()
+
+        @gen.coroutine
+        def paso(self):
+            self.parar()
+            return None
+
+    class Medicion(ProcesoPasos):
+        def __init__(self):
+            print("Medicion.__init__")
+            self.pasos = [ PistaMedicion.MedicionMinimo, PistaMedicion.MedicionCurva ]
+            GestorEventos().suscribir_evento(Tren.EventoDesaparecido, self.evento_tren_desaparecido, PistaMedicion().midiendo)
+            self.iniciar()
+
+        @gen.coroutine
+        def paso(self):
+            print("Medicion.paso")
+            self.p = self.pasos.pop().__call__()
+            print("Esperando a ",self.p)
+            print("yield self.p.esperar()", (yield self.p.esperar()))
+            print("Completado: finalizado=", self.p.finalizado)
+            self.p = None
+            if self.pasos:
+                return timedelta(seconds=1)
+            else:
+                self.parar()
+                return None
+
+        def parar(self):
+            print("Medicion.parar")
+            super(PistaMedicion.Medicion, self).parar()
+            if self.p: self.p.parar()
+
+        def limpieza(self):
+            print("Medicion.limpieza")
+
+        def evento_tren_desaparecido(self, evento):
+            self.parar()
+
+
+    def __init__(self, *args, **kwargs):
+        ColeccionTramos.__init__(self,*args,**kwargs)
+        self.desvio_color_list = []
+        self.desvios = []
+        self.midiendo = None
+
+        # Registrarse para saber cuando se libera un desvio, quiza lo este esperando
+        GestorEventos().suscribir_evento(Desvio.EventoLiberado, self.recibir_evento_desvio_liberado)
+
+    def desvio_color(self):
+        if not(self.desvio_color_list):
+            for t1,t2 in zip(self.tramos, self.tramos[1:]+self.tramos[:1]):
+                self.desvio_color_list += ( (t.desvio, t.desvio.color_rama(t)) for t in shortestPath(Maqueta().graph, t1, t2) if t.desvio and t.desvio.color_rama(t) )
+            self.desvios = list(d for d,c in self.desvio_color_list)
+            print(self.desvio_color_list)
+
+        return self.desvio_color_list
+
+    def recibir_evento_desvio_liberado(self, evento):
+        if self.midiendo and evento.emisor and evento.emisor in self.desvios:
+            print("Se ha liberado un desvio de la pista. Abortando medicion.")
+            for d in self.desvios:
+                d.liberar(self.midiendo)
+
+    def puede_medir(self, tren):
+        if tren.tramo in self.tramos:
+            print("El tren ",tren," esta en un tramo de la pista.")
+        else:
+            raise Exception("El tren no esta en la pista de medicion.")
+
+        ttf = (t.tren_en_tramo_fisico() for t in self.tramos)
+        ttf_distinto = next((t for t in ttf if t and t != tren), None)
+        if ttf_distinto:
+            raise Exception("El tren "+str(ttf_distinto)+" nos impide realizar la medicion.")
+        else:
+            print("No hay ningun otro tren en la pista.")
+
+        for d,c in self.desvio_color():
+            d.cambiar(c,reserva=tren)
+
+        self.midiendo = tren
+
+        tren.estado_colision = Tren.MIDIENDO
+
+        tornado.ioloop.IOLoop.current().add_timeout(timedelta(seconds=10), PistaMedicion.Medicion.__call__)
+        #GestorEventos().suscribir_evento(Tren.EventoMovido, self.recibir_evento_tren_movido, emisor=self.midiendo)
+
+        return True
+
