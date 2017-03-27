@@ -24,7 +24,7 @@ if __name__ == "__main__":
     Desvio(3, inv=True)
     Desvio(4)
     Desvio(5)
-    # Desvio(6) eliminado
+    Desvio(6, inv=True, estado_inicial=Desvio.ROJO)
     Desvio(7, estado_inicial=Desvio.ROJO)
     Desvio(8, inv=True)
     Desvio(9)
@@ -77,6 +77,10 @@ if __name__ == "__main__":
     Tramo("M2", 0.59)
     Tramo("M3", 0.64)
 
+    # Vias muertas hacia estanteria
+    Tramo("M4", 0.48) #XXX
+    Tramo("M5", 0.96) #XXX
+
     # Circuito interior
     Tramo("I1", 1.13,  limites=[LimiteAcercamiento(100,80.0,40).inv()] )
     Tramo("I3", 1.08) # Por el lado largo, bastante mas.
@@ -87,6 +91,7 @@ if __name__ == "__main__":
     # Circuito exterior
     Tramo("E1", 0.67,  limites=[LimiteAcercamiento(100,80.0,40).inv()] )
     Tramo("E2", 0.71)
+    Tramo("E8", 0.3) #XXX
     Tramo("E3", 0.93)
     Tramo("E7", 0.985)
     Tramo("E4", 0.54)
@@ -124,9 +129,9 @@ if __name__ == "__main__":
     conexion(desvios[1].centro, tramos["E1"])
     conexion(tramos["E1"], tramos["E2"])
 
-    #conexion(tramos["E2"], tramos["E3"])
-    #conexion(tramos["E3"], tramos["E4"])
-    conexion(tramos["E2"], desvios[13].centro)
+    conexion(tramos["E2"], desvios[6].rojo)
+    conexion(desvios[6].centro, tramos["E8"])
+    conexion(tramos["E8"], desvios[13].centro)
     conexion(desvios[13].verde, tramos["E3"])
     conexion(desvios[13].rojo, tramos["E7"])
     conexion(tramos["E3"], desvios[14].verde)
@@ -172,6 +177,11 @@ if __name__ == "__main__":
     conexion(tramos["M2"], Muerta())
     conexion(tramos["M3"], Muerta())
 
+    # Vias muertas estanteria
+    conexion(Muerta(),tramos["M5"])
+    conexion(tramos["M5"],tramos["M4"])
+    conexion(tramos["M4"],desvios[6].verde)
+
     # Puente "interior"
     conexion(desvios[4].rojo, desvios[15].centro)
     conexion(desvios[15].verde, desvios[5].centro)
@@ -189,6 +199,7 @@ if __name__ == "__main__":
     conexion(desvios[16].rojo.inv, tramos["P3"])
     conexion(tramos["P3"], desvios[17].verde)
 
+    #PistaMedicion(tramos=[tramos[x] for x in ["E1","E2","E8","E3","E4","E5","E6"]])
 
     # Listado de estaciones
     #Estacion(nombre,sentido,tramo,%,desc=descripcion).controlar_tramo_previo(velocidad_de_traspaso_entre_tramos)
@@ -210,6 +221,8 @@ if __name__ == "__main__":
         Estacion("st3", "ccw", Maqueta.tramos["E3"].inv, 80),
         Estacion("st3e", "ccw", Maqueta.tramos["E7"].inv, 80),
     ], desc="Lejos")
+
+    Estacion("est","ccw",Maqueta.tramos["M5"].inv,90,desc="Estanteria")
 
 
     # Listado de zonas
@@ -238,7 +251,7 @@ if __name__ == "__main__":
         tramos["M3"], # Pins 0-1 => VIA2
         tramos["I6"], # Pins 2-3 => VIA1
         tramos["E6"], # Pins 4-5 => VIA4
-        None, #tramos["M4"], # Pins 6-7 => VIA3
+        tramos["E8"], # Pins 6-7 => VIA3
 
         # Placa 1 (Izquierda)
         tramos["M2"], # Pins 8-9 => VIA2
@@ -257,17 +270,16 @@ if __name__ == "__main__":
 
         # Placa 3
         tramos["I5"],
-        tramos["E4"], 
-        #tramos["X1"],
+        tramos["E4"],
         TramosConAlimentacionCompartida(tramos["X1"], tramos["X2"]),
         tramos["I4"],
     ], debug=False)
 
     ChipVias(0x42,[
         # Adafruit 2
-        # Placa 6 (inexistente)
-        None,
-        None,
+        # Placa 6
+        tramos["M4"],
+        tramos["M5"],
         tramos["P2"],
         tramos["P3"],
 
@@ -305,15 +317,15 @@ if __name__ == "__main__":
 
         # A placa 1
         tramos["E6"],       
-        None, #tramos["M4"],
+        tramos["E8"],
         tramos["M3"],
         tramos["I6"],       # MSB (Arriba-derecha en la placa, par marron)
     ])
 
     ChipDetector(0x24,[
         # A
-        None, # LSB (Arriba-izquierda en la placa)
-        None,
+        tramos["M5"], # LSB (Arriba-izquierda en la placa)
+        tramos["M4"],
         tramos["P3"],
         tramos["P2"],
 
@@ -342,7 +354,7 @@ if __name__ == "__main__":
             desvios[3]:  ChipDesvios.BL_VERDE_D1,
             desvios[4]:  ChipDesvios.VERDE_D1,
             desvios[5]:  ChipDesvios.BL_NARANJA_D2,
-            # desvios[6]:  ChipDesvios.NARANJA_D2, -- eliminado
+            desvios[6]:  ChipDesvios.NARANJA_D2,
             desvios[7]:  ChipDesvios.VERDE_D2,
             desvios[8]:  ChipDesvios.AZUL_D2,
             desvios[9]:  ChipDesvios.BL_VERDE_D2,
@@ -371,8 +383,8 @@ if __name__ == "__main__":
     Locomotora(id="comsa", desc="Comsa", coeffs=[0.12077762631211575, 0.003107459392643413, -1.0492061779321495e-05], minimo=1600, muestras_inercia=50)
     Locomotora(id="ef-55", desc="EF-55 (Kato)", coeffs=[0.01958548268810128, 0.00478287434306379, -2.5501116465710806e-05], minimo=780, muestras_inercia=10)
     Locomotora(id="cercanias", desc="Cercanías", coeffs=[0.031261934662692115, 0.006996998827739664, -3.528356235287542e-05], minimo=550, muestras_inercia=20)
-    Locomotora(id="c61-006", desc="SNCF C61-006", coeffs=[0.061291493686289084, 0.005144162475490486, -3.1719614648088305e-05], minimo=1060, muestras_inercia=2) # 3N
-    #Locomotora(id="v200", desc="V200", coeffs=[0.03322775970273929, 0.008429926457401718, -4.129186032447935e-05], minimo=1545, muestras_inercia=2) # 3N Helena
+    Locomotora(id="c61-006", desc="SNCF C61-006 V", coeffs=[0.061291493686289084, 0.005144162475490486, -3.1719614648088305e-05], minimo=1060, muestras_inercia=2) # 3N
+    Locomotora(id="c61-006a",desc="SNCF C61-006 A", coeffs=[0.061291493686289084, 0.005144162475490486, -3.1719614648088305e-05], minimo=1060, muestras_inercia=2) # 3N Helena
     Locomotora(id="v200", desc="V200", coeffs=[-0.017070525390169747, 0.011210285639240654, -6.292727347601206e-05], minimo=1000, muestras_inercia=10) # 3N Helena
     Locomotora(id="2100", desc="2100", coeffs=[0.07240401047268205, 0.0055405416238591115, -3.1329731145268906e-05], minimo=1862, muestras_inercia=2) # 3N
 
@@ -388,6 +400,7 @@ if __name__ == "__main__":
 
     #PulsoDeLuz(flash,1).cuando(Zona.EventoEntraTren, pn)
 
+    #EncenderLuz(farolas).cuando(Desvio.EventoCambiado).tras(3)
 
     #PulsoDeLuz(mi_luz, 3).cuando(Estacion.EventoTrenParado) # Encender la luz del anden durante 3 segundos cuando un tren se para en la estacion
     #PulsoDeLuz(mi_luz).cuando(Desvio.EventoCambiado)

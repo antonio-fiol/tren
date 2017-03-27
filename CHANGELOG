@@ -487,3 +487,8 @@
 - newlayout: Utilizar fotos de locomotoras en PNG (con fondo transparente).
 - Fotos de todas las locomotoras.
 
+27 de marzo de 2017
+
+- con_puente.{py,svg}: Nuevas vías E8, M4 y M5 para almacenar trenes en estantería.
+
+
