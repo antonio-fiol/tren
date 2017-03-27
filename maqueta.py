@@ -555,11 +555,11 @@ class Tramo(Nodo):
         #self.poner_velocidad(0.0, pub=False)
         self.stop(pub=False)  # Al arrancar, arrancar sin tension
 
-    def tiene_tren(self, t):
+    def deteccion(self, t):
         ret = None
         if(t):
             if Tramo.debug:
-                print("Tramo "+self.desc+" tiene_tren ...")
+                print("Tramo "+self.desc+" deteccion (tiene tren) ...")
             tr = self.tren_en_tramo_fisico()
             if tr:
                 if Tramo.debug:
@@ -581,7 +581,7 @@ class Tramo(Nodo):
                 else:
                     tren_encontrado_en_inv, tramo_encontrado = self.inv.buscar_tren_en_tramo_anterior()
                     if tren_encontrado_en_inv:
-                        ret = self.inv.tiene_tren(t)
+                        ret = self.inv.deteccion(t)
                     else:
                         if Tramo.debug:
                             print("... y debe ser nuevo")
@@ -594,7 +594,7 @@ class Tramo(Nodo):
             if self.inv.tren:
                 tornado.ioloop.IOLoop.current().add_callback(self.inv.tren_no_esta)
             
-        # Callback tiene_tren
+        # Callback deteccion
 
         return ret
 
@@ -782,12 +782,12 @@ class ColeccionTramos(Desc, object):
         self.inv = self
 
 class TramosConDeteccionCompartida(ColeccionTramos):
-    def tiene_tren(self, t):
+    def deteccion(self, t):
         ret = None
         tr, fisico = self.tren_en_tramo_fisico()
         if(t):
             if Tramo.debug:
-                print("Tramo "+self.desc+" tiene_tren ...")
+                print("Tramo "+self.desc+" deteccion (tiene tren) ...")
             if tr:
                 if Tramo.debug:
                     print("... y ya lo tenia en alguno de los tramos fisicos.")
@@ -799,7 +799,7 @@ class TramosConDeteccionCompartida(ColeccionTramos):
                     nuevo_tramo = seccion
                 else:
                     nuevo_tramo = self.tramos[0]
-                ret = nuevo_tramo.tiene_tren(t)
+                ret = nuevo_tramo.deteccion(t)
                 maqueta.pedir_publicar_deteccion()
         else:
             if tr:
@@ -820,12 +820,12 @@ class SensorDePaso(TramosConDeteccionCompartida):
         super(SensorDePaso, self).__init__(tramos=[args[1], args[0].inv])
         self.t = None
 
-    def tiene_tren(self, t):
+    def deteccion(self, t):
         tramo_estaba = None
         if t != self.t: # Flanco
             self.t = t
             if t: # De subida --> actuamos
-                tramo_estaba = super(SensorDePaso, self).tiene_tren(t)
+                tramo_estaba = super(SensorDePaso, self).deteccion(t)
                 tramo_estaba.quitar_tren()
         return tramo_estaba
 
@@ -2434,8 +2434,8 @@ class Maqueta:
                     t0 = tren.tramo
                     t1 = t0.tramo_siguiente()
                     print("modo_dummy: Tren "+str(tren)+" en tramo "+str(t0)+" saltando a "+str(t1))
-                    t1.tiene_tren(True)
-                    t0.tiene_tren(False)
+                    t1.deteccion(True)
+                    t0.deteccion(False)
 
     def __init__(self):
         self.pubvel = True
@@ -2829,8 +2829,8 @@ def simulacion():
     time.sleep(1)
     maqueta.detectar()
 
-    maqueta.tramos["M2"].inv.tiene_tren(True)
-    maqueta.tramos["M3"].inv.tiene_tren(True)
+    maqueta.tramos["M2"].inv.deteccion(True)
+    maqueta.tramos["M3"].inv.deteccion(True)
 
     for t in Tren.trenes:
         t.poner_clase(random.choice(list(maqueta.locomotoras.keys())))

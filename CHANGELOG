@@ -490,5 +490,5 @@
 27 de marzo de 2017
 
 - con_puente.{py,svg}: Nuevas vías E8, M4 y M5 para almacenar trenes en estantería.
-
+- maqueta, chips_maqueta: Cambio de nomenclatura "tiene_tren" por "deteccion".
 

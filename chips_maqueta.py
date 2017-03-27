@@ -155,7 +155,7 @@ class ChipDetector(MCP23017):
             if tramo:
               if(self.debug):
                   print(str(tramo) + ": " + str(self.state[i]))
-              tramo.tiene_tren(self.state[i])
+              tramo.deteccion(self.state[i])
 
         return changed
 
