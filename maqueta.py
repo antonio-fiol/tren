@@ -381,6 +381,7 @@ class Coloreado(object):
     VERDE = 1
     ROJO = 2
     colores = { "verde": VERDE, "rojo": ROJO }
+    cambios_estado = {VERDE:ROJO, ROJO:VERDE}
 
     def color(self):
         if(self.estado == Coloreado.VERDE):
@@ -388,6 +389,9 @@ class Coloreado(object):
         if(self.estado == Coloreado.ROJO):
             return "rojo"
         return None
+
+    def intercambiar_estado(self):
+        self.cambiar(self.cambios_estado.get(self.estado, None))
 
 class ReservaImposible(Exception): pass
 
@@ -416,6 +420,7 @@ class Desvio(Desc, Coloreado):
            conexion(self.centro.inv, self.rojo.inv)
         self.estado = estado_inicial
         self.auto = { Coloreado.VERDE: {}, Coloreado.ROJO: {} }
+        self.validaciones = { Coloreado.VERDE: [], Coloreado.ROJO: [] }
         self.duracion_pulso = duracion_pulso
         self.reserva = None
         self.t_reserva = None
@@ -431,6 +436,10 @@ class Desvio(Desc, Coloreado):
 
     def cambiar(self, estado, pub=True, forzar=False, reserva=None):
         if(estado != Desvio.ROJO and estado != Desvio.VERDE):
+            return False
+
+        if not all(a.validar_cambio(self, estado) for a in self.validaciones[estado]):
+            if reserva: raise ReservaImposible
             return False
 
         self.reservar(reserva)
@@ -866,7 +875,8 @@ class Semaforo(Tramo,Coloreado):
         self.luz= { Semaforo.ROJO: Luz(registrar=False), Semaforo.VERDE: Luz(registrar=False) }
         self.limites_rojo = limites_rojo
         self.limites_verde = limites_verde
-        self.cambiar(Semaforo.VERDE, pub=False, forzar=True)
+        self.validaciones = { Coloreado.VERDE: [], Coloreado.ROJO: [] }
+        self.cambiar(Semaforo.VERDE, pub=False, forzar=True) # FIXME: Deberia ser None en lugar de VERDE
         Maqueta.semaforos.update({self.desc:self})
 
     def get_limites(self):
@@ -874,7 +884,10 @@ class Semaforo(Tramo,Coloreado):
 
     def cambiar(self, estado, pub=True, forzar=False):
         if(estado != Semaforo.ROJO and estado != Semaforo.VERDE and estado != None):
-            return
+            return False
+        if estado and not all(a.validar_cambio(self, estado) for a in self.validaciones[estado]):
+            return False
+
         if(forzar or estado != self.estado):
             for c,l in list(self.luz.items()):
                 l.estado(c==estado,pub=pub)
@@ -885,6 +898,7 @@ class Semaforo(Tramo,Coloreado):
             if pub:
                 self.EventoCambiado(self).publicar()
                 maqueta.pedir_publicar_semaforos()
+        return True
 
     def notificar_cambio_a_trenes(self):
         for t in Tren.trenes:
@@ -898,7 +912,7 @@ class Semaforo(Tramo,Coloreado):
     def poner_velocidad(self, val=0.0, minimo=None, pub=True):
         Tramo.poner_velocidad(self, val=val, minimo=minimo, pub=pub)
         if self.estado == None:
-            self.cambiar(Semaforo.VERDE, pub)
+            self.cambiar(Semaforo.VERDE, pub) or self.cambiar(Semaforo.ROJO, pub)
 
 class Luz(Desc, object):
     luces = []
@@ -941,12 +955,52 @@ class Luz(Desc, object):
             self.EventoCambiado(self).publicar()
             maqueta.pedir_publicar_luces()
 
+    def deteccion(self, d):
+        if d != self.encendida:
+            self.esetado(d)
+
     def on(self):
         self.estado(True)
 
     def off(self):
         self.estado(False)
 
+    def estado_a_bool(self):
+        return bool(self.encendida)
+
+class PermitirEstado(SuscriptorEvento):
+    def __init__(self, cambiable, estado):
+        self.cambiable = cambiable
+        self.estado = estado
+        self.estado_vuelta = None
+        self.controlador = True
+        self.repr = "PermitirEstado "+str(self.cambiable)+" "+str(self.estado)
+        self.cambiable.validaciones[self.estado].append(self)
+
+    def si(self, objeto_bool, inv=False):
+        self.ya_no()
+        self.controlador = objeto_bool
+        self.inv = inv
+        self.cuando(Evento, self.controlador)
+
+    def si_no(self, objeto_bool):
+        self.si(objeto_bool, inv=True)
+
+    def con_vuelta_a(self, estado_vuelta):
+        self.estado_vuelta = estado_vuelta
+
+    def validar_cambio(self, cambiable, estado):
+        if self.cambiable == cambiable and self.estado == estado:
+            return self.controlador.estado_a_bool() != self.inv
+        else:
+            return True
+
+    def recibir(self, evento):
+        if not self.validar_cambio(self.cambiable, self.cambiable.estado):
+            if self.estado_vuelta:
+                self.cambiable.cambiar(self.estado_vuelta)
+            else:
+                self.cambiable.intercambiar_estado()
 
 class Muerta(Nodo):
     def __init__(self, inv=None):
