@@ -1521,6 +1521,8 @@ var updater = {
                        $("#antipopup").addClass("show");
                     }
                     */
+                }).on("swipeleft swiperight",function(evt) {
+                    $(this).toggleClass('nuevo');
                 }).on("click", "g.velocidad-input", function(evt) {
                     var r = $(".esfera", this).attr("r");
                     var elementOffset=$(this).offset();
