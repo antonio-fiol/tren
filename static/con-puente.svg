@@ -1120,11 +1120,11 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="1.5275"
-     inkscape:cx="326.21579"
-     inkscape:cy="398.51908"
+     inkscape:zoom="8.6408449"
+     inkscape:cx="62.801607"
+     inkscape:cy="446.63287"
      inkscape:document-units="px"
-     inkscape:current-layer="layer3"
+     inkscape:current-layer="via_estanteria_colocada"
      showgrid="true"
      inkscape:window-width="1535"
      inkscape:window-height="876"
@@ -1160,11 +1160,11 @@
     <image
        sodipodi:absref="/home/fiol/tren/static/fondo_maqueta.jpg"
        xlink:href="fondo_maqueta.jpg"
-       width="1018"
-       height="509"
-       id="image3914"
+       y="201.07565"
        x="-105.69385"
-       y="201.07565" />
+       id="image3914"
+       height="509"
+       width="1018" />
   </g>
   <g
      inkscape:groupmode="layer"
@@ -1175,36 +1175,36 @@
     <image
        sodipodi:absref="/home/fiol/tren/static/fondo_maqueta.jpg"
        xlink:href="fondo_maqueta.jpg"
-       clip-path="url(#clipPath6943)"
-       transform="translate(105.69385,-201.07565)"
-       y="201.07565"
-       x="-105.69385"
+       style="display:inline"
+       width="1018"
+       height="509"
        id="st1"
-       height="509"
-       width="1018"
-       style="display:inline" />
+       x="-105.69385"
+       y="201.07565"
+       transform="translate(105.69385,-201.07565)"
+       clip-path="url(#clipPath6943)" />
     <image
        sodipodi:absref="/home/fiol/tren/static/fondo_maqueta.jpg"
        xlink:href="fondo_maqueta.jpg"
-       clip-path="url(#clipPath7724)"
-       y="201.07565"
-       x="-105.69385"
+       transform="translate(105.69385,-201.07565)"
+       style="display:inline"
+       width="1018"
+       height="509"
        id="st2"
-       height="509"
-       width="1018"
-       style="display:inline"
-       transform="translate(105.69385,-201.07565)" />
+       x="-105.69385"
+       y="201.07565"
+       clip-path="url(#clipPath7724)" />
     <image
        sodipodi:absref="/home/fiol/tren/static/fondo_maqueta.jpg"
        xlink:href="fondo_maqueta.jpg"
-       clip-path="url(#clipPath7735)"
-       width="1018"
-       height="509"
-       id="st1e"
-       x="-105.69385"
-       y="201.07565"
+       transform="translate(105.69385,-209.07565)"
        style="display:inline"
-       transform="translate(105.69385,-209.07565)" />
+       y="201.07565"
+       x="-105.69385"
+       id="st1e"
+       height="509"
+       width="1018"
+       clip-path="url(#clipPath7735)" />
   </g>
   <g
      inkscape:label="desvios"
@@ -2007,7 +2007,8 @@
      id="layer3"
      inkscape:label="vias"
      style="display:inline"
-     transform="translate(-2.34375e-6,-3.0761719e-6)">
+     transform="translate(-2.34375e-6,-3.0761719e-6)"
+     sodipodi:insensitive="true">
     <g
        id="P1">
       <path
@@ -2799,6 +2800,18 @@
            d="M 31.817,50.677 31.193,39.748 h -5.692 l -0.624,10.929 c -0.66,0.097 -1.169,0.66 -1.169,1.348 v 0 c 0,0.024 0.02,0.044 0.044,0.044 h 9.19 c 0.024,0 0.044,-0.02 0.044,-0.044 v 0 c 0,-0.688 -0.509,-1.251 -1.169,-1.348 z"
            id="path10" />
       </g>
+    </g>
+    <g
+       id="via_estanteria_colocada">
+      <path
+         d="m 32.288509,41.62672 a 2.3724532,2.3724532 0 1 1 -4.744907,0 2.3724532,2.3724532 0 1 1 4.744907,0 z"
+         sodipodi:ry="2.3724532"
+         sodipodi:rx="2.3724532"
+         sodipodi:cy="41.62672"
+         sodipodi:cx="29.916056"
+         id="path3508"
+         style="color:#000000;fill:#009c00;fill-opacity:1;stroke:#009c00;stroke-width:3;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate"
+         sodipodi:type="arc" />
     </g>
   </g>
   <g

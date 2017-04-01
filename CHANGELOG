@@ -497,4 +497,7 @@
 - maqueta: Entrada genérica a través de la clase Luz. Fix #11
 - maqueta, evento: Soporte para restricción de cambios de estado.
 
+1 de abril de 2017
+
+- con_puente.{py,svg}: Indicador de presencia de la vía de la estantería.
 

@@ -221,4 +221,3 @@ class ChipVias(Desc, PWM):
         self.setPWM(pin_des, 0, 4096)
         self.setPWM(pin_act, 0, valor)
 
-
