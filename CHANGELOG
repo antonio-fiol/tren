@@ -501,5 +501,7 @@
 
 - con_puente.{py,svg}: Indicador de presencia de la vía de la estantería.
 - maqueta: Bloqueo de una luz si se controla por detección.
+- newlayout: Intento de arreglar el bloqueo del manual cuando un tren desaparece.
+  Fix #8
 
 
