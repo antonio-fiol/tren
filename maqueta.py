@@ -925,6 +925,7 @@ class Luz(Desc, object):
         self.encendida = False
         self.chip = None
         self.pin = None
+        self.controlada_por_deteccion = False
         Luz.luces.append(self)
         if desc:
             self.desc=desc
@@ -941,7 +942,10 @@ class Luz(Desc, object):
         # al crear el objeto pero el chip no estaba registrado
         self.estado(self.encendida, pub=False)
 
-    def estado(self,encendida,pub=True):
+    def estado(self,encendida,pub=True,forzar=False):
+        # No permite cambios si esta controlada por deteccion
+        if self.controlada_por_deteccion and not forzar: return
+
         print(self.desc + " " + str(encendida))
         # Guardar estado por si no estaba registrado aun el chip
         self.encendida = encendida
@@ -956,8 +960,9 @@ class Luz(Desc, object):
             maqueta.pedir_publicar_luces()
 
     def deteccion(self, d):
+        self.controlada_por_deteccion = True
         if d != self.encendida:
-            self.esetado(d)
+            self.estado(d, forzar=True)
 
     def on(self):
         self.estado(True)
@@ -2584,7 +2589,7 @@ class Maqueta:
     def publicar_parametros(self):
         if self.pubpar:
           m = {"id": str(self.d), "parametros": Parametros().json_friendly_dict() }
-          print(m)
+          #print(m)
           global_message_buffer.new_messages([ m ])
           self.d +=1
           self.pubpar = False

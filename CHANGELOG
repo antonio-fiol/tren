@@ -500,4 +500,6 @@
 1 de abril de 2017
 
 - con_puente.{py,svg}: Indicador de presencia de la vía de la estantería.
+- maqueta: Bloqueo de una luz si se controla por detección.
+
 
