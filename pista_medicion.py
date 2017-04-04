@@ -1,3 +1,14 @@
+import tornado.ioloop
+
+from maqueta            import ColeccionTramos, Desvio, Tren, Maqueta
+from singleton          import singleton
+from parametros         import expuesto
+from proceso_pasos      import ProcesoPasos
+from tornado            import gen
+from eventos            import GestorEventos
+from dijkstra           import shortestPath
+from datetime           import timedelta
+
 
 
 @singleton
@@ -54,7 +65,6 @@ class PistaMedicion(ColeccionTramos):
                import traceback
                traceback.print_stack()
                GestorEventos().eliminar_suscriptor(self.evento_tren_movido)
-               GestorEventos().eliminar_suscriptor(self.evento_tren_desaparecido)
                tren = PistaMedicion().midiendo
                if tren:
                    tren.poner_velocidad(0)
@@ -69,14 +79,57 @@ class PistaMedicion(ColeccionTramos):
             self.siguiente_paso_inmediato()
 
     class MedicionCurva(ProcesoPasos):
+        @expuesto
+        def CONTADOR_MEDIDAS():
+            """ Numero de tramos a recorrer a cada velocidad. """
+            return 12
         def __init__(self):
             print("MedicionCurva.__init__")
+            self.movido = False
+            self.v = 100
+            self.contador_medidas = __class__.CONTADOR_MEDIDAS
+            print("MedicionCurva.__init__ --> iniciar")
             self.iniciar()
 
         @gen.coroutine
+        def primer_paso(self):
+            print("MedicionCurva.primer_paso")
+            GestorEventos().suscribir_evento(Tren.EventoMovido, self.evento_tren_movido, PistaMedicion().midiendo)
+            self.movido = True   # Para no abortar antes de empezar
+            return (yield self.paso())
+
+        @gen.coroutine
         def paso(self):
-            self.parar()
-            return None
+            print("MedicionCurva.paso")
+            if not self.movido or self.v<=0: # Abortar medicion
+                print("MedicionCurva.paso abortando medicion")
+                self.parar()
+                return None
+            if PistaMedicion().midiendo.velocidad != self.v:
+                PistaMedicion().midiendo.poner_velocidad(self.v)
+            if self.contador_medidas <= 0:
+                self.v -= 10
+                self.contador_medidas = __class__.CONTADOR_MEDIDAS
+            return timedelta(seconds=20) # No deberia tardar mas de 20 segundos en recorrer ningun tramo
+
+        def limpieza(self):
+               print("MedicionCurva.limpieza")
+               import traceback
+               traceback.print_stack()
+               GestorEventos().eliminar_suscriptor(self.evento_tren_movido)
+               tren = PistaMedicion().midiendo
+               if tren:
+                   tren.poner_velocidad(0)
+                   tren.estado_colision = None
+                   print("*************************** CONCLUSION MEDICION *************************")
+                   print(tren)
+                   #print(self.rango)
+                   print("*************************** CONCLUSION MEDICION *************************")
+
+        def evento_tren_movido(self, evento):
+            self.movido = True
+            self.contador_medidas -= 1
+            self.siguiente_paso_inmediato()
 
     class Medicion(ProcesoPasos):
         def __init__(self):
@@ -106,6 +159,8 @@ class PistaMedicion(ColeccionTramos):
 
         def limpieza(self):
             print("Medicion.limpieza")
+            GestorEventos().eliminar_suscriptor(self.evento_tren_desaparecido)
+
 
         def evento_tren_desaparecido(self, evento):
             self.parar()
