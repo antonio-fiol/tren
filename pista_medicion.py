@@ -134,7 +134,7 @@ class PistaMedicion(ColeccionTramos):
     class Medicion(ProcesoPasos):
         def __init__(self):
             print("Medicion.__init__")
-            self.pasos = [ PistaMedicion.MedicionMinimo, PistaMedicion.MedicionCurva ]
+            self.pasos = [ PistaMedicion.MedicionCurva, PistaMedicion.MedicionMinimo ] # En orden inverso de ejecucion.
             GestorEventos().suscribir_evento(Tren.EventoDesaparecido, self.evento_tren_desaparecido, PistaMedicion().midiendo)
             self.iniciar()
 
