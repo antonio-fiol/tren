@@ -1987,15 +1987,15 @@ class Tren(Id, object):
         self.altavoces.nuevo(audio.Combi([z.altavoces for z in self.zonas if z.altavoces != None]))
         print(self.altavoces)
 
-    def buscar_y_reproducir_sonido(self, sonido):
+    def buscar_y_reproducir_sonido(self, sonido, callback=None):
         s = audio.AudioSystem().sonido(self.clase, sonido)
         if s:
             print("Encontrado sonido ", s, " para tren ", self)
-            self.reproducir_sonido(s)
+            self.reproducir_sonido(s, callback=callback)
         else:
             print("Sonido "+sonido+" no encontrado para clase "+self.clase)
 
-    def reproducir_sonido_estacion(self, estacion, texto):
+    def reproducir_sonido_estacion(self, estacion, texto, callback=None):
         print(str(self)+": reproducir_sonido_estacion("+str(estacion)+", "+str(texto)+")")
         if self.sta:
             e = self.sta[0]
@@ -2003,12 +2003,14 @@ class Tren(Id, object):
                 e = self.sta[1]
             texto_completo = texto.format(tren=self, estacion=estacion.desc, destino=e.desc)
             print("reproducir_sonido_estacion: texto_completo="+texto_completo)
-            TTS().tts(texto_completo, self.reproducir_sonido)
+            TTS().tts(texto_completo, self.reproducir_sonido, callback=callback)
 
-    def reproducir_sonido(self,x):
+    def reproducir_sonido(self,x,callback=None):
         print(str(self)+": reproducir_sonido: x="+str(x)+" altavoces="+str(self.altavoces))
+        print("callback="+str(callback))
         f = audio.Wav(x)
         f.canales = self.altavoces
+        f.callback = callback
         s = audio.AudioSystem()
         s.nueva_fuente(f)
 
@@ -2811,7 +2813,9 @@ class SonidoTren(SuscriptorEvento):
 
     def recibir(self, evento):
         try:
-            evento.tren.buscar_y_reproducir_sonido(self.nombre)
+            def callback_fin(*args, **kwargs):
+                SuscriptorEvento.Fin(self, evento).publicar()
+            evento.tren.buscar_y_reproducir_sonido(self.nombre, callback=callback_fin)
         except AttributeError:
             print("ERROR: SonidoTren utilizado con un evento sin atributo tren: "+str(evento))
         
@@ -2824,10 +2828,43 @@ class SonidoEstacion(SuscriptorEvento):
         try:
             tren = evento.tren
             estacion = evento.estacion
-            tren.reproducir_sonido_estacion(estacion, self.texto)
+            def callback_fin(*args, **kwargs):
+                SuscriptorEvento.Fin(self, evento).publicar()
+            tren.reproducir_sonido_estacion(estacion, self.texto, callback=callback_fin)
         except AttributeError:
             print("ERROR: SonidoTren utilizado con un evento sin atributo tren o atributo estacion: "+str(evento))
-        
+
+    def mapear_clave_concurrencia(self, evento):
+        if estacion in evento: return evento.estacion
+        else: return None
+
+class DescartarConcurrencia(SuscriptorEvento):
+    def __init__(self, delegado, max_concurrencia = 1):
+        self.delegado = delegado
+        self.max_concurrencia = 1
+        self.concurrencia = {}
+
+        GestorEventos().suscribir_evento(SuscriptorEvento.Fin, self.fin, self.delegado)
+
+    def recibir(self, evento):
+        autorizar = False
+        clave = self.delegado.mapear_clave_concurrencia(evento)
+        if clave in self.concurrencia:
+            if self.concurrencia[clave] < self.max_concurrencia:
+                self.concurrencia[clave] += 1
+                autorizar = True
+        else:
+            self.concurrencia[clave] = 1
+            autorizar = True
+        if autorizar:
+            self.delegado.recibir(evento)
+
+    def fin(self, evento):
+        clave = self.delegado.mapear_clave_concurrencia(evento)
+        self.concurrencia[clave] -= 1
+        if self.concurrencia[clave] == 0: del self.concurrencia[clave]
+
+
 
 def listar_eventos_disponibles():
     import inspect,sys

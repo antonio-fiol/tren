@@ -6,14 +6,14 @@ import os.path
 STREAM = tornado.process.Subprocess.STREAM
 
 class TTS(object):
-    def tts(self, texto, callback):
+    def tts(self, texto, callback_reproducir, callback_fin=None):
         # Para poder ejecutar el proceso y en paralelo seguir procesando el ioloop,
         # creo una coroutine y la lanzo como un callback del ioloop.
-        tornado.ioloop.IOLoop.current().add_callback(self.tts_cor, texto, callback)
+        tornado.ioloop.IOLoop.current().add_callback(self.tts_cor, texto, callback_reproducir, callback_fin)
 
     @coroutine
-    def tts_cor(self, texto, play_callback):
-        print("TTS.tts_cor("+str(texto)+","+str(play_callback)+")")
+    def tts_cor(self, texto, callback_reproducir, callback_fin):
+        print("TTS.tts_cor("+str(texto)+","+str(callback_reproducir)+","+str(callback_fin)+")")
         fn="/tmp/"+str(hash(texto))
         print("TTS.tts_cor: fn="+str(fn))
         print("TTS.tts_cor: isfile="+str(os.path.isfile(fn+".44100.wav")))
@@ -31,8 +31,8 @@ class TTS(object):
             result, error = yield cs
             print("TTS.tts_cor: result="+str(result))
             print("TTS.tts_cor: error="+str(error))
-        print("TTS.tts_cor: play_callback")
-        play_callback(fn+".44100.wav")
+        print("TTS.tts_cor: callback_reproducir")
+        callback_reproducir(fn+".44100.wav", callback=callback_fin)
 
     @coroutine
     def call_subprocess(self, args):

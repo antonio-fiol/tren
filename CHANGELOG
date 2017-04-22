@@ -505,4 +505,8 @@
   Fix #8
 - newlayout: Swipe en el botón de velocidad cambia el modo. Fix #7
 
+22 de abril de 2017
+
+- Posibilidad de descartar concurrencia para suscriptores de evento.
+
 
