@@ -31,9 +31,11 @@ class PistaMedicion(ColeccionTramos):
                    self.v = -100
                self.moviendo = True
                self.movido = False
-               print(PistaMedicion().midiendo, " midiendo a velocidad ",self.v)
-               GestorEventos().suscribir_evento(Tren.EventoMovido, self.evento_tren_movido, PistaMedicion().midiendo)
-               PistaMedicion().midiendo.poner_velocidad(self.v)
+               tren = PistaMedicion().midiendo
+               print(tren, " midiendo a velocidad ",self.v)
+               GestorEventos().suscribir_evento(Tren.EventoMovido, self.evento_tren_movido, tren)
+               tren.estado_colision = Tren.MIDIENDO
+               tren.poner_velocidad(self.v)
                if self.v<0: return timedelta(seconds=2)
 
             else:
@@ -46,7 +48,9 @@ class PistaMedicion(ColeccionTramos):
                    print("Se ha movido.")
                    if self.direccion > 0:
                        self.rango = (m, self.v)
-                   self.direccion *= -1
+                   print("modo_dummy="+str(Maqueta.modo_dummy))
+                   if not Maqueta.modo_dummy: # En modo dummy no podemos ir hacia atras.
+                       self.direccion *= -1
                else:
                    print("No se ha movido.")
                    self.rango = (self.v, M)
@@ -105,8 +109,10 @@ class PistaMedicion(ColeccionTramos):
                 print("MedicionCurva.paso abortando medicion")
                 self.parar()
                 return None
-            if PistaMedicion().midiendo.velocidad != self.v:
-                PistaMedicion().midiendo.poner_velocidad(self.v)
+            tren = PistaMedicion().midiendo
+            if tren.velocidad != self.v:
+                tren.estado_colision = Tren.MIDIENDO
+                tren.poner_velocidad(self.v)
             if self.contador_medidas <= 0:
                 self.v -= 10
                 self.contador_medidas = __class__.CONTADOR_MEDIDAS
@@ -159,6 +165,7 @@ class PistaMedicion(ColeccionTramos):
 
         def limpieza(self):
             print("Medicion.limpieza")
+            PistaMedicion().limpieza()
             GestorEventos().eliminar_suscriptor(self.evento_tren_desaparecido)
 
 
@@ -171,9 +178,13 @@ class PistaMedicion(ColeccionTramos):
         self.desvio_color_list = []
         self.desvios = []
         self.midiendo = None
+        self.medicion = None
 
         # Registrarse para saber cuando se libera un desvio, quiza lo este esperando
         GestorEventos().suscribir_evento(Desvio.EventoLiberado, self.recibir_evento_desvio_liberado)
+
+        # Avisar a la maqueta de que existe
+        Maqueta().pista_medicion = self
 
     def desvio_color(self):
         if not(self.desvio_color_list):
@@ -187,8 +198,8 @@ class PistaMedicion(ColeccionTramos):
     def recibir_evento_desvio_liberado(self, evento):
         if self.midiendo and evento.emisor and evento.emisor in self.desvios:
             print("Se ha liberado un desvio de la pista. Abortando medicion.")
-            for d in self.desvios:
-                d.liberar(self.midiendo)
+            if self.medicion:
+                self.medicion.parar()
 
     def puede_medir(self, tren):
         if tren.tramo in self.tramos:
@@ -208,10 +219,18 @@ class PistaMedicion(ColeccionTramos):
 
         self.midiendo = tren
 
-        tren.estado_colision = Tren.MIDIENDO
-
-        tornado.ioloop.IOLoop.current().add_timeout(timedelta(seconds=10), PistaMedicion.Medicion.__call__)
+        tornado.ioloop.IOLoop.current().add_callback(self.medir)
         #GestorEventos().suscribir_evento(Tren.EventoMovido, self.recibir_evento_tren_movido, emisor=self.midiendo)
 
         return True
+
+    def medir(self):
+        if self.midiendo:
+            self.medicion = PistaMedicion.Medicion()
+
+    def limpieza(self):
+        for d in self.desvios:
+            d.liberar(self.midiendo)
+        self.midiendo = self.medicion = None
+
 
