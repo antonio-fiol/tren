@@ -23,7 +23,6 @@ import audio_maqueta as audio
 from tira import Tira, TiraHandler
 from weather import Weather, WeatherHandler
 from tts import TTS
-from proceso_pasos import ProcesoPasos
 
 # Making this a non-singleton is left as an exercise for the reader.
 global_message_buffer = MessageBuffer()
