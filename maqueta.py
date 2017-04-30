@@ -1294,6 +1294,7 @@ class Tren(Id, object):
         self.ultima_ruta_calculada = []
 
         self.opciones_activas = SuscriptorEvento.activables[:]
+        self.auto_quitar = None
 
         # Registro en la maqueta
         Tren.trenes.append(self)
@@ -1730,9 +1731,11 @@ class Tren(Id, object):
             self.estado_colision = Tren.DESAPARECIDO
             self.EventoDesaparecido(self).publicar()
             if self.clase=="desconocido":
+                self.auto_quitar = tornado.ioloop.IOLoop.current().add_timeout(datetime.timedelta(seconds=10), self.quitar)
                 self.quitar()
 
         elif self.estado_colision == Tren.DESAPARECIDO:
+            if self.auto_quitar: tornado.ioloop.IOLoop.current().remove_timeout(self.auto_quitar)
             self.estado_colision = None
             self.EventoEncontrado(self).publicar()
             self.analizar_colisiones()
