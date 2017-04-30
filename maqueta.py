@@ -199,7 +199,11 @@ class TrenHandler(tornado.web.RequestHandler):
 
         if medir and Maqueta().pista_medicion:
             for t in trenes:
-                Maqueta().pista_medicion.puede_medir(t)
+                try:
+                    Maqueta().pista_medicion.puede_medir(t)
+                except Exception as e:
+                    self.write(dict(messages=[{"request_done":False, "e":str(e)}]))
+                    return
 
         if self.request.connection.stream.closed():
             return
