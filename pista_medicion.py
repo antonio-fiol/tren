@@ -214,6 +214,9 @@ class PistaMedicion(ColeccionTramos):
         else:
             print("No hay ningun otro tren en la pista.")
 
+        if tren.estado_colision == Tren.MIDIENDO:
+            raise Exception("El tren ya esta midiendo.")
+
         for d,c in self.desvio_color():
             d.cambiar(c,reserva=tren)
 
