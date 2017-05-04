@@ -19,11 +19,13 @@ class PistaMedicion(ColeccionTramos):
             self.movido = False
             self.direccion = 1
             self.rango = ( 0, 100 )
+            self.bak_minimo = PistaMedicion().midiendo.datos_velocidad.minimo
             self.iniciar()
 
         @gen.coroutine
         def paso(self):
             tren = PistaMedicion().midiendo
+            tren.datos_velocidad.minimo = 0
             if not self.moviendo:
                 print("Estoy parado. Calcular velocidad e iniciar movimiento.")
                 if self.direccion > 0:
@@ -61,7 +63,8 @@ class PistaMedicion(ColeccionTramos):
                     try: Maqueta().sendChatMessage("Terminada la medicion del minimo para el tren "+str(tren.id)+": porcentaje_minimo="+str(M), origin=tren)
                     except:
                         print(sys.exc_info()[0])
-                       
+                    self.bak_minimo = int(M * 4096 / 100)
+                    DatosVelocidad.MINIMO_INICIO[tren.clase] = tren.datos_velocidad.minimo = self.bak_minimo
                     self.parar()
                     return None
                 return timedelta(seconds=1)
@@ -76,6 +79,7 @@ class PistaMedicion(ColeccionTramos):
                if tren:
                    tren.poner_velocidad(0)
                    tren.estado_colision = None
+                   tren.datos_velocidad.minimo = self.bak_minimo
                    print("*************************** CONCLUSION MEDICION *************************")
                    print(tren)
                    print(self.rango)
