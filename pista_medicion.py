@@ -23,45 +23,48 @@ class PistaMedicion(ColeccionTramos):
 
         @gen.coroutine
         def paso(self):
+            tren = PistaMedicion().midiendo
             if not self.moviendo:
-               print("Estoy parado. Calcular velocidad e iniciar movimiento.")
-               if self.direccion > 0:
-                   self.v = sum(self.rango)/2
-               else:
-                   self.v = -100
-               self.moviendo = True
-               self.movido = False
-               tren = PistaMedicion().midiendo
-               print(tren, " midiendo a velocidad ",self.v)
-               GestorEventos().suscribir_evento(Tren.EventoMovido, self.evento_tren_movido, tren)
-               tren.estado_colision = Tren.MIDIENDO
-               tren.poner_velocidad(self.v)
-               if self.v<0: return timedelta(seconds=2)
+                print("Estoy parado. Calcular velocidad e iniciar movimiento.")
+                if self.direccion > 0:
+                    self.v = sum(self.rango)/2
+                else:
+                    self.v = -100
+                self.moviendo = True
+                self.movido = False
+                print(tren, " midiendo a velocidad ",self.v)
+                GestorEventos().suscribir_evento(Tren.EventoMovido, self.evento_tren_movido, tren)
+                tren.estado_colision = Tren.MIDIENDO
+                tren.poner_velocidad(self.v)
+                if self.v<0: return timedelta(seconds=2)
 
             else:
-               print("Estoy moviendo. Parar y decidir.")
-               GestorEventos().eliminar_suscriptor(self.evento_tren_movido)
-               PistaMedicion().midiendo.poner_velocidad(0)
-               
-               m, M = self.rango
-               if self.movido:
-                   print("Se ha movido.")
-                   if self.direccion > 0:
-                       self.rango = (m, self.v)
-                   print("modo_dummy="+str(Maqueta.modo_dummy))
-                   if not Maqueta.modo_dummy: # En modo dummy no podemos ir hacia atras.
-                       self.direccion *= -1
-               else:
-                   print("No se ha movido.")
-                   self.rango = (self.v, M)
-               self.moviendo = False
-               self.movido = False
-
-               m, M = self.rango
-               if (M-m)<2:
-                   self.parar()
-                   return None
-               return timedelta(seconds=1)
+                print("Estoy moviendo. Parar y decidir.")
+                GestorEventos().eliminar_suscriptor(self.evento_tren_movido)
+                PistaMedicion().midiendo.poner_velocidad(0)
+                m, M = self.rango
+                if self.movido:
+                    print("Se ha movido.")
+                    if self.direccion > 0:
+                        self.rango = (m, self.v)
+                    print("modo_dummy="+str(Maqueta.modo_dummy))
+                    if not Maqueta.modo_dummy: # En modo dummy no podemos ir hacia atras.
+                        self.direccion *= -1
+                else:
+                    print("No se ha movido.")
+                    self.rango = (self.v, M)
+                self.moviendo = False
+                self.movido = False
+                print("Rango: "+str(self.rango))
+                m, M = self.rango
+                if (M-m)<2:
+                    try: Maqueta().sendChatMessage("Terminada la medicion del minimo para el tren "+str(tren.id)+": porcentaje_minimo="+str(M), origin=tren)
+                    except:
+                        print(sys.exc_info()[0])
+                       
+                    self.parar()
+                    return None
+                return timedelta(seconds=1)
 
             return timedelta(seconds=10)
 
@@ -105,17 +108,33 @@ class PistaMedicion(ColeccionTramos):
         @gen.coroutine
         def paso(self):
             print("MedicionCurva.paso")
+            tren = PistaMedicion().midiendo
             if not self.movido or self.v<=0: # Abortar medicion
                 print("MedicionCurva.paso abortando medicion")
+                try: Maqueta().sendChatMessage("Abortada medición de curva.", origin=tren)
+                except:
+                    print(sys.exc_info()[0])
                 self.parar()
                 return None
-            tren = PistaMedicion().midiendo
             if tren.velocidad != self.v:
                 tren.estado_colision = Tren.MIDIENDO
                 tren.poner_velocidad(self.v)
             if self.contador_medidas <= 0:
                 self.v -= 10
                 self.contador_medidas = __class__.CONTADOR_MEDIDAS
+                if self.v <= 0:
+                    try:
+                        msg = 'Locomotora("{}",desc="{}",coeffs={},minimo={},muestras_inercia={})'.format(tren.clase,
+                                                                                                   Maqueta.locomotoras[tren.clase],
+                                                                                                   tren.datos_velocidad.coeffs,
+                                                                                                   tren.datos_velocidad.minimo,
+                                                                                                   tren.datos_velocidad.muestras_inercia)
+                        print(msg)
+                        Maqueta().sendChatMessage(msg, origin=tren)
+                    except:
+                        print(sys.exc_info()[0])
+                    self.parar()
+                    return None
             return timedelta(seconds=20) # No deberia tardar mas de 20 segundos en recorrer ningun tramo
 
         def limpieza(self):
