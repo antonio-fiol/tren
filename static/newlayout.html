@@ -505,6 +505,11 @@ g.velocidad-input {
     background-repeat: no-repeat;
     background-position-x: right;
 }
+.message.Tren {
+    padding-left: 3em;
+    border: 1px dotted black;
+}
+
 @media (max-width: 1024px) {
   #antipopup {
     height: 212px;
@@ -1659,7 +1664,8 @@ if(docWidth / window.innerWidth !== 1) { //kind of a hack to determine if the vi
     chatMessage: function(id,message) {
         var existing = $("#m" + id);
         if (existing.length > 0) return;
-        var node = $(message.html || '<div class="message text" id="m'+ id+'">'+message.body+'</div>');
+        console.log(message);
+        var node = $(message.html || '<div class="message text '+(message.origin_class||'')+'" id="m'+ id+'">'+message.body+'</div>');
         node.hide();
         $("#inbox").append(node);
         node.slideDown();
