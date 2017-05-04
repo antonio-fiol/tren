@@ -2692,11 +2692,11 @@ class Maqueta:
         }
         if origin:
             message["chat"].update({
-                "origin-class": type(origin).__name__,
-                "origin-value": str(origin),
+                "origin_class": type(origin).__name__,
+                "origin_value": str(origin),
             })
             if hasattr(origin, "id") and origin.id:
-                message["chat"]["origin-id"]=origin.id
+                message["chat"]["origin_id"]=origin.id
 
         self.d+=1
         return message
