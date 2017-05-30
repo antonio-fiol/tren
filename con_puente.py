@@ -90,7 +90,7 @@ if __name__ == "__main__":
 
     # Circuito exterior
     Tramo("E1", 0.67,  limites=[LimiteAcercamiento(100,80.0,40).inv()] )
-    Tramo("E2", 0.71)
+    Tramo("E2", 0.40)
     Tramo("E8", 0.3) #XXX
     Tramo("E3", 0.93)
     Tramo("E7", 0.985)
