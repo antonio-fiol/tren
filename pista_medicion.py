@@ -128,7 +128,7 @@ class PistaMedicion(ColeccionTramos):
                 self.contador_medidas = __class__.CONTADOR_MEDIDAS
                 if self.v <= 0:
                     try:
-                        msg = 'Locomotora("{}",desc="{}",coeffs={},minimo={},muestras_inercia={})'.format(tren.clase,
+                        msg = 'Locomotora(id="{}", desc="{}", coeffs={}, minimo={}, muestras_inercia={})'.format(tren.clase,
                                                                                                    Maqueta.locomotoras[tren.clase],
                                                                                                    tren.datos_velocidad.coeffs,
                                                                                                    tren.datos_velocidad.minimo,
