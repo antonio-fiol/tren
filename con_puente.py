@@ -424,6 +424,7 @@ if __name__ == "__main__":
     #listar_eventos_disponibles()
 
     #Shell(1, "Prueba", "echo hola > /tmp/hola")
+    Shell(1, "Apagar el sistema", "sudo shutdown -h now")
 
     Tira(desc="Ambiente", num_leds=180, dobleces=1, invirtiendo=True).weather()
     Weather.AutoLuces.usa([farolas, casas])
