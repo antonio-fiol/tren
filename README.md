@@ -34,10 +34,21 @@ Es posible utilizar varias placas de cada tipo (en algunos casos hasta un máxim
 
 ## Instalación del Software
 
+Para que el software tenga acceso al bus I2C, es necesario tenerlo activado. En Raspbian se puede utilizar el comando `raspi-config` y habilitar I2C desde ahí. En distribuciones que no tienen `raspi-config`, como OSMC, simplemente se añade una línea al fichero `/boot/config.txt` y se reinicia:
+```
+[...]
+dtparam=i2c_arm=on
+```
+
+Asimismo, nos aseguraremos de que en el fichero `/etc/modules` haya una línea con:
+```
+i2c-dev
+```
+
 Cómo instalar los paquetes de sistema operativo necesarios para la ejecución en python 3:
 ```
 sudo apt-get update
-sudo apt-get install python3-pip libasound2-dev libffi-dev python3-dev python3-numpy python3-pyaudio python3-tornado python3-pil
+sudo apt-get install python3-pip libasound2-dev libffi-dev python3-dev python3-numpy python3-pyaudio python3-tornado python3-pil gcc i2c-tools
 ```
 
 Para el módulo de text-to-speech de los mensajes de las estaciones:
@@ -50,4 +61,58 @@ Y además hay que instalar módulos directamente en Python3 (que no están dispo
 ```
 python3 -m pip install pyalsaaudio cffi sounddevice numpy Adafruit_PureIO --user
 ```
+
+En la distribución OSMC (no es aplicable a Raspbian) es conveniente desactivar el servicio "mediacenter":
+```
+sudo service mediacenter stop
+sudo systemctl disable mediacenter
+```
+
+Si se va a clonar el repositorio desde github, se necesitará también el "git". Instalación y clonado, en dos comandos:
+```
+sudo apt-get install git
+git clone https://github.com/antonio-fiol/tren.git
+```
+de lo contrario, se puede descargar el fichero ZIP desde github y descomprimirlo directamente en la raspberry. Recomiendo, por facilidad de actualización, clonar el repositorio.
+
+Para evitar que el log se escriba en la tarjeta SD, y con ello se reduzca su vida útil, podemos redirigir el log a algún directorio montado en un tmpfs. En OSMC, el directorio /run está montado en tmpfs y tiene permisos de escritura para cualquier usuario. Así pues:
+```
+ln -s /run/tren.log ~/tren/tren.log
+```
+
+## Personalización
+
+El software en este repositorio permite controlar cualquier maqueta, pero no tiene forma de conocer cómo es esa maqueta. Para que la conozca, habrá que personalizar varios ficheros.
+
+### Configuración de la maqueta
+
+La configuración de la maqueta se realiza en el fichero `.py` que se utiliza para arrancar el sistema. Como ejemplo, el fichero utilizado para arrancar mi maqueta es `con_puente.py`. Si se crea un fichero nuevo, habrá que apuntar a él desde el `start.sh`, o crear un nuevo `.sh` y apuntar a él desde el `tren.service` que se instalará más abajo para el autoarranque.
+
+Para probar, en lugar de arrancar la maqueta como servicio, es recomendable arrancar directamente ese `.py` y ver el log en consola.
+
+```
+./con_puente.py
+```
+
+En este fichero hay que indicar todos los tramos que conforman la maqueta, los desvíos, y las conexiones entre ellos. Además, se pueden definir estaciones, zonas, locomotoras, eventos, etc. En el fichero de ejemplo se muestran usos de las diferentes capacidades.
+
+### Dibujo
+
+Todo el control de la maqueta se realiza desde el navegador, y la visualización de la misma es un fichero SVG en el que cada elemento tiene un identificador que corresponde con el identificador indicado en la configuración. El `static/drawing.svg` es un ejemplo de ello.
+
+### Fotos y sonidos
+
+Cada locomotora puede tener una foto y sonidos personalizados.
+
+Las estaciones pueden tener fotos.
+
+## Autoarranque
+
+Para que arranque automáticamente (después de cambiar `osmc` por el usuario correcto y revisar las rutas en el `tren.service` si procede):
+```
+sudo cp tren/tren.service /lib/systemd/system
+sudo systemctl enable tren
+sudo service tren start
+```
+
 
