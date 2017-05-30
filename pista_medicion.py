@@ -1,6 +1,6 @@
 import tornado.ioloop
-
-from maqueta            import ColeccionTramos, Desvio, Tren, Maqueta
+import sys
+from maqueta            import ColeccionTramos, Desvio, Tren, Maqueta, DatosVelocidad
 from singleton          import singleton
 from parametros         import expuesto
 from proceso_pasos      import ProcesoPasos
@@ -62,7 +62,7 @@ class PistaMedicion(ColeccionTramos):
                 if (M-m)<2:
                     try: Maqueta().sendChatMessage("Terminada la medicion del minimo para el tren "+str(tren.id)+": porcentaje_minimo="+str(M), origin=tren)
                     except:
-                        print(sys.exc_info()[0])
+                        print(sys.exc_info())
                     self.bak_minimo = int(M * 4096 / 100)
                     DatosVelocidad.MINIMO_INICIO[tren.clase] = tren.datos_velocidad.minimo = self.bak_minimo
                     self.parar()

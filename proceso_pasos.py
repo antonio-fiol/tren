@@ -1,4 +1,5 @@
 import tornado.ioloop
+import sys
 from tornado import gen
 from tornado.concurrent import Future
 from eventos import Evento
@@ -22,6 +23,7 @@ class ProcesoPasos(object):
 
     @gen.coroutine
     def siguiente_paso(self):
+      try:
         if self.continuar():
             if self.andando:
                 print(self,"andando")
@@ -46,6 +48,9 @@ class ProcesoPasos(object):
                 print(future)
             self.waiters = set()
             ProcesoPasos.Finalizado(self).publicar()
+      except:
+        print(sys.exc_info())
+        raise
 
     def cancelar_siguiente_paso(self):
         print(self,"cancelar_siguiente_paso")
