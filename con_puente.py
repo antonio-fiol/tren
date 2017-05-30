@@ -2,8 +2,12 @@
 from maqueta import *
 from chips_maqueta import *
 from audio_maqueta import AudioSystem, UnCanal, Mixer
+from pista_medicion import PistaMedicion
 
 if __name__ == "__main__":
+
+    #from change_monitor import ChangeMonitor
+    #ChangeMonitor(Tren)
 
     DrawingHandler.name = "con-puente.svg"
 
@@ -90,7 +94,7 @@ if __name__ == "__main__":
 
     # Circuito exterior
     Tramo("E1", 0.67,  limites=[LimiteAcercamiento(100,80.0,40).inv()] )
-    Tramo("E2", 0.71)
+    Tramo("E2", 0.40)
     Tramo("E8", 0.3) #XXX
     Tramo("E3", 0.93)
     Tramo("E7", 0.985)
@@ -199,7 +203,7 @@ if __name__ == "__main__":
     conexion(desvios[16].rojo.inv, tramos["P3"])
     conexion(tramos["P3"], desvios[17].verde)
 
-    #PistaMedicion(tramos=[tramos[x] for x in ["E1","E2","E8","E3","E4","E5","E6"]])
+    PistaMedicion(tramos=[tramos[x] for x in ["E1","E2","E8","E3","E4","E5","E6"]])
 
     # Listado de estaciones
     #Estacion(nombre,sentido,tramo,%,desc=descripcion).controlar_tramo_previo(velocidad_de_traspaso_entre_tramos)
