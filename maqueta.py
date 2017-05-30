@@ -128,6 +128,7 @@ class TrenHandler(tornado.web.RequestHandler):
         opcion = self.get_argument("opcion",None)
         estado = self.get_argument("estado",None)
         paro_progresivo = self.get_argument("paro_progresivo",None)
+        medir = self.get_argument("medir",None)
 
         # Si la peticion no se asocia a un tren concreto, se asume que es para todos.
         guardar_velocidad = False
@@ -195,6 +196,14 @@ class TrenHandler(tornado.web.RequestHandler):
         if paro_progresivo:
             for t in trenes:
                 t.paro_progresivo(empezar=True)
+
+        if medir and Maqueta().pista_medicion:
+            for t in trenes:
+                try:
+                    Maqueta().pista_medicion.puede_medir(t)
+                except Exception as e:
+                    self.write(dict(messages=[{"request_done":False, "e":str(e)}]))
+                    return
 
         if self.request.connection.stream.closed():
             return
@@ -518,6 +527,13 @@ class Desvio(Desc, Coloreado):
             return self.centro.inv
         else:
             return self.centro
+
+    def color_rama(self, rama):
+        if rama==self.verde or rama==self.verde.inv:
+            return Coloreado.VERDE
+        if rama==self.rojo  or rama==self.rojo.inv:
+            return Coloreado.ROJO
+        return None
 
 
 class Tramo(Nodo):
@@ -1215,6 +1231,7 @@ class AsociacionEstaciones(Desc,object):
 class Tren(Id, object):
     trenes = []
     cnt = 0
+    MIDIENDO = 8
     COLISION_FRONTAL = 7
     MODO_MANUAL = 6
     DESAPARECIDO = 5
@@ -1336,6 +1353,7 @@ class Tren(Id, object):
         self.ultima_ruta_calculada = []
 
         self.opciones_activas = SuscriptorEvento.activables[:]
+        self.auto_quitar = None
 
         # Registro en la maqueta
         Tren.trenes.append(self)
@@ -1710,7 +1728,7 @@ class Tren(Id, object):
 
         limites = [ LimiteVelocidad(abs(self.velocidad)) ] # Limitar a la velocidad programada
 
-        if not self.estado_colision == Tren.MODO_MANUAL:  # Si es avance manual, no respetamos los limites del tramo
+        if not (self.estado_colision == Tren.MODO_MANUAL or self.estado_colision == Tren.MIDIENDO):  # Si es avance manual, no respetamos los limites del tramo
             limites.extend(self.tramo.get_limites())
 
         if self.estado_colision == Tren.COLISION_INMINENTE:
@@ -1741,7 +1759,7 @@ class Tren(Id, object):
         if limite_en_el_punto < abs(self.velocidad_efectiva): # Vamos demasiado rapido. Frenar.
             self.velocidad_efectiva = limite_en_el_punto * copysign(1,self.velocidad)
             print("Tren "+str(self.id)+" frenando: limite: "+str(limite_en_el_punto)+" velocidad_efectiva: "+str(self.velocidad_efectiva))
-        elif limite_en_el_punto > abs(self.velocidad_efectiva+inc) and not self.estado_colision == Tren.MODO_MANUAL: # Vamos demasiado lento. Acelerar.
+        elif limite_en_el_punto > abs(self.velocidad_efectiva+inc) and not (self.estado_colision == Tren.MODO_MANUAL or self.estado_colision == Tren.MIDIENDO): # Vamos demasiado lento. Acelerar.
             self.velocidad_efectiva = self.velocidad_efectiva + inc
             print("Tren "+str(self.id)+" acelerando: limite: "+str(limite_en_el_punto)+" velocidad_efectiva: "+str(self.velocidad_efectiva))
         elif limite_en_el_punto > abs(self.velocidad_efectiva) or self.estado_colision == Tren.MODO_MANUAL: # Vamos casi bien. Ajustar.
@@ -1772,9 +1790,11 @@ class Tren(Id, object):
             self.estado_colision = Tren.DESAPARECIDO
             self.EventoDesaparecido(self).publicar()
             if self.clase=="desconocido":
+                self.auto_quitar = tornado.ioloop.IOLoop.current().add_timeout(datetime.timedelta(seconds=10), self.quitar)
                 self.quitar()
 
         elif self.estado_colision == Tren.DESAPARECIDO:
+            if self.auto_quitar: tornado.ioloop.IOLoop.current().remove_timeout(self.auto_quitar)
             self.estado_colision = None
             self.EventoEncontrado(self).publicar()
             self.analizar_colisiones()
@@ -1817,7 +1837,7 @@ class Tren(Id, object):
             self.estado_colision = Tren.MODO_MANUAL
             print("MANUAL!!")
 
-        if not self.estado_colision == Tren.MODO_MANUAL:
+        if not (self.estado_colision == Tren.MODO_MANUAL or self.estado_colision == Tren.MIDIENDO):
           siguiente = self.tramo.tramo_siguiente(self.velocidad)
 
           if self.velocidad == 0.0:
@@ -2475,6 +2495,7 @@ class Maqueta:
     luces = {}
     zonas = []
     shells = {}
+    pista_medicion = None
     modo_dummy = False
 
     d = 1
@@ -2732,11 +2753,11 @@ class Maqueta:
         }
         if origin:
             message["chat"].update({
-                "origin-class": type(origin).__name__,
-                "origin-value": str(origin),
+                "origin_class": type(origin).__name__,
+                "origin_value": str(origin),
             })
             if hasattr(origin, "id") and origin.id:
-                message["chat"]["origin-id"]=origin.id
+                message["chat"]["origin_id"]=origin.id
 
         self.d+=1
         return message
@@ -2927,6 +2948,7 @@ def simulacion():
 
     maqueta.tramos["M2"].inv.deteccion(True)
     maqueta.tramos["M3"].inv.deteccion(True)
+    maqueta.tramos["M5"].deteccion(True)
 
     for t in Tren.trenes:
         t.poner_clase(random.choice(list(maqueta.locomotoras.keys())))
@@ -2935,6 +2957,8 @@ def simulacion():
     #t.poner_velocidad(100)
     #maqueta.semaforos["I2 invertido"].cambiar(Semaforo.ROJO)
     #Estacion.EventoTrenArrancando(Estacion("x","ccw"),None).publicar()
+
+    #PistaMedicion().puede_medir(maqueta.tramos["E1"].tren)
 
 def start():
     setup()
