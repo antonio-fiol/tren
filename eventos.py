@@ -59,6 +59,9 @@ class SuscriptorEvento(object):
         self.eventos.append(ev)
         return self
 
+    def ya_no(self):
+        GestorEventos().eliminar_suscriptor(self.comprobar_y_recibir)
+
     def tras(self, segundos):
         self.retardo = segundos
 
@@ -90,7 +93,7 @@ class GestorEventos(object):
         print("Propagando "+str(evento))
         for tipo in self.suscriptores:
             if issubclass(type(evento),tipo):
-                for s in self.suscriptores[type(evento)]:
+                for s in self.suscriptores[tipo]:
                     if s.emisor == evento.emisor or not s.emisor:
                         tornado.ioloop.IOLoop.current().add_callback(s.suscriptor, evento)
                         #s.suscriptor(evento) llamado en la siguiente iteracion del bucle

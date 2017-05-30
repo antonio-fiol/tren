@@ -155,7 +155,7 @@ class ChipDetector(MCP23017):
             if tramo:
               if(self.debug):
                   print(str(tramo) + ": " + str(self.state[i]))
-              tramo.tiene_tren(self.state[i])
+              tramo.deteccion(self.state[i])
 
         return changed
 
@@ -220,5 +220,4 @@ class ChipVias(Desc, PWM):
             print("Val: " + str(val) + "    Valor: " + str(valor))
         self.setPWM(pin_des, 0, 4096)
         self.setPWM(pin_act, 0, valor)
-
 

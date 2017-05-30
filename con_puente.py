@@ -246,6 +246,10 @@ if __name__ == "__main__":
     Zona("Audio-CE").suena_por(UnCanal(4)).incluye(tramos["E3"],desde=33,hasta=66).incluye(tramos["E7"],desde=33,hasta=66).incluye(tramos["M2"]).incluye(tramos["M3"]).incluye(tramos["I2"],desde=12).incluye(tramos["I4"],desde=18,hasta=34).incluye(tramos["I3"],desde=44,hasta=65)
     Zona("Audio-LF").suena_por(UnCanal(5)).incluye(tramos["I6"]).incluye(tramos["E6"],desde=15).incluye(tramos["P1"])
 
+    farolas = Luz("farolas")
+    casas = Luz("casas")
+    via_estanteria_colocada = Luz("via_estanteria_colocada")
+
     # Listado de chips que alimentan las vias, indicando que tramo alimentan los pines de cada chip.
     # La polaridad del tramo sigue la regla (*).
     # Indicar "None" si un par de pines no alimenta ningun tramo.
@@ -348,8 +352,8 @@ if __name__ == "__main__":
         None,
         None,
         None,
-        None, # MSB (Arriba en la placa)
-    ])
+        via_estanteria_colocada, # MSB (Arriba en la placa)
+    ], debug=False)
 
 
     chip1 = ChipDesvios(0x22, {
@@ -368,8 +372,6 @@ if __name__ == "__main__":
             semaforos["S1"].luz[Semaforo.ROJO]: ChipDesvios.NARANJA_D1,
             semaforos["S1"].luz[Semaforo.VERDE]: ChipDesvios.BL_NARANJA_D1,
     })
-    farolas = Luz("farolas")
-    casas = Luz("casas")
     ChipDesvios(0x23, {
             farolas    :  ChipDesvios.MARRON_D1,
             casas      :  ChipDesvios.BL_MARRON_D1,
@@ -402,6 +404,8 @@ if __name__ == "__main__":
     CambiarSemaforo(semaforos["I6 invertido"], Semaforo.VERDE).si(cond2).cuando(Desvio.EventoCambiado, desvios[12])
     CambiarSemaforo(semaforos["I2"], Semaforo.ROJO).si(cond3).cuando(Desvio.EventoCambiado, desvios[7])
     CambiarSemaforo(semaforos["I2"], Semaforo.VERDE).si(cond4).cuando(Desvio.EventoCambiado, desvios[10])
+
+    #PermitirEstado(desvios[6],Desvio.VERDE).si(via_estanteria_colocada)
 
     #PulsoDeLuz(flash,1).cuando(Zona.EventoEntraTren, pn)
 

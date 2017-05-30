@@ -1176,7 +1176,7 @@ jQuery.fn.boton_repite = function(func, t) {
     intervalId = setInterval(function() { xxx.func(); }, t);
     xxx.func(); // Llamada una primera vez para que el efecto sea inmediato.
     return false;
-  }).on("mouseleave mouseup touchend touchcancel",function(evt) {
+  }).on("mouseleave mouseup touchend touchcancel remove",function(evt) {
     //console.log(evt);
     clearInterval(intervalId);
     $(this).removeClass("pulsado");
@@ -1539,6 +1539,8 @@ var updater = {
                        $("#antipopup").addClass("show");
                     }
                     */
+                }).on("swipeleft swiperight",function(evt) {
+                    $(this).toggleClass('nuevo');
                 }).on("click", "g.velocidad-input", function(evt) {
                     var r = $(".esfera", this).attr("r");
                     var elementOffset=$(this).offset();

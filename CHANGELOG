@@ -490,5 +490,19 @@
 27 de marzo de 2017
 
 - con_puente.{py,svg}: Nuevas vías E8, M4 y M5 para almacenar trenes en estantería.
+- maqueta, chips_maqueta: Cambio de nomenclatura "tiene_tren" por "deteccion".
+
+28 de marzo de 2017
+
+- maqueta: Entrada genérica a través de la clase Luz. Fix #11
+- maqueta, evento: Soporte para restricción de cambios de estado.
+
+1 de abril de 2017
+
+- con_puente.{py,svg}: Indicador de presencia de la vía de la estantería.
+- maqueta: Bloqueo de una luz si se controla por detección.
+- newlayout: Intento de arreglar el bloqueo del manual cuando un tren desaparece.
+  Fix #8
+- newlayout: Swipe en el botón de velocidad cambia el modo. Fix #7
 
 
