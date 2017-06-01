@@ -110,7 +110,8 @@ Las estaciones pueden tener fotos.
 
 Para que arranque automáticamente (después de cambiar `osmc` por el usuario correcto y revisar las rutas en el `tren.service` si procede):
 ```
-sudo cp tren/tren.service /lib/systemd/system
+sudo cp tren/tren.service /etc/systemd/system
+sudo systemctl daemon-reload
 sudo systemctl enable tren
 sudo service tren start
 ```
