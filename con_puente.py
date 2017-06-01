@@ -405,7 +405,7 @@ if __name__ == "__main__":
     CambiarSemaforo(semaforos["I2"], Semaforo.ROJO).si(cond3).cuando(Desvio.EventoCambiado, desvios[7])
     CambiarSemaforo(semaforos["I2"], Semaforo.VERDE).si(cond4).cuando(Desvio.EventoCambiado, desvios[10])
 
-    #PermitirEstado(desvios[6],Desvio.VERDE).si(via_estanteria_colocada)
+    PermitirEstado(desvios[6],Desvio.VERDE).si(via_estanteria_colocada)
 
     #PulsoDeLuz(flash,1).cuando(Zona.EventoEntraTren, pn)
 
