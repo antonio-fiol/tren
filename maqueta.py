@@ -1176,7 +1176,7 @@ class Estacion(Desc, object):
 
     def controlar_tramo_previo(self, v_intercambio):
         self.lce.limite_true.velocidad_inicio=v_intercambio
-        self.tramo.b[0].limites.append(LimiteCondicionalTramoAnteriorEstacion(self, self.tramo.b[0], v_intercambio))
+        self.tramo.a[0].limites.append(LimiteCondicionalTramoAnteriorEstacion(self, self.tramo.a[0], v_intercambio))
 
     def tren_parado(self,tren):
         if self.tren_parado_en_estacion != tren:
@@ -2308,36 +2308,36 @@ class LimiteAcercamiento(ForzadoAPartirDe):
         self._inv = LimiteVelocidad(100.0)
         self._inv._inv = self  # Aunque no creo que sea necesario...
 
-class LimiteCondicionalEstacion(LimiteCondicional):
-    debug = False
-
-    def __init__(self, estacion):
-        self.estacion = estacion
-        self.tramo = self.estacion.tramo
-        LimiteCondicional.__init__(self, self.tren_en_tramo_estacion, LimiteEstacion(self.estacion), LimiteVelocidad(100))
-        self._inv = LimiteVelocidad(100)
-
-    def tren_en_tramo_estacion(self, maqueta, tren):
-        if (tren.tramo == self.tramo) and (self.estacion in tren.sta or self.estacion.asociacion in tren.sta):
-            if LimiteCondicionalEstacion.debug:
-                print("Tren "+str(tren)+" en tramo estacion "+str(self.estacion))
-            return True
-        else:
-            return False
-
-class LimiteCondicionalTramoAnteriorEstacion(LimiteCondicional):
-    def __init__(self, estacion, tramo, v_intercambio):
+class LimiteSiTrenEnTramoEstacion(LimiteCondicional):
+    def __init__(self, estacion, tramo, limite_aplicable):
         self.estacion = estacion
         self.tramo = tramo
-        LimiteCondicional.__init__(self, self.tren_en_tramo, LimiteAcercamiento(100, 100, v_intercambio), LimiteVelocidad(100) )
+        LimiteCondicional.__init__(self, self.tren_en_tramo_estacion, limite_aplicable, LimiteVelocidad(100) )
         self._inv = LimiteVelocidad(100)
+        self.tren_parando = None
+        self.debug = False
 
-    def tren_en_tramo(self, maqueta, tren):
-        if (tren.tramo == self.tramo) and (self.estacion in tren.sta or self.estacion.asociacion in tren.sta):
-            print("Tren "+str(tren)+" en tramo anterior estacion "+str(self.estacion))
-            return True
-        else:
-            return False
+    def tren_en_tramo_estacion(self, maqueta, tren):
+        if(self.debug): print(str(self)+" tren_en_tramo_estacion(...,"+str(tren))
+        ret = False
+        if (tren.tramo == self.tramo):
+            if(self.debug): print(str(self)+" tren en "+str(self.tramo))
+            if self.estacion.tren_parado_en_estacion == tren: return True
+            if tren.auto:
+                ret = (self.estacion == tren.sta[0] or self.estacion.asociacion == tren.sta[0])
+            else:
+                ret = (self.estacion in tren.sta or self.estacion.asociacion in tren.sta)
+        if(self.debug): print(str(self)+" ret="+str(ret))
+        return ret
+
+class LimiteCondicionalEstacion(LimiteSiTrenEnTramoEstacion):
+    def __init__(self, estacion):
+        LimiteSiTrenEnTramoEstacion.__init__(self, estacion, estacion.tramo, LimiteEstacion(estacion))
+
+class LimiteCondicionalTramoAnteriorEstacion(LimiteSiTrenEnTramoEstacion):
+    def __init__(self, estacion, tramo, v_intercambio):
+        LimiteSiTrenEnTramoEstacion.__init__(self, estacion, tramo, LimiteAcercamiento(40, 100, v_intercambio))
+        self.debug = True  ## FIXME: No funciona el control del tramo previo
 
 class LimiteEstacion(ForzadoAPartirDe):
     debug = False
