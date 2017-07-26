@@ -17,9 +17,11 @@ class FuenteSonido(object):
         self.canales = OnesOutput()
         self.nivel = 1.0
         self.fade_chunks = None
+        self.callback = None
 
     def eof(self):
         FuenteSonido.AUDIO_SYSTEM.quitar_fuente(self)
+        if self.callback: self.callback(self)
 
     def muestras_mono(self, frame_count):
         raise IOError()

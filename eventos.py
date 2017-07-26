@@ -20,6 +20,14 @@ class Evento(object):
         return type(self).__name__+": "+str(self.__dict__)
 
 class SuscriptorEvento(object):
+    class Fin(Evento):
+        def __init__(self, emisor, evento_original):
+            self.__dict__.update(evento_original.__dict__)
+            self.emisor = emisor
+            self.t_publicacion = None
+            self.evento_original = evento_original
+            print(self)
+
     activables = []
 
     def recibir(self, evento):
@@ -71,7 +79,7 @@ class SuscriptorEvento(object):
             ret+=" "
             ret+=str(self.repr)
         if hasattr(self, "eventos") and self.eventos:
-            ret+=" cuando " + ", ".join(self.eventos)
+            ret+=" cuando " + ", ".join(map(str,self.eventos))
         return ret
 
     def json_friendly_dict(self):
@@ -81,6 +89,9 @@ class SuscriptorEvento(object):
         if hasattr(self, "eventos") and self.eventos:
             ret["cuando"] = self.eventos
         return ret
+
+    def mapear_clave_concurrencia(self, evento):
+        return None
 
         
 
