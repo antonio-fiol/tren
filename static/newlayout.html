@@ -1528,17 +1528,14 @@ var updater = {
                         }
                     });
                 });
-                var b = $( "#templates > .boton-tren" ).clone().attr("id","boton-tren"+id).addClass(c).appendTo("#botones-trenes").on("click",".abrir", function() {
+                var abrir = function(id) {
                     $(".popup select.clase").selectmenu("destroy");
                     $(".popup").removeClass("popup").appendTo("#controles-trenes").find("select.clase").selectmenu();
                     $("#control-tren"+id+" select.clase").selectmenu("destroy");
-                    /*var len = */$("#control-tren"+id).addClass("popup").appendTo("#antipopup")/*.length*/;
-                    /*
-                    if(len) {
-                       $(".popup select.clase").selectmenu()
-                       $("#antipopup").addClass("show");
-                    }
-                    */
+                    $("#control-tren"+id).addClass("popup").appendTo("#antipopup");
+                };
+                var b = $( "#templates > .boton-tren" ).clone().attr("id","boton-tren"+id).addClass(c).appendTo("#botones-trenes").on("click",".abrir", function() {
+                    abrir(id);
                 }).on("swipeleft swiperight",function(evt) {
                     $(this).toggleClass('nuevo');
                 }).on("click", "g.velocidad-input", function(evt) {
@@ -1606,6 +1603,8 @@ if(docWidth / window.innerWidth !== 1) { //kind of a hack to determine if the vi
 
                 var cambiar_clase = function () {
                     $.get('/tren',{id: id, clase: this.value});
+                    // Al cambiar la clase, también habilitar el panel del tren
+                    abrir(id);
                 }
                 var sc_boton = $( "#boton-tren"+id+" select.clase" ).attr("id","select-clase-"+id).selectmenu().on("change",cambiar_clase);
 
