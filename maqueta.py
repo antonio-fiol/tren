@@ -2023,7 +2023,7 @@ class Tren(Id, object):
                 e = self.sta[1]
             texto_completo = texto.format(tren=self, estacion=estacion.desc, destino=e.desc)
             print("reproducir_sonido_estacion: texto_completo="+texto_completo)
-            TTS().tts(texto_completo, self.reproducir_sonido, callback=callback)
+            TTS().tts(texto_completo, self.reproducir_sonido, callback_fin=callback)
 
     def reproducir_sonido(self,x,callback=None):
         print(str(self)+": reproducir_sonido: x="+str(x)+" altavoces="+str(self.altavoces))
