@@ -364,7 +364,7 @@ legend {
 .activas .estacion {
     width: 4em;
 }
-.todas .estacion .action.left {
+.estacion .action.left {
     left: 0;
 }
 .todas .estacion.sentidos-ccw .action.left,
@@ -372,7 +372,7 @@ legend {
     background: url('ccw-512px-c.svg') bottom left no-repeat;
     background-size: 2em;
 }
-.todas .estacion .action.right {
+.estacion .action.right {
     right: 0;
 }
 .todas .estacion.sentidos-cw .action.right,
@@ -381,15 +381,14 @@ legend {
     background-size: 2em;
 }
 .activas .estacion .action.right {
-    right: 0;
     background: url('menos.svg') bottom right no-repeat;
     background-size: 2em;
 }
-.activas .estacion.cw .action.left {
+.estacion.cw .action.left {
     background: url('cw-512px.svg') bottom left no-repeat;
     background-size: 2em;
 }
-.activas .estacion.ccw .action.left {
+.estacion.ccw .action.left {
     background: url('ccw-512px.svg') bottom left no-repeat;
     background-size: 2em;
 }
@@ -508,6 +507,16 @@ g.velocidad-input {
 .message.Tren {
     padding-left: 3em;
     border: 1px dotted black;
+}
+
+.demo .estacion {
+    zoom: .5;
+}
+.demo .nombre {
+    display: inline;
+}
+.demo .nombre:after {
+    content: ': ';
 }
 
 @media (max-width: 1024px) {
@@ -651,6 +660,8 @@ g.velocidad-input {
             <div class="opciones"></div>
             <div class="titulo_otros">Acciones:</div>
             <div class="otros"><input class="iniciar_medida" type="button" value="Iniciar medida" /></div>
+            <div class="titulo_demo">Rutas demo:</div>
+            <div class="demo"></div>
          </div>
       </div>
 
@@ -859,7 +870,9 @@ $(function() {
     $( items.join( "" ) ).appendTo( "#templates .boton-tren select.clase" );
   });
 
+  var estaciones = {};
   $.getJSON( "/estaciones", function( data ) {
+    estaciones = data;
     var items = [];
     $.each( Object.keys(data).sort(), function( index, key ) {
       var val = data[key];
@@ -867,7 +880,30 @@ $(function() {
       items.push( "<div class='estacion " + key + " sentidos-"+val.s.sort().join("-")+"' name='" + key + "' style='background-image: url(estaciones/"+key+".jpg)'>" + val.d + "<div class='action left'></div><div class='action right'></div></div>" );
     });
     $( items.join( "" ) ).appendTo( "#templates .control-tren .estaciones .todas" );
+
+  $.getJSON( "/demos", function( data ) {
+    console.log("demos");
+    console.log(data);
+    console.log(estaciones);
+    $.each( Object.keys(data).sort(), function( index, key ) {
+      var val = data[key];
+      console.log(val);
+      var nombre_ruta = val.desc;
+      var paradas_ruta = val.estaciones;
+
+      var ruta = $( "<div class='action ruta-demo " + key + "' name='" + key + "'></div>" );
+      if(nombre_ruta) { ruta.append("<div class='nombre'>"+nombre_ruta+"</div>"); }
+      var items = [];
+      $.each( paradas_ruta, function( index, val ) {
+        items.push( "<div class='estacion "+val.sentido+"' style='background-image: url(estaciones/"+val.nombre+".jpg)'>" + estaciones[val.nombre].d + "<div class='action left'></div><div class='action right'></div></div>" );
+      });
+      $( items.join( "" ) ).appendTo( ruta );
+      ruta.appendTo( "#templates .control-tren .demo" );
+    });
   });
+
+  });
+
 
   $.getJSON( "/shell", function( data ) {
     var items = [];
@@ -1620,6 +1656,9 @@ if(docWidth / window.innerWidth !== 1) { //kind of a hack to determine if the vi
                 });
                 $( "#control-tren"+id+" .auto>.man" ).on("click", function() {
                     $.get('/tren',{id: id, auto: false});
+                });
+                $( "#control-tren"+id+" .demo .ruta-demo" ).on("click", function() {
+                    $.get('/tren',{id: id, demo: $(this).attr("name")});
                 });
 
                 return updater.cache_trenes[id]={clase_css: c, slider: s, selector_clase_boton: sc_boton }

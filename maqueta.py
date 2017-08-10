@@ -129,6 +129,7 @@ class TrenHandler(tornado.web.RequestHandler):
         estado = self.get_argument("estado",None)
         paro_progresivo = self.get_argument("paro_progresivo",None)
         medir = self.get_argument("medir",None)
+        demo = self.get_argument("demo",None)
 
         # Si la peticion no se asocia a un tren concreto, se asume que es para todos.
         guardar_velocidad = False
@@ -204,6 +205,10 @@ class TrenHandler(tornado.web.RequestHandler):
                 except Exception as e:
                     self.write(dict(messages=[{"request_done":False, "e":str(e)}]))
                     return
+
+        if demo:
+            for t in trenes:
+                t.demo(maqueta.demos[int(demo)])
 
         if self.request.connection.stream.closed():
             return
@@ -290,6 +295,14 @@ class EstacionHandler(tornado.web.RequestHandler):
             return
         self.write(estaciones)
 
+class DemoHandler(tornado.web.RequestHandler):
+    @gen.coroutine
+    def get(self):
+        demos = maqueta.exportar_demos()
+        if self.request.connection.stream.closed():
+            return
+        self.write(demos)
+
 class SonidoHandler(tornado.web.RequestHandler):
     @gen.coroutine
     def get(self):
@@ -338,6 +351,7 @@ def make_app():
         (r"/chat/new", MessageNewHandler),
         (r"/locomotoras", LocomotoraHandler),
         (r"/estaciones", EstacionHandler),
+        (r"/demos", DemoHandler),
         (r"/parametro", ParametroHandler),
         (r"/sonidos", SonidoHandler),
         (r"/shell", ShellHandler),
@@ -1051,6 +1065,23 @@ class Locomotora(object):
             DatosVelocidad.MUESTRAS_INERCIA.update({id:muestras_inercia})
             DatosVelocidad.MUESTRAS_INERCIA.doc.update({id:"Numero de muestras que el sistema asume que se mantiene la anterior velocidad calculada, para la locomotora "+desc+"."})
         print("Locomotora id="+id+" desc="+str(desc)+" coeffs="+str(coeffs)+" minimo="+str(minimo)+" muestras_inercia="+str(muestras_inercia))
+
+class Demo(IdDesc):
+    def __init__(self, id, desc, estaciones):
+        self.id = id
+        self.desc = desc
+        Maqueta.demos.update({id:self})
+        self.estaciones = [ Maqueta.estaciones[x] for x in estaciones if Maqueta.estaciones[x] ]
+        print("Demo "+str(self.id)+": "+str(self.desc)+": "+str(self.estaciones))
+
+    def diccionario_atributos(self):
+        return {
+            "id": self.id,
+            "desc": self.desc,
+            "estaciones": [ e.diccionario_atributos() for e in self.estaciones ],
+        }
+
+
 
 class DatosVelocidad(object):
     COEFFS_INICIO = {
@@ -2061,6 +2092,12 @@ class Tren(Id, object):
         self.opciones_activas[opc] = (self.opciones_activas[opc][0], valor)
         Maqueta().pedir_publicar_trenes()
 
+    def demo(self, d):
+        self.sta = []
+        for e in d.estaciones: self.add_sta(e)
+        self.set_auto(True);
+        self.buscar_y_reproducir_sonido("silbato",lambda fuente_sonido: self.poner_velocidad(60))
+
     def diccionario_atributos(self):
         return {
             "id": self.id,
@@ -2496,6 +2533,7 @@ class Maqueta:
     luces = {}
     zonas = []
     shells = {}
+    demos = {}
     pista_medicion = None
     modo_dummy = False
 
@@ -2722,6 +2760,11 @@ class Maqueta:
             Tren.trenes.remove(t)
         if eliminados:
             self.publicar_trenes(eliminados=[ t.id for t in eliminados ])
+
+    def exportar_demos(self):
+        print("exportar_demos")
+        print(str(Maqueta.demos))
+        return { id: d.diccionario_atributos() for id, d in Maqueta.demos.items() }
 
     def exportar_estaciones(self, asociaciones=True, solo_en_listado=True):
         print("exportar_estaciones(asociaciones="+str(asociaciones)+", solo_en_listado="+str(solo_en_listado))
