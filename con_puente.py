@@ -82,8 +82,8 @@ if __name__ == "__main__":
     Tramo("M3", 0.64)
 
     # Vias muertas hacia estanteria
-    Tramo("M4", 0.48) #XXX
-    Tramo("M5", 0.96) #XXX
+    Tramo("M4", 0.48)
+    Tramo("M5", 0.96)
 
     # Circuito interior
     Tramo("I1", 1.13,  limites=[LimiteAcercamiento(100,80.0,40).inv()] )
@@ -95,7 +95,7 @@ if __name__ == "__main__":
     # Circuito exterior
     Tramo("E1", 0.67,  limites=[LimiteAcercamiento(100,80.0,40).inv()] )
     Tramo("E2", 0.40)
-    Tramo("E8", 0.3) #XXX
+    Tramo("E8", 0.3)
     Tramo("E3", 0.93)
     Tramo("E7", 0.985)
     Tramo("E4", 0.54)
@@ -239,8 +239,8 @@ if __name__ == "__main__":
     #     front-left         center      surround-left
     #     front-right         lfe       surround-right
 
-    Zona("Audio-FL").suena_por(UnCanal(0)).incluye(tramos["E2"]).incluye(tramos["I1"],desde=41).incluye(tramos["I4"],hasta=18).incluye(tramos["E7"],hasta=33).incluye(tramos["E3"],hasta=33).incluye(tramos["I2"],hasta=12)
-    Zona("Audio-FR").suena_por(UnCanal(1)).incluye(tramos["I1"],hasta=24).incluye(tramos["E1"])
+    Zona("Audio-FL").suena_por(UnCanal(0)).incluye(tramos["E2"]).incluye(tramos["I1"],desde=41).incluye(tramos["I4"],hasta=18).incluye(tramos["E7"],hasta=33).incluye(tramos["E3"],hasta=33).incluye(tramos["I2"],hasta=12).incluye(tramos["E8"]).incluye(tramos["M4"])
+    Zona("Audio-FR").suena_por(UnCanal(1)).incluye(tramos["I1"],hasta=24).incluye(tramos["E1"]).incluye(tramos["M5"])
     Zona("Audio-SL").suena_por(UnCanal(2)).incluye(tramos["E4"]).incluye(tramos["I4"],desde=34,hasta=94).incluye(tramos["I3"],desde=24,hasta=44).incluye(tramos["E7"],desde=66).incluye(tramos["E3"],desde=66) # TODO Revisar I3
     Zona("Audio-SR").suena_por(UnCanal(3)).incluye(tramos["I3"],hasta=24).incluye(tramos["E5"]).incluye(tramos["I5"]).incluye(tramos["X1"]).incluye(tramos["X2"])
     Zona("Audio-CE").suena_por(UnCanal(4)).incluye(tramos["E3"],desde=33,hasta=66).incluye(tramos["E7"],desde=33,hasta=66).incluye(tramos["M2"]).incluye(tramos["M3"]).incluye(tramos["I2"],desde=12).incluye(tramos["I4"],desde=18,hasta=34).incluye(tramos["I3"],desde=44,hasta=65)
