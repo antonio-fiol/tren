@@ -229,6 +229,8 @@ if __name__ == "__main__":
     Estacion("est","ccw",Maqueta.tramos["M5"].inv,90,desc="Estanteria")
 
     Demo(1,"Corta",[("st1e","ccw"),("est","ccw")])
+    Demo(2,"Larga 1",[("st1e","ccw"),("st2","cw"),("detras", "ccw"),("st1","cw"),("est","ccw")])
+    Demo(3,"Larga 2",[("st1e","ccw"),("st2","cw"),("detras", "cw"),("st1","cw"),("est","ccw")])
 
     # Listado de zonas
     Zona("Tunel1").incluye(tramos["E2"],desde=0,hasta=85).incluye(tramos["I1"],desde=42,hasta=73)
