@@ -1225,7 +1225,22 @@ class Estacion(Desc, object):
             self.EventoTrenArrancando(self,tren).publicar()
 
     def activa(self):
-        return bool(self.tramo) and bool(self.tramo.tren) and self in self.tramo.tren.sta
+        if self.tren_parado_en_estacion: return True
+
+        def tiene_que_parar_en_estacion(tren):
+            if tren.auto:
+                return (self == tren.sta[0] or self.asociacion == tren.sta[0])
+            else:
+                return (self in tren.sta or self.asociacion in tren.sta)
+
+        ret = False
+        if bool(self.tramo) and bool(self.tramo.tren):
+            ret |= tiene_que_parar_en_estacion(self.tramo.tren)
+        if self.lce.limite_true.velocidad_inicio < 100: # Controlando tramo previo
+            if bool(self.tramo) and bool(self.tramo.a[0]) and bool(self.tramo.a[0].tren):
+                ret |= tiene_que_parar_en_estacion(self.tramo.a[0].tren)
+        return ret
+
 
     def diccionario_atributos(self):
         return {
