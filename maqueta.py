@@ -1011,8 +1011,9 @@ class PermitirEstado(SuscriptorEvento):
         self.estado_vuelta = estado_vuelta
 
     def validar_cambio(self, cambiable, estado):
-        if self.cambiable == cambiable and self.estado == estado:
-            return self.controlador.estado_a_bool() != self.inv
+        # Restringir cambios solo para el objeto y estado configurados, unicamente en modo real
+        if self.cambiable == cambiable and self.estado == estado and not Maqueta.modo_dummy:
+            return self.controlador.estado_a_bool() != self.inv  # Equivalente XOR
         else:
             return True
 
