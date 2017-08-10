@@ -509,4 +509,39 @@
 
 - Posibilidad de descartar concurrencia para suscriptores de evento.
 
+30 de abril de 2017
+
+- Mejor control de excepciones de medicion.
+- Botón en la interfaz para iniciar medida.
+- Quitar el tren "desconocido" tras 10 segundos desaparecido, no inmediatamente.
+  [No probado]
+
+4 de mayo de 2017
+
+- Chat de trenes: Los trenes generan mensajes con un estilo determinado.
+- ChangeMonitor, decorador para depuración.
+- Cambios adicionales en medición.
+
+30 de mayo de 2017
+
+- con_puente: Longitud E2. Nuevo motor talgo. Boton para apagar el sistema.
+- Mejor gestión de excepciones en proceso_pasos.
+
+1 de junio de 2017
+
+- Configuracion de systemd en /etc
+- Desvio 6 no puede estar recto si la via de la estanteria no esta: Nueva
+  directiva PermitirEstado para la configuración.
+
+26 de julio de 2017
+
+- Arreglar '.controlar_tramo_previo()' y parar solo en la estacion de destino en auto.
+- Merge de "Posibilidad de descartar concurrencia para suscriptores de evento."
+
+10 de agosto de 2017
+
+- newlayout: Abrir tren al seleccionar clase.
+- con_puente: Zonas de sonido para la vía de la estantería.
+- maqueta: Evitar PermitirEstado en simulacion.
+- Rutas de demostración.
 
