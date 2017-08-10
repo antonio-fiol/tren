@@ -544,4 +544,5 @@
 - con_puente: Zonas de sonido para la vía de la estantería.
 - maqueta: Evitar PermitirEstado en simulacion.
 - Rutas de demostración.
+- Estacion activa solo si hay un tren parando en ella.
 
