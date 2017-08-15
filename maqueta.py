@@ -1307,6 +1307,11 @@ class Tren(Id, object):
            desvio podria descarrilar el tren."""
         return 0.2
     @expuesto
+    def ESPACIO_SEGURIDAD_COLISION_ALCANCE_M():
+        """Distancia minima hasta el proximo tren. Si el tren se encuentra mas cerca, se
+           marca como COLISION_INMINENTE en lugar de COLISION_POSIBLE."""
+        return 1.0
+    @expuesto
     def TIEMPO_PARO_PROGRESIVO_S():
         """Tiempo de frenada para el paro progresivo cuando el tren circula a su
            velocidad maxima. Velocidades menores implicaran tiempos de parada menores."""
@@ -1868,6 +1873,13 @@ class Tren(Id, object):
 
     @timed_avg_and_freq(10000)
     def analizar_colisiones(self):
+        # Función privada para establecer el estado de colisión si no coincide con el que debería ser.
+        def set_estado(nuevo_estado, otro_tren, texto, *parametros_texto):
+            if self.estado_colision!=nuevo_estado:
+                print("Tren " + str(self.id) + " en tramo " + self.tramo.desc + " " + texto.format(*parametros_texto) )
+                self.estado_colision = nuevo_estado
+                self.tren_colision = otro_tren
+
         self.actualizar_espacio_recorrido()
         aec = self.estado_colision
         aec_f = self.estado_colision_f
@@ -1889,10 +1901,7 @@ class Tren(Id, object):
 
           if self.velocidad == 0.0:
             # No nos movemos, asi que no hay posibilidad de colisionar.
-            if self.estado_colision:
-                print("Tren "+str(self.id)+" en tramo "+self.tramo.desc+" relaja el estado de colision porque no se mueve")
-                self.estado_colision = None
-                self.tren_colision = None
+            set_estado(None, None, "relaja el estado de colision porque no se mueve")
           else:
             # Nos movemos, es necesario analizar la situacion
 
@@ -1911,10 +1920,8 @@ class Tren(Id, object):
                 # Analizamos colision por otros motivos (alcance o X)
                 siguiente_tren = siguiente.tren_en_tramo_fisico()
                 if siguiente_tren and siguiente_tren!=self:  # TODO Arreglar que cuando un tren esta entre dos tramos no va hacia atras
-                    if self.estado_colision!=Tren.COLISION_INMINENTE:
-                        print("Tren "+str(self.id)+" en tramo "+self.tramo.desc+" detecta COLISION INMINENTE porque el tramo siguiente es "+siguiente.desc+" y tiene el tren "+str(siguiente_tren.id))
-                        self.estado_colision = Tren.COLISION_INMINENTE
-                        self.tren_colision = siguiente_tren
+                    set_estado(Tren.COLISION_INMINENTE, siguiente_tren,
+                               "detecta COLISION INMINENTE porque el tramo siguiente es {0!s} y tiene el tren {1!s}", siguiente.desc, siguiente_tren.id)
 
                 else: # No hay tren en el primer tramo, miramos el segundo
                     segundo = siguiente.tramo_siguiente(self.velocidad)
@@ -1928,35 +1935,30 @@ class Tren(Id, object):
                             # Y es negativo si van uno contra otro. Esto genera colision inminente.
                             # Cero si esta parado el otro tren. Tambien inminente.
                             if (segundo.polaridad * self.tramo.polaridad * segundo_tren.velocidad * self.velocidad) <= 0:
-                                if self.estado_colision!=Tren.COLISION_INMINENTE:
-                                    print("Tren "+str(self.id)+" en tramo "+self.tramo.desc+" detecta COLISION INMINENTE porque el tramo siguiente al siguiente es "+segundo.desc+" y tiene el tren "+str(segundo_tren.id)+" circulando en sentido contrario o parado")
-                                    self.estado_colision = Tren.COLISION_INMINENTE
-                                    self.tren_colision = segundo_tren
+                                set_estado(Tren.COLISION_INMINENTE, segundo_tren,
+                                           "detecta COLISION INMINENTE porque el tramo siguiente al siguiente es {0!s} y tiene el tren {1!s} circulando en sentido contrario o parado", segundo.desc, segundo_tren.id)
                             else:
-                                if self.estado_colision!=Tren.COLISION_POSIBLE:
-                                    print("Tren "+str(self.id)+" en tramo "+self.tramo.desc+" detecta COLISION POSIBLE porque el tramo siguiente al siguiente es "+segundo.desc+" y tiene el tren "+str(segundo_tren.id))
-                                    self.estado_colision = Tren.COLISION_POSIBLE
-                                    self.tren_colision = segundo_tren
+                                # Colisión posible o inminente según distancia
+                                distancia = self.tramo.longitud - self.espacio_recorrido_en_tramo + siguiente.longitud + segundo_tren.espacio_recorrido_en_tramo
+                                if distancia < Tren.ESPACIO_SEGURIDAD_COLISION_ALCANCE_M:
+                                    # INMINENTE
+                                    set_estado(Tren.COLISION_INMINENTE, segundo_tren,
+                                               "detecta COLISION INMINENTE porque el tramos siguiente al siguiente es {0!s} y tienen el tren {1!s}, y la distancia es {2!s}", segundo.desc, segundo_tren.id, distancia)
+                                else:
+                                    # POSIBLE
+                                    set_estado(Tren.COLISION_POSIBLE, segundo_tren,
+                                               "detecta COLISION POSIBLE porque el tramos siguiente al siguiente es {0!s} y tienen el tren {1!s}, y la distancia es {2!s}", segundo.desc, segundo_tren.id, distancia)
 
                         else: # todo libre dos tramos adelante
                             # No se preve colision
-                            if self.estado_colision:
-                                print("Tren "+str(self.id)+" en tramo "+self.tramo.desc+" relaja el estado de colision al no detectar trenes en los dos tramos siguientes")
-                                self.estado_colision = None
-                                self.tren_colision = None
+                            set_estado(None, None, "relaja el estado de colision, no detecta trenes en dos tramos siguientes")
 
                     else: # not segundo:
-                        if self.estado_colision!=Tren.CERCA_FIN_DE_VIA:
-                            print("Tren "+str(self.id)+" en tramo "+self.tramo.desc+" detecta CERCA DE FIN DE VIA porque el tramo siguiente es "+siguiente.desc+" y no hay otro tramo siguiente")
-                            self.estado_colision = Tren.CERCA_FIN_DE_VIA
-                            self.tren_colision = None
+                        set_estado(Tren.CERCA_FIN_DE_VIA, None, "detecta CERCA DE FIN DE VIA porque el tramo siguiente es {0!s} y no hay otro tramo siguiente", siguiente.desc)
 
             elif not siguiente:
                 # Fin de via, no hay tramo siguiente ...
-                if self.estado_colision!=Tren.FIN_DE_VIA:
-                    print("Tren "+str(self.id)+" en tramo "+self.tramo.desc+" detecta FIN DE VIA")
-                    self.estado_colision = Tren.FIN_DE_VIA
-                    self.tren_colision = None
+                set_estado(Tren.FIN_DE_VIA, None, "detecta FIN DE VIA")
 
         if aec != self.estado_colision or aec_f != self.estado_colision_f:
             if self.estado_colision_f == Tren.COLISION_FRONTAL:
@@ -1980,7 +1982,7 @@ class Tren(Id, object):
             if t.desvio: # Iterar solo por los tramos
                 continue
 
-            if tramos_sin_salida_analizados > 1:
+            if tramos_sin_salida_analizados > 1: # XXX: Probar un 2.
                 break
 
             #print(str(self)+": analizar_colision_frontal2: analizando "+str(t))
