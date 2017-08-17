@@ -2904,9 +2904,7 @@ class SonidoTren(SuscriptorEvento):
 
     def recibir(self, evento):
         try:
-            def callback_fin(*args, **kwargs):
-                SuscriptorEvento.Fin(self, evento).publicar()
-            evento.tren.buscar_y_reproducir_sonido(self.nombre, callback=callback_fin)
+            evento.tren.buscar_y_reproducir_sonido(self.nombre, callback=SuscriptorEvento.Fin(self, evento).publicar)
         except AttributeError:
             print("ERROR: SonidoTren utilizado con un evento sin atributo tren: "+str(evento))
         
@@ -2919,42 +2917,13 @@ class SonidoEstacion(SuscriptorEvento):
         try:
             tren = evento.tren
             estacion = evento.estacion
-            def callback_fin(*args, **kwargs):
-                SuscriptorEvento.Fin(self, evento).publicar()
-            tren.reproducir_sonido_estacion(estacion, self.texto, callback=callback_fin)
+            tren.reproducir_sonido_estacion(estacion, self.texto, callback=SuscriptorEvento.Fin(self, evento).publicar)
         except AttributeError:
             print("ERROR: SonidoTren utilizado con un evento sin atributo tren o atributo estacion: "+str(evento))
 
     def mapear_clave_concurrencia(self, evento):
-        if estacion in evento: return evento.estacion
-        else: return None
-
-class DescartarConcurrencia(SuscriptorEvento):
-    def __init__(self, delegado, max_concurrencia = 1):
-        self.delegado = delegado
-        self.max_concurrencia = 1
-        self.concurrencia = {}
-
-        GestorEventos().suscribir_evento(SuscriptorEvento.Fin, self.fin, self.delegado)
-
-    def recibir(self, evento):
-        autorizar = False
-        clave = self.delegado.mapear_clave_concurrencia(evento)
-        if clave in self.concurrencia:
-            if self.concurrencia[clave] < self.max_concurrencia:
-                self.concurrencia[clave] += 1
-                autorizar = True
-        else:
-            self.concurrencia[clave] = 1
-            autorizar = True
-        if autorizar:
-            self.delegado.recibir(evento)
-
-    def fin(self, evento):
-        clave = self.delegado.mapear_clave_concurrencia(evento)
-        self.concurrencia[clave] -= 1
-        if self.concurrencia[clave] == 0: del self.concurrencia[clave]
-
+        try: return evento.estacion
+        except AttributeError: return None
 
 
 def listar_eventos_disponibles():

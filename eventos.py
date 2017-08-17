@@ -12,8 +12,10 @@ class Evento(object):
         self.emisor = emisor
         self.t_publicacion = None
 
-    def publicar(self):
+    def publicar(self, *args, **kwargs):
         self.t_publicacion = tornado.ioloop.IOLoop.current().time()
+        if args: self.args = list(args)
+        if kwargs: self.kwargs = kwargs
         GestorEventos().propagar(self)
 
     def __repr__(self):
@@ -83,9 +85,18 @@ class SuscriptorEvento(object):
         return ret
 
     def json_friendly_dict(self):
-        ret = { "tipo_accion": type(self).__name__ }
-        if hasattr(self, "repr"):
-            ret["repr"] = self.repr
+        real = self
+        ret = {}
+        # Delegación es un patrón por el que un suscriptor de eventos
+        # traslada los eventos a otro suscriptor, procesándolos antes
+        if hasattr(self, "delegado") and self.delegado:
+            real = self.delegado
+            ret["delegacion"] = type(self).__name__
+        # Tipo de accion y representacion vienen del evento real
+        ret["tipo_accion"] = type(real).__name__
+        if hasattr(real, "repr"):
+            ret["repr"] = real.repr
+        # Eventos siempre del propio suscriptor
         if hasattr(self, "eventos") and self.eventos:
             ret["cuando"] = self.eventos
         return ret
@@ -93,7 +104,39 @@ class SuscriptorEvento(object):
     def mapear_clave_concurrencia(self, evento):
         return None
 
-        
+class SuscriptorGenerico(SuscriptorEvento):
+    def __init__(self, metodo_recibir):
+        self.metodo_recibir = metodo_recibir
+        self.repr = metodo_recibir.__repr__()
+
+    def recibir(self, evento):
+        self.metodo_recibir(evento)
+
+class DescartarConcurrencia(SuscriptorEvento):
+    def __init__(self, delegado, max_concurrencia = 1):
+        self.delegado = delegado
+        self.max_concurrencia = 1
+        self.concurrencia = {}
+
+        GestorEventos().suscribir_evento(SuscriptorEvento.Fin, self.fin, self.delegado)
+
+    def recibir(self, evento):
+        autorizar = False
+        clave = self.delegado.mapear_clave_concurrencia(evento)
+        if clave in self.concurrencia:
+            if self.concurrencia[clave] < self.max_concurrencia:
+                self.concurrencia[clave] += 1
+                autorizar = True
+        else:
+            self.concurrencia[clave] = 1
+            autorizar = True
+        if autorizar:
+            self.delegado.recibir(evento)
+
+    def fin(self, evento):
+        clave = self.delegado.mapear_clave_concurrencia(evento)
+        self.concurrencia[clave] -= 1
+        if self.concurrencia[clave] == 0: del self.concurrencia[clave]
 
 @singleton
 class GestorEventos(object):
