@@ -3,6 +3,7 @@ from maqueta import *
 from chips_maqueta import *
 from audio_maqueta import AudioSystem, UnCanal, Mixer
 from pista_medicion import PistaMedicion
+from eventos import DescartarConcurrencia
 
 if __name__ == "__main__":
 
@@ -388,6 +389,7 @@ if __name__ == "__main__":
     Locomotora(id="vapor", desc="Vapor", coeffs=[0.11798049502618266, 0.00304658416577914, -1.228381595259825e-05], minimo=1400, muestras_inercia=2)
     Locomotora(id="humo", desc="Humo y luz", coeffs=[0.04602868437873745, 0.0044200608178752016, -1.932449180697901e-05], minimo=1400, muestras_inercia=2)
     Locomotora(id="alco1800", desc="Alco 1800 (Diesel)", coeffs=[0.07409022857194827, 0.006888871942219088, -4.105773701684626e-05], minimo=550)
+    #[0.06339493671304784, 0.006563136444433814, -3.546151812489586e-05] 700
     #Locomotora(id="talgo", desc="Talgo", coeffs=[0.0705067098, 0.0085391554, -4.4265621878004e-5  ], minimo=1000, muestras_inercia=10)
     Locomotora(id="talgo", desc="Talgo", coeffs=[0.06269762207713507, 0.006847887396690622, -4.1256003045953165e-05], minimo=320, muestras_inercia=10)
     Locomotora(id="comsa", desc="Comsa", coeffs=[0.12077762631211575, 0.003107459392643413, -1.0492061779321495e-05], minimo=1600, muestras_inercia=50)
@@ -422,7 +424,7 @@ if __name__ == "__main__":
     #SonidoTren("arranca").cuando(Tren.EventoCambioVelocidadEfectiva).si(lambda evento: evento.anterior == 0).si_activo_para_tren(por_defecto=False)
     #SonidoTren("arranca").cuando(Estacion.EventoTrenArrancando).si_activo_para_tren(por_defecto=False)
     #SonidoTren("parado").cuando(Estacion.EventoTrenParado).si_activo_para_tren(por_defecto=False)
-    SonidoEstacion("Salida inmediata del tren {tren.clase} con destino {destino}.").cuando(Estacion.EventoTrenParado).si_activo_para_tren(por_defecto=False)
+    DescartarConcurrencia(SonidoEstacion("Salida inmediata del tren {tren.clase} con destino {destino}.")).cuando(Estacion.EventoTrenParado).si_activo_para_tren(por_defecto=False)
     #Tramo.debug = True
     #listar_eventos_disponibles()
 
