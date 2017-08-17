@@ -26,19 +26,19 @@ class ProcesoPasos(object):
       try:
         if self.continuar():
             if self.andando:
-                print(self,"andando")
+                print(self,"siguiente_paso: andando")
                 tiempo = yield self.paso()
             else:
-                print(self,"empezando")
+                print(self,"siguiente_paso: empezando")
                 tiempo = yield self.primer_paso()
                 self.andando = True
-            print(self,"tiempo=",tiempo)
+            print(self,"siguiente_paso: tiempo=",tiempo)
             if tiempo:
                 self.timeout_handle = tornado.ioloop.IOLoop.current().add_timeout(tiempo, self.siguiente_paso)
             elif self.continuar():
-                print("AVISO: ",self," se queda sin timeout. Podria no terminar nunca.")
+                print("siguiente_paso: AVISO: ",self," se queda sin timeout. Podria no terminar nunca.")
         if not self.continuar(): # no es un "else"
-            print(self,"no continuar")
+            print(self,"siguiente_paso: no continuar")
             self.cancelar_siguiente_paso()
             self.limpieza()
             self.finalizado = True
@@ -57,7 +57,7 @@ class ProcesoPasos(object):
         if self.timeout_handle:
             print(self,"cancelar_siguiente_paso: timeout_handle=",self.timeout_handle)
             tornado.ioloop.IOLoop.current().remove_timeout(self.timeout_handle)
-            print(self,"cancelar_siguiente_paso: eliminado")
+            print(self,"cancelar_siguiente_paso: eliminado timeout_handle")
             self.timeout_handle = None
             print(self,"cancelar_siguiente_paso: fin")
         else:
