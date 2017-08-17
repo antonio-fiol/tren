@@ -551,6 +551,13 @@ class Desvio(Desc, Coloreado):
 
 
 class Tramo(Nodo):
+    class EventoQuitarTren(Evento):
+        """ El tramo ha quitado el tren, por deteccion u otro motivo. """
+        def __init__(self, tramo, tren):
+            Evento.__init__(self, tramo)
+            self.tramo = tramo
+            self.tren = tren
+
     debug = False
     POL_F = 1
     POL_R = -1
@@ -645,9 +652,11 @@ class Tramo(Nodo):
             self.tren.desaparecido()
 
     def quitar_tren(self):
-        if(self.tren):
-            print("Quitando tren "+str(self.tren.id)+" de " + self.desc)
+        tren = self.tren
+        if(tren):
+            print("Quitando tren "+str(tren.id)+" de " + self.desc)
             self.tren = None
+            Tramo.EventoQuitarTren(self, tren).publicar()
             maqueta.pedir_publicar_deteccion()
             tornado.ioloop.IOLoop.current().add_callback(maqueta.revisar_trenes_eliminados)
         if (self.velocidad != None):

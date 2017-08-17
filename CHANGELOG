@@ -551,3 +551,8 @@
 
 - maqueta: Colisión inminente por distancia cuando hay un tramo corto enmedio. Fix #15
 
+17 de agosto de 2017
+
+- maqueta, pista_medicion: Medición basada en evento de tren quitado de tramo en lugar
+  de tren movido, para asegurar que pasan todas las ruedas.
+

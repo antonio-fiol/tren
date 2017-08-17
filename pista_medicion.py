@@ -1,6 +1,6 @@
 import tornado.ioloop
 import sys
-from maqueta            import ColeccionTramos, Desvio, Tren, Maqueta, DatosVelocidad
+from maqueta            import ColeccionTramos, Desvio, Tren, Maqueta, DatosVelocidad, Tramo
 from singleton          import singleton
 from parametros         import expuesto
 from proceso_pasos      import ProcesoPasos
@@ -35,14 +35,14 @@ class PistaMedicion(ColeccionTramos):
                 self.moviendo = True
                 self.movido = False
                 print(tren, " midiendo a velocidad ",self.v)
-                GestorEventos().suscribir_evento(Tren.EventoMovido, self.evento_tren_movido, tren)
+                GestorEventos().suscribir_evento(Tramo.EventoQuitarTren, self.evento_tren_quitado)
                 tren.estado_colision = Tren.MIDIENDO
                 tren.poner_velocidad(self.v)
                 if self.v<0: return timedelta(seconds=2)
 
             else:
                 print("Estoy moviendo. Parar y decidir.")
-                GestorEventos().eliminar_suscriptor(self.evento_tren_movido)
+                GestorEventos().eliminar_suscriptor(self.evento_tren_quitado)
                 PistaMedicion().midiendo.poner_velocidad(0)
                 m, M = self.rango
                 if self.movido:
@@ -74,7 +74,7 @@ class PistaMedicion(ColeccionTramos):
         def limpieza(self):
                import traceback
                traceback.print_stack()
-               GestorEventos().eliminar_suscriptor(self.evento_tren_movido)
+               GestorEventos().eliminar_suscriptor(self.evento_tren_quitado)
                tren = PistaMedicion().midiendo
                if tren:
                    tren.poner_velocidad(0)
@@ -85,9 +85,10 @@ class PistaMedicion(ColeccionTramos):
                    print(self.rango)
                    print("*************************** CONCLUSION MEDICION *************************")
 
-        def evento_tren_movido(self, evento):
-            self.movido = True
-            self.siguiente_paso_inmediato()
+        def evento_tren_quitado(self, evento):
+            if evento.tren == PistaMedicion().midiendo:
+                self.movido = True
+                self.siguiente_paso_inmediato()
 
     class MedicionCurva(ProcesoPasos):
         @expuesto
