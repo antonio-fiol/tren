@@ -1,11 +1,17 @@
 import tornado.process
 import tornado.ioloop
 from tornado.gen import Task, Return, coroutine
+from parametros import expuesto
 import os.path
 
 STREAM = tornado.process.Subprocess.STREAM
 
 class TTS(object):
+    @expuesto
+    def PORCENTAJE_VOLUMEN():
+        """ Porcentaje de volumen al que se traduce el texto. """
+        return 50
+
     def tts(self, texto, callback_reproducir, callback_fin=None):
         # Para poder ejecutar el proceso y en paralelo seguir procesando el ioloop,
         # creo una coroutine y la lanzo como un callback del ioloop.
@@ -19,13 +25,13 @@ class TTS(object):
         print("TTS.tts_cor: isfile="+str(os.path.isfile(fn+".44100.wav")))
         # /tmp nos hace de cache simple. Si hubiera mucha variabilidad, eso no bastaria.
         if not os.path.isfile(fn+".44100.wav"):
-            cmd = ['/usr/bin/pico2wave','-w',fn+".wav",'-l','es-ES',texto]
+            cmd = ['/usr/bin/pico2wave','-w',fn+".wav",'-l','es-ES',"<volume level='"+int(TTS.PORCENTAJE_VOLUMEN)+"'>"+texto]
             cs = self.call_subprocess(cmd)
             print("TTS.tts_cor: cs="+str(cs))
             result, error = yield cs
             print("TTS.tts_cor: result="+str(result))
             print("TTS.tts_cor: error="+str(error))
-            cmd = ['/usr/bin/sox',fn+".wav",fn+".44100.wav","channels","1","rate","44100"]
+            cmd = ['/usr/bin/sox',"-G",fn+".wav",fn+".44100.wav","channels","1","rate","44100"]
             cs = self.call_subprocess(cmd)
             print("TTS.tts_cor: cs="+str(cs))
             result, error = yield cs
