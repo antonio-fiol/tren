@@ -5,7 +5,7 @@ from singleton          import singleton
 from parametros         import expuesto
 from proceso_pasos      import ProcesoPasos
 from tornado            import gen
-from eventos            import GestorEventos
+from eventos            import GestorEventos, SuscriptorGenerico
 from dijkstra           import shortestPath
 from datetime           import timedelta
 
@@ -19,6 +19,7 @@ class PistaMedicion(ColeccionTramos):
             self.movido = False
             self.direccion = 1
             self.rango = ( 0, 100 )
+            self.cnt_no_movido = 0
             self.bak_minimo = PistaMedicion().midiendo.datos_velocidad.minimo
             self.iniciar()
 
@@ -27,6 +28,7 @@ class PistaMedicion(ColeccionTramos):
             tren = PistaMedicion().midiendo
             tren.datos_velocidad.minimo = 0
             if not self.moviendo:
+                self.cnt_no_movido = 0
                 print("Estoy parado. Calcular velocidad e iniciar movimiento.")
                 if self.direccion > 0:
                     self.v = sum(self.rango)/2
@@ -46,14 +48,16 @@ class PistaMedicion(ColeccionTramos):
                 PistaMedicion().midiendo.poner_velocidad(0)
                 m, M = self.rango
                 if self.movido:
-                    print("Se ha movido.")
-                    if self.direccion > 0:
+                    print("Se ha movido. v="+str(self.v))
+                    if self.direccion > 0 and self.cnt_no_movido == 0:
                         self.rango = (m, self.v)
+                    self.cnt_no_movido = 0
                     print("modo_dummy="+str(Maqueta.modo_dummy))
                     if not Maqueta.modo_dummy: # En modo dummy no podemos ir hacia atras.
                         self.direccion *= -1
                 else:
-                    print("No se ha movido.")
+                    print("No se ha movido. v="+str(self.v))
+                    self.cnt_no_movido += 1
                     self.rango = (self.v, M)
                 self.moviendo = False
                 self.movido = False
@@ -165,7 +169,7 @@ class PistaMedicion(ColeccionTramos):
         def __init__(self):
             print("Medicion.__init__")
             self.pasos = [ PistaMedicion.MedicionCurva, PistaMedicion.MedicionMinimo ] # En orden inverso de ejecucion.
-            GestorEventos().suscribir_evento(Tren.EventoDesaparecido, self.evento_tren_desaparecido, PistaMedicion().midiendo)
+            self.suscriptor = SuscriptorGenerico(self.evento_tren_desaparecido).cuando(Tren.EventoDesaparecido, PistaMedicion().midiendo).tras(1)
             self.iniciar()
 
         @gen.coroutine
@@ -190,11 +194,18 @@ class PistaMedicion(ColeccionTramos):
         def limpieza(self):
             print("Medicion.limpieza")
             PistaMedicion().limpieza()
-            GestorEventos().eliminar_suscriptor(self.evento_tren_desaparecido)
-
+            self.suscriptor.ya_no()
 
         def evento_tren_desaparecido(self, evento):
-            self.parar()
+            print("Medicion.evento_tren_desaparecido "+str(evento))
+            if evento.tren.estado_colision == Tren.DESAPARECIDO:
+                try:
+                        msg = 'Parando medición porque el tren ha desaparecido'
+                        print(msg)
+                        Maqueta().sendChatMessage(msg, origin=evento.tren)
+                except:
+                        print(sys.exc_info()[0])
+                self.parar()
 
 
     def __init__(self, *args, **kwargs):
