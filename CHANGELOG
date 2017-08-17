@@ -547,3 +547,7 @@
 - Estacion activa solo si hay un tren parando en ella.
 - Fotos de estaciones.
 
+15 de agosto de 2017
+
+- maqueta: Colisión inminente por distancia cuando hay un tramo corto enmedio. Fix #15
+
