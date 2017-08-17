@@ -555,4 +555,15 @@
 
 - maqueta, pista_medicion: Medición basada en evento de tren quitado de tramo en lugar
   de tren movido, para asegurar que pasan todas las ruedas.
+- maqueta, eventos, con_puente: Mover DescartarConcurrencia a eventos.py
+  porque es genérico.
+- eventos: Creación de SuscriptorGenerico para facilitar recepción retrasada.
+- eventos: Posibilidad de utilizar la publicacion como callback.
+- pista_medicion: Uso de SuscriptorGenerico para recepción retrasada de
+  EventoDesaparecido, para ignorar pequeñas desapariciones.
+- pista_medicion: Reintento de una velocidad si a velocidades mas lentas no se había
+  movido.
+- proceso_pasos: Depuración más clara.
+- tts: Locución más clara bajando el volumen para evitar la distorsión.
+
 
