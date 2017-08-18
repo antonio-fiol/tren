@@ -716,7 +716,7 @@ g.velocidad-input {
     </g>
     <g class="velocidad-input">
        <circle class="esfera" cx="59.5" cy="59.5" r="48" stroke="#e0e0e0" stroke-width="2" fill="#f7f7f7"></circle>
-       <image class="foto" xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="" x="11.5" y="11.5" width="96" height="96" clip-path="url(#foto)" opacity=".3" onload="$(this).show()" style="display:none"></image>
+       <image class="foto" xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="" x="11.5" y="11.5" width="96" height="96" clip-path="url(#foto)" opacity=".3" style="display:none"></image>
        <!-- Areas aviso -->
        <path class="naranja" d="M100.65 43.162a44 44 0 0 1 1.196 30.435l-10.46-3.4a33 33 0 0 0-.898-22.826z" fill="#f90"/>
        <path class="rojo" d="M101.846 73.597a44 44 0 0 1-10.733 17.516l-7.778-7.778a33 33 0 0 0 8.05-13.137z" fill="#dc3912"/>
@@ -1461,7 +1461,7 @@ var updater = {
             }
 
             $( "#boton-tren"+id+" .info.clase" ).html(lista_trenes[id].clase);
-            $( "#boton-tren"+id+" .foto" ).attr("xlink:href","/static/locomotoras/"+lista_trenes[id].clase+".png");
+            $( "#boton-tren"+id+" .foto" ).on("load",function() {$(this).show();}).attr("xlink:href","/static/locomotoras/"+lista_trenes[id].clase+".png");
             $("#layer3 > g[idtren='"+id+"']").attr("estado", lista_trenes[id].estado);
 
             $( "#control-tren"+id+" select.clase, #boton-tren"+id+" select.clase .opcion.seleccionada").removeClass("seleccionada");
