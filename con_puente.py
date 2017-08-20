@@ -398,7 +398,8 @@ if __name__ == "__main__":
     Locomotora(id="c61-006", desc="SNCF C61-006 V", coeffs=[0.061291493686289084, 0.005144162475490486, -3.1719614648088305e-05], minimo=1060, muestras_inercia=2) # 3N
     Locomotora(id="c61-006a",desc="SNCF C61-006 A", coeffs=[0.061291493686289084, 0.005144162475490486, -3.1719614648088305e-05], minimo=1060, muestras_inercia=2) # 3N Helena
     Locomotora(id="v200", desc="V200", coeffs=[-0.017070525390169747, 0.011210285639240654, -6.292727347601206e-05], minimo=1000, muestras_inercia=10) # 3N Helena
-    Locomotora(id="2100", desc="2100", coeffs=[0.07240401047268205, 0.0055405416238591115, -3.1329731145268906e-05], minimo=1862, muestras_inercia=2) # 3N
+    #Locomotora(id="2100", desc="2100", coeffs=[0.07240401047268205, 0.0055405416238591115, -3.1329731145268906e-05], minimo=1862, muestras_inercia=2) # 3N
+    Locomotora(id="2100", desc="2100", coeffs=[0.09278432010716989, 0.00548961989033292, -3.003735849905945e-05], minimo=1216, muestras_inercia=2) # 3N
 
     cond1 = lambda evento: Maqueta().desvios[11].estado==Desvio.VERDE and Maqueta().desvios[12].estado==Desvio.VERDE
     cond2 = lambda evento: Maqueta().desvios[11].estado==Desvio.VERDE and Maqueta().desvios[12].estado==Desvio.ROJO
