@@ -1325,6 +1325,10 @@ class Tren(Id, object):
         """Tiempo de frenada para el paro progresivo cuando el tren circula a su
            velocidad maxima. Velocidades menores implicaran tiempos de parada menores."""
         return 5
+    @expuesto
+    def AMPLIFICACION_SONIDO_TREN():
+        """Factor de amplificación de los sonidos que emite un tren."""
+        return 0.8
 
     class EventoTren(Evento):
         def __init__(self, emisor):
@@ -2087,6 +2091,7 @@ class Tren(Id, object):
         print(str(self)+": reproducir_sonido: x="+str(x)+" altavoces="+str(self.altavoces))
         print("callback="+str(callback))
         f = audio.Wav(x)
+        f.nivel = Tren.AMPLIFICACION_SONIDO_TREN
         f.canales = self.altavoces
         f.callback = callback
         s = audio.AudioSystem()
