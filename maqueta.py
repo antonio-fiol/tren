@@ -122,7 +122,6 @@ class TrenHandler(tornado.web.RequestHandler):
         remove_sta = self.get_argument("removeSta",None)
         sentido = self.get_argument("sentido",None)
         invertir = self.get_argument("invertir",None)
-        sonido = self.get_argument("sonido",None)
         manual = self.get_argument("manual",None)
         auto = self.get_argument("auto",None)
         opcion = self.get_argument("opcion",None)
@@ -180,11 +179,6 @@ class TrenHandler(tornado.web.RequestHandler):
             for t in trenes:
                 print("Quitando estacion "+str(remove_sta)+" de "+str(t))
                 t.remove_sta(int(remove_sta))
-
-        if sonido:
-            for t in trenes:
-                print("Sonido "+sonido+" en "+str(t))
-                t.reproducir_sonido(sonido)
 
         if auto:
             for t in trenes:
@@ -2073,7 +2067,7 @@ class Tren(Id, object):
         s = audio.AudioSystem().sonido(self.clase, sonido)
         if s:
             print("Encontrado sonido ", s, " para tren ", self)
-            self.reproducir_sonido(s, callback=callback)
+            self.reproducir_sonido(s, callback=callback, nivel=Tren.AMPLIFICACION_SONIDO_TREN)
         else:
             print("Sonido "+sonido+" no encontrado para clase "+self.clase)
 
@@ -2087,11 +2081,11 @@ class Tren(Id, object):
             print("reproducir_sonido_estacion: texto_completo="+texto_completo)
             TTS().tts(texto_completo, self.reproducir_sonido, callback_fin=callback)
 
-    def reproducir_sonido(self,x,callback=None):
+    def reproducir_sonido(self,x,callback=None, nivel=None):
         print(str(self)+": reproducir_sonido: x="+str(x)+" altavoces="+str(self.altavoces))
         print("callback="+str(callback))
         f = audio.Wav(x)
-        f.nivel = Tren.AMPLIFICACION_SONIDO_TREN
+        if nivel: f.nivel = nivel
         f.canales = self.altavoces
         f.callback = callback
         s = audio.AudioSystem()
