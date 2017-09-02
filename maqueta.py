@@ -1323,6 +1323,10 @@ class Tren(Id, object):
     def AMPLIFICACION_SONIDO_TREN():
         """Factor de amplificación de los sonidos que emite un tren."""
         return 0.8
+    @expuesto
+    def VELOCIDAD_DEMO():
+        """Velocidad que se asigna al tren al activar una ruta de demostración."""
+        return 60
 
     class EventoTren(Evento):
         def __init__(self, emisor):
@@ -2121,7 +2125,7 @@ class Tren(Id, object):
         self.sta = []
         for e in d.estaciones: self.add_sta(e)
         self.set_auto(True);
-        self.buscar_y_reproducir_sonido("silbato",lambda fuente_sonido: self.poner_velocidad(60))
+        self.buscar_y_reproducir_sonido("silbato",lambda fuente_sonido: self.poner_velocidad(Tren.VELOCIDAD_DEMO))
 
     def diccionario_atributos(self):
         return {
