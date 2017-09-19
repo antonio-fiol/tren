@@ -1,6 +1,6 @@
-# tren
-Sistema de control automático de maqueta de tren
+# Sistema de control automático de maqueta de tren (cualquier escala)
 
+Este sistema permite controlar maquetas tanto de escala N como de escala H0 o escala Z. Para otras escalas, habría que revisar los requisitos a nivel eléctrico.
 
 ## Descripción
 
@@ -11,8 +11,8 @@ Partiendo de la premisa de no modificar el material rodante en absoluto, y de no
 A lo largo del tiempo el proyecto ha dado respuesta a esos retos y a otros nuevos, tales como la posibilidad de que un tren, siempre avanzando, pase por un tramo de vía en sentido contrario al que pasó anteriormente (inversión de polaridad en la vía para mantener el avance), o la ambientación de la maqueta con luz (tiras de LED direccionables individualmente) y sonido.
 
 El proyecto ha tenido como frutos:
-- Diseño de placa electrónica para el control de velocidad, ampliada posteriormente para control de luces.
-- Diseño de placa electrónica para el control de desvíos.
+- Diseño de placa electrónica para el control de velocidad.
+- Diseño de placa electrónica para el control de desvíos, ampliada posteriormente para control de luces.
 - Diseño de placa electrónica para la detección de trenes.
 - Driver software para el control de las placas.
 - Abstracciones software de los conceptos básicos de la maqueta (Tren, Tramo, Desvío, Estación, ...).
