@@ -1781,7 +1781,8 @@ if(docWidth / window.innerWidth !== 1) { //kind of a hack to determine if the vi
              p.find("label").attr("for",seccion+"/"+nombre).html(nombre);
              if(datos[seccion][nombre].doc) { p.find(".doc").html(datos[seccion][nombre].doc) };
              var input = p.find("input.activo");
-             var valor = datos[seccion][nombre].a || datos[seccion][nombre].d;
+             var valor = datos[seccion][nombre].a;
+             if(valor===undefined) valor = datos[seccion][nombre].d;
              input.attr("name", seccion+"/"+nombre);
              input.attr("value", valor);
              var f = function(event, ui) {
@@ -1796,7 +1797,7 @@ if(docWidth / window.innerWidth !== 1) { //kind of a hack to determine if the vi
              if(nombre.endsWith("_M")) {
                 input.attr("step","0.01");
              }
-             if(datos[seccion][nombre].a && (datos[seccion][nombre].a != datos[seccion][nombre].d)) {
+             if(datos[seccion][nombre].a !== undefined && (datos[seccion][nombre].a != datos[seccion][nombre].d)) {
                 p.addClass("ajustado");
                 updater.cache_parametros["seccion-parametros-"+seccion]=true;
              }
