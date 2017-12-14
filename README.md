@@ -13,6 +13,7 @@ A lo largo del tiempo el proyecto ha dado respuesta a esos retos y a otros nuevo
 El proyecto ha tenido como frutos:
 - Diseño de placa electrónica para el control de velocidad.
 - Diseño de placa electrónica para el control de desvíos, ampliada posteriormente para control de luces.
+  - Una segunda versión de la placa con soporte para muchos más desvíos usando una sola dirección, para maquetas más grandes.
 - Diseño de placa electrónica para la detección de trenes.
 - Driver software para el control de las placas.
 - Abstracciones software de los conceptos básicos de la maqueta (Tren, Tramo, Desvío, Estación, ...).
