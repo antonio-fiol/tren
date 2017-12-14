@@ -3,6 +3,7 @@ from MCP23017 import MCP23017
 from Antonio_PWM_Servo_Driver import PWM
 from maqueta import Maqueta
 from representacion import Desc
+from collections import namedtuple
 
 class ChipDesvios(MCP23017):
     MARRON_D1=1
@@ -53,6 +54,63 @@ class ChipDesvios(MCP23017):
         #self.i2c.write8(self.GPIOA, self.estado & 0xff)
         #self.i2c.write8(self.GPIOB, self.estado >> 8)
         self.i2c.write16(self.GPIOA, self.estado)
+
+SalidaDesvio = namedtuple("SalidaDesvio", [ "arriba", "abajo" ])
+
+def PlacaSalida(placa, salida):
+    if not placa in range(0,12): raise ValueErrpr("placa = "+str(placa))
+    refs = [a+str(n) for a in ["A","B"] for n in range(1,7)]
+    if not salida in range(0,12):
+        salida = refs.index(salida)
+
+    return SalidaDesvio(arriba = (1<<((placa+salida+1)%13)), abajo = (1<<(placa%13)))
+
+def fbin(x): return format(x,"#018b")
+
+class PlacaDesvios(MCP23017):
+    def __init__(self, address=0x40, desvios=[], debug=False, i2cdebug=False):
+        MCP23017.__init__(self, address=address, debug=debug, i2cdebug=debug)
+        self.rojo = SalidaDesvio(0x8000,0)
+        self.verde = SalidaDesvio(0x4000,0)
+        self.chip_rv = self
+        self.inicializar( dir=self.IN_NO_PULL, pol=self.POL_NORMAL )
+        self.estado_gpio = 0
+        self.estado_dir = 0xffff
+
+        for d in desvios:
+            d.registrar_chip_desvios(self, pin=desvios[d], chip_rv=self.chip_rv)
+
+    def pulso(self, pines, duracion_pulso=None):
+        self.working = True
+        self.activar(pines)
+        time.sleep(duracion_pulso or 0.1)
+        self.desactivar(pines)
+        self.working = False
+
+
+    def activar(self, pines):
+        print("activar "+str(pines))
+        print("DE: "+fbin(self.estado_gpio) + " " + fbin(self.estado_dir))
+        self.estado_gpio |= pines.arriba
+        self.estado_gpio &= ~pines.abajo # Deberia ser redundante, pero por si acaso lo dejo
+        self.estado_dir &= ~pines.arriba
+        self.estado_dir &= ~pines.abajo
+        print(" A: "+fbin(self.estado_gpio) + " " + fbin(self.estado_dir))
+        if self.debug: print("Chip desvios "+ hex(self.address) + " - nuevo estado: " + bin(self.estado_gpio) + " " + bin(self.estado_dir))
+        self.i2c.write16(self.GPIOA, self.estado_gpio)
+        self.i2c.write16(self.DIRA, self.estado_dir)
+
+    def desactivar(self, pines):
+        print("desactivar "+str(pines))
+        print("DE: "+fbin(self.estado_gpio) + " " + fbin(self.estado_dir))
+        self.estado_gpio &= ~pines.arriba
+        self.estado_dir |= pines.arriba
+        self.estado_dir |= pines.abajo
+        print(" A: "+fbin(self.estado_gpio) + " " + fbin(self.estado_dir))
+        if self.debug: print("Chip desvios "+ hex(self.address) + " - nuevo estado: " + bin(self.estado_gpio) + " " + bin(self.estado_dir))
+        self.i2c.write16(self.DIRA, self.estado_dir)
+        self.i2c.write16(self.GPIOA, self.estado_gpio)
+
 
 class ChipDetector(MCP23017):
     # Obtener todas las entradas

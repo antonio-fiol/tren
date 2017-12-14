@@ -10,6 +10,8 @@ class MCP23017(Desc, object):
     __GPPUB  = 0x0d
     GPIOA  = 0x12
     GPIOB  = 0x13
+    DIRA = __IODIRA
+    DIRB = __IODIRB
 
     OUT        = [ 0x00, 0x00 ]
     IN_NO_PULL = [ 0xff, 0x00 ]
