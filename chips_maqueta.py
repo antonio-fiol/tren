@@ -58,7 +58,7 @@ class ChipDesvios(MCP23017):
 SalidaDesvio = namedtuple("SalidaDesvio", [ "arriba", "abajo" ])
 
 def PlacaSalida(placa, salida):
-    if not placa in range(0,12): raise ValueErrpr("placa = "+str(placa))
+    if not placa in range(0,13): raise ValueErrpr("placa = "+str(placa))
     refs = [a+str(n) for a in ["A","B"] for n in range(1,7)]
     if not salida in range(0,12):
         salida = refs.index(salida)
