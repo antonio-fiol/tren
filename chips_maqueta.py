@@ -6,6 +6,15 @@ from representacion import Desc
 from collections import namedtuple
 
 class ChipDesvios(MCP23017):
+    """ Placa de desvíos y luces basada en un MCP23017.
+
+    Puede configurarse para 6 salidas positivas y 2 salidas negativas (rojo y verde),
+    o alternativamente como 8 salidas positivas.
+    En el segundo caso, permite especificar como parámetro otra placa que gestione
+    el rojo y verde para activar desvíos.
+    Incluye optoacopladores y transistores de potencia para permitir mantener una salida
+    activa y con consumo durante tiempo indefinido.
+    """
     MARRON_D1=1
     BL_MARRON_D1=2
     VERDE_D1=4
@@ -58,26 +67,59 @@ class ChipDesvios(MCP23017):
 SalidaDesvio = namedtuple("SalidaDesvio", [ "arriba", "abajo" ])
 
 def PlacaSalida(placa, salida):
+    """Proporciona el bit que hay que poner a 1 y a 0 para activar una salida concreta
+    del sistema multi-placa de desvíos.
+
+    El sistema soporta un total de 13 placas (numeradas desde 0 hasta 12).
+    La placa principal es la placa 0, y la numeración crece hacia la izquierda (encima de la principal).
+    Si las placas secundarias se insertan hacia la derecha (debajo de la principal),
+    se puede utilizar la numeración invertida (0 - 12 - 11 - 10 ...).
+
+    Cada placa tiene 12 salidas en dos conectores.
+    Esta función admite numerar las salidas como 0 - 11 o bien mediante un string "A1" "A2"... "A6" y "B1"... "B6".
+    """
     if not placa in range(0,13): raise ValueErrpr("placa = "+str(placa))
+
     refs = [a+str(n) for a in ["A","B"] for n in range(1,7)]
     if not salida in range(0,12):
         salida = refs.index(salida)
 
+    # Hay 13 bits posibles.
+    # La primera placa (la placa principal) utiliza el bit 0 abajo, y arriba los bits 1-12.
+    # La segunda placa (hacia la izquierda) utiliza el bit 1 abajo, y arriba los bits 2-12 y 0.
+    # La tercera placa (hacia la izquierda) utiliza el bit 2 abajo, y arriba los bits 3-12 y 0-1.
     return SalidaDesvio(arriba = (1<<((placa+salida+1)%13)), abajo = (1<<(placa%13)))
 
 def fbin(x): return format(x,"#018b")
 
-class PlacaDesvios(MCP23017):
+class SistemaDesvios(MCP23017):
+    """Sistema multi-placa para desvíos.
+
+    El sistema utiliza charlieplexing.
+    Es decir, se mantienen todas las salidas del MCP23017 en alta impedancia excepto dos.
+    De esas dos, una se activa con valor alto (tensión arriba) y la otra se activa con valor bajo (tensión 0).
+    De este modo, de una matriz de optoacopladores cuyas filas y columnas están conectadas a todas las salidas
+    sólo se activará uno de ellos.
+
+    La ventaja de este sistema es que permite controlar un número grande de desvíos desde un solo chip.
+    En general, N_Desvios = N_Lineas_Chip * (N_Lineas_Chip - 1)
+    En este caso se utilizan 13 líneas del MCP23017 para tener un total de 156 desvíos por sistema.
+    De las 16 líneas del MCP23017 se utilizan dos adicionales para el rojo y el verde, comunes a todos los desvíos.
+    No se utiliza la línea restante por optimización del número de salidas por placa a un número par.
+    """
+
     def __init__(self, address=0x40, desvios=[], debug=False, i2cdebug=False):
         MCP23017.__init__(self, address=address, debug=debug, i2cdebug=debug)
-        self.rojo = SalidaDesvio(0x8000,0)
-        self.verde = SalidaDesvio(0x4000,0)
-        self.chip_rv = self
-        self.inicializar( dir=self.IN_NO_PULL, pol=self.POL_NORMAL )
-        self.estado_gpio = 0
-        self.estado_dir = 0xffff
+        self.rojo = SalidaDesvio(0x8000,0)   # El bit que controla la salida roja es el MSB
+        self.verde = SalidaDesvio(0x4000,0)  # El bit que controla la salida verde es el MSB-1
+        self.chip_rv = self  # El rojo y verde se gestionan dentro del propio sistema
+        self.inicializar( dir=self.IN_NO_PULL, pol=self.POL_NORMAL ) # Se inicializa en alta impedancia
+        self.estado_gpio = 0      # Se mantienen dos estados, el de tensión en cada pin (1=alto)
+        self.estado_dir = 0xffff  # Y el de "alta impedancia" o dirección. (1=alta impedancia, 0=salida activa)
 
         for d in desvios:
+            # Aunque aquí los pines no son un número sino un SalidaDesvios, es posible mantener la interfaz
+            # porque el desvío sólo tiene que devolvernos ese valor al activarse.
             d.registrar_chip_desvios(self, pin=desvios[d], chip_rv=self.chip_rv)
 
     def pulso(self, pines, duracion_pulso=None):
@@ -86,7 +128,6 @@ class PlacaDesvios(MCP23017):
         time.sleep(duracion_pulso or 0.1)
         self.desactivar(pines)
         self.working = False
-
 
     def activar(self, pines):
         print("activar "+str(pines))
