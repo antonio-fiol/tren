@@ -1231,7 +1231,7 @@ class Estacion(Desc, object):
         if self.tren_parado_en_estacion: return True
 
         def tiene_que_parar_en_estacion(tren):
-            if tren.auto:
+            if tren.auto and tren.sta:
                 return (self == tren.sta[0] or self.asociacion == tren.sta[0])
             else:
                 return (self in tren.sta or self.asociacion in tren.sta)
@@ -1536,6 +1536,7 @@ class Tren(Id, object):
     def remove_sta(self, id_estacion):
         """ Eliminar todas las ocurrencias de una estacion de la lista. """
         self.sta = [ s for s in self.sta if s.id != id_estacion ]
+        if not self.sta: self.set_auto(False) # Si no quedan estaciones, quitamos automatico
         self.recalcular_ruta()
         self.EventoAtributosModificados(self).publicar()
         Maqueta().pedir_publicar_trenes()
