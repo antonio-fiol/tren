@@ -2538,6 +2538,17 @@ class ZonaRestringida(object):
         #data = [item for sublist in self.puntos for item in sublist] # Truco para aplanar una lista
         return { k:color_opuesto for m in self.grupos if m!=grupo_accesos for k,c in m.items() for color_opuesto in list(Coloreado.colores.values()) if color_opuesto != c }
 
+class DesvioTresSalidas(object):
+    """ Un desvío de tres salidas tiene dos motores de desvío,
+        que deben declararse de forma independiente.
+        En el diagrama no tiene representación, sino que se
+        representan los dos desvíos independientes. """
+    def __init__(self, desvio_izq, desvio_der):
+        """ La declaración de un desvío de tres salidas gestiona automáticamente
+            que nunca puedan estar los dos desvíos en rojo. """
+        desvio_izq.auto[Coloreado.ROJO].update({ desvio_der: Coloreado.VERDE })
+        desvio_der.auto[Coloreado.ROJO].update({ desvio_izq: Coloreado.VERDE })
+
 class Shell(object):
     def __init__(self, key, desc, cmdline):
         self.key = key
