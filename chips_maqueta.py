@@ -71,14 +71,16 @@ def PlacaSalida(placa, salida):
     del sistema multi-placa de desvíos.
 
     El sistema soporta un total de 13 placas (numeradas desde 0 hasta 12).
-    La placa principal es la placa 0, y la numeración crece hacia la izquierda (encima de la principal).
-    Si las placas secundarias se insertan hacia la derecha (debajo de la principal),
-    se puede utilizar la numeración invertida (0 - 12 - 11 - 10 ...).
+    La placa principal es la placa 0, y la numeración crece hacia la derecha (debajo de la principal).
 
     Cada placa tiene 12 salidas en dos conectores.
     Esta función admite numerar las salidas como 0 - 11 o bien mediante un string "A1" "A2"... "A6" y "B1"... "B6".
     """
     if not placa in range(0,13): raise ValueErrpr("placa = "+str(placa))
+
+    # Puesto que los bits de las placas van creciendo hacia la izquierda y queremos
+    # que la placa maestra sea la de la izquierda, cambiamos el signo de la placa.
+    placa = -placa
 
     refs = [a+str(n) for a in ["A","B"] for n in range(1,7)]
     if not salida in range(0,12):
