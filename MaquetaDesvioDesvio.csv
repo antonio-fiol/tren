@@ -7,5 +7,5 @@ Origen,RamaO,Destino,RamaD,Comentario
 3A6,R,3A4,R,Desvío triple a subida exterior
 1A1,V,1A2,V,Rodeo montaña a metro interior
 1A2,R,1A3,R,Rodeo montaña a metro exterior
-2A6,V,2A3,C,Desvío triple metro
+2A3,V,2A6,C,Desvío triple metro
 1B1,R,1B2,R,Bajada exterior montaña a estación interior via frontal
