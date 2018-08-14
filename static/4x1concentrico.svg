@@ -1134,11 +1134,11 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="3.055"
-     inkscape:cx="408.0522"
-     inkscape:cy="482.40552"
+     inkscape:zoom="0.76374999"
+     inkscape:cx="897.19993"
+     inkscape:cy="236.57372"
      inkscape:document-units="px"
-     inkscape:current-layer="layer3"
+     inkscape:current-layer="layer1"
      showgrid="true"
      inkscape:window-width="1535"
      inkscape:window-height="876"
@@ -1160,7 +1160,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -1188,36 +1188,36 @@
     <image
        sodipodi:absref="/home/fiol/git/tren/static/fondo_maqueta.jpg"
        xlink:href="fondo_maqueta.jpg"
-       style="display:inline"
-       width="1018"
-       height="509"
+       clip-path="url(#clipPath6943)"
+       transform="translate(105.69385,-201.07565)"
+       y="201.07565"
+       x="-105.69385"
        id="st1"
-       x="-105.69385"
-       y="201.07565"
-       transform="translate(105.69385,-201.07565)"
-       clip-path="url(#clipPath6943)" />
+       height="509"
+       width="1018"
+       style="display:inline" />
     <image
        sodipodi:absref="/home/fiol/git/tren/static/fondo_maqueta.jpg"
        xlink:href="fondo_maqueta.jpg"
-       transform="translate(105.69385,-201.07565)"
-       style="display:inline"
-       width="1018"
-       height="509"
+       clip-path="url(#clipPath7724)"
+       y="201.07565"
+       x="-105.69385"
        id="st2"
-       x="-105.69385"
-       y="201.07565"
-       clip-path="url(#clipPath7724)" />
+       height="509"
+       width="1018"
+       style="display:inline"
+       transform="translate(105.69385,-201.07565)" />
     <image
        sodipodi:absref="/home/fiol/git/tren/static/fondo_maqueta.jpg"
        xlink:href="fondo_maqueta.jpg"
-       transform="translate(105.69385,-209.07565)"
-       style="display:inline"
-       y="201.07565"
-       x="-105.69385"
-       id="st1e"
-       height="509"
+       clip-path="url(#clipPath7735)"
        width="1018"
-       clip-path="url(#clipPath7735)" />
+       height="509"
+       id="st1e"
+       x="-105.69385"
+       y="201.07565"
+       style="display:inline"
+       transform="translate(105.69385,-209.07565)" />
   </g>
   <g
      inkscape:label="desvios"
@@ -1299,7 +1299,7 @@
            y="786.7298">??</tspan></text>
     </g>
     <g
-       id="desvio2B6"
+       id="desvio2B3"
        transform="matrix(0.33585352,0,0,0.29386087,162.62005,416.90064)"
        inkscape:label="#desvio8">
       <path
@@ -1336,7 +1336,7 @@
     </g>
     <g
        transform="matrix(-0.33585352,0,0,-0.29386087,230.67435,904.98342)"
-       id="desvio2B2"
+       id="desvio2B5"
        inkscape:label="#desvio9">
       <path
          style="fill:none;stroke:#ff0000;stroke-width:3;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
@@ -1373,7 +1373,7 @@
            y="-704.8045">??</tspan></text>
     </g>
     <g
-       id="desvio2B1"
+       id="desvio2B4"
        transform="matrix(-0.33585352,0,0,-0.29386087,240.79676,888.14102)"
        inkscape:label="#desvio10">
       <path
@@ -1561,7 +1561,7 @@
     <g
        style="display:inline"
        transform="matrix(0.33585352,0,0,-0.29386087,232.17403,860.95317)"
-       id="desvio2B3"
+       id="desvio2B6"
        inkscape:label="#desvio1">
       <path
          style="fill:none;stroke:#ff0000;stroke-width:3;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
@@ -1598,7 +1598,7 @@
     </g>
     <g
        style="display:inline"
-       id="desvio2B4"
+       id="desvio2B1"
        transform="matrix(-0.33585352,0,0,-0.29386087,579.4579,888.78519)"
        inkscape:label="#desvio10-2">
       <path
@@ -1674,7 +1674,7 @@
     <g
        style="display:inline"
        transform="matrix(0.33585352,0,0,-0.29386087,108.66305,510.37698)"
-       id="desvio13-7"
+       id="desvio3A6"
        inkscape:label="#desvio13">
       <path
          style="fill:none;stroke:#ff0000;stroke-width:3;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
@@ -1712,7 +1712,8 @@
     <g
        style="display:inline"
        transform="matrix(-0.33585352,0,0,0.29386087,181.37845,22.750571)"
-       id="desvio6-7">
+       id="desvio3A4"
+       inkscape:label="#desvio6-7">
       <path
          style="fill:none;stroke:#ff0000;stroke-width:3;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
          d="m 5.8288879,801.11666 c 57.6163551,-0.20809 88.1934541,26.4275 88.1934541,26.4275"
@@ -1747,8 +1748,9 @@
     </g>
     <g
        style="display:inline"
-       id="desvio8-9"
-       transform="matrix(0.33585352,0,0,0.29386087,48.824612,39.49588)">
+       id="desvio3A5"
+       transform="matrix(0.33585352,0,0,0.29386087,48.824612,39.49588)"
+       inkscape:label="#desvio8-9">
       <path
          sodipodi:nodetypes="cc"
          inkscape:connector-curvature="0"
@@ -2082,7 +2084,7 @@
     </g>
     <g
        style="display:inline"
-       id="desvio2B5"
+       id="desvio2B2"
        transform="matrix(-0.33585352,0,0,0.29386087,-34.892188,192.29823)"
        inkscape:label="#desvio2-6">
       <path
@@ -2368,7 +2370,8 @@
      id="layer3"
      inkscape:label="vias"
      style="marker:url(#Triangle);display:inline"
-     transform="translate(-2.34375e-6,-3.0761719e-6)">
+     transform="translate(-2.34375e-6,-3.0761719e-6)"
+     sodipodi:insensitive="true">
     <g
        id="A4"
        inkscape:label="#g4222">
