@@ -1,6 +1,8 @@
 import time
+import re
 from MCP23017 import MCP23017
 from Antonio_PWM_Servo_Driver import PWM
+from CustomPWM import CustomPWM
 from maqueta import Maqueta
 from representacion import Desc
 from collections import namedtuple
@@ -92,6 +94,11 @@ def PlacaSalida(placa, salida):
     # La tercera placa (hacia la izquierda) utiliza el bit 2 abajo, y arriba los bits 3-12 y 0-1.
     return SalidaDesvio(arriba = (1<<((placa+salida+1)%13)), abajo = (1<<(placa%13)))
 
+def SalidaRef(ref):
+    # Notacion: 1A1..1A6, 1B1..1B6, 2B1..2B6, ...
+    parts = re.split("([A-Z])",ref)
+    return PlacaSalida(int(parts[0])-1, parts[1]+parts[2])
+
 def fbin(x): return format(x,"#018b")
 
 class SistemaDesvios(MCP23017):
@@ -124,6 +131,13 @@ class SistemaDesvios(MCP23017):
             # porque el desvío sólo tiene que devolvernos ese valor al activarse.
             d.registrar_chip_desvios(self, pin=desvios[d], chip_rv=self.chip_rv)
 
+        print("INIT",self)
+        print(self.i2c)
+        print(self.i2c.bus)
+        if not (self.i2c and self.i2c.bus):
+            print("dummy")
+            Maqueta.modo_dummy = True
+
     def pulso(self, pines, duracion_pulso=None):
         self.working = True
         self.activar(pines)
@@ -153,7 +167,6 @@ class SistemaDesvios(MCP23017):
         if self.debug: print("Chip desvios "+ hex(self.address) + " - nuevo estado: " + bin(self.estado_gpio) + " " + bin(self.estado_dir))
         self.i2c.write16(self.DIRA, self.estado_dir)
         self.i2c.write16(self.GPIOA, self.estado_gpio)
-
 
 class ChipDetector(MCP23017):
     # Obtener todas las entradas
@@ -234,7 +247,7 @@ class ChipDetector(MCP23017):
               desc_tramo="--"
               if self.pines[n]:
                   desc_tramo = self.pines[n].desc
-              if self.debug: print("ChipDetector<" + hex(self.address) +">: Cambiado "+ str(n) + " (" + desc_tramo + ") de " + str(self.state[n]) + " a " + str(reading[n]))
+              if self.debug: print("ChipDetector<" + hex(self.pwm.address) +">: Cambiado "+ str(n) + " (" + desc_tramo + ") de " + str(self.state[n]) + " a " + str(reading[n]))
               self.state[n] = reading[n]
               changed = True
 
@@ -243,7 +256,7 @@ class ChipDetector(MCP23017):
           self.lastState[n] = reading[n]
 
         if(changed):
-          print("ChipDetector<"+hex(self.address)+">.detectar returns " + str(changed))
+          print("ChipDetector<"+hex(self.pwm.address)+">.detectar returns " + str(changed))
           if(self.debug):
               #print("lastDebounceTime")
               #print(self.lastDebounceTime)
@@ -260,33 +273,48 @@ class ChipDetector(MCP23017):
 
         return changed
 
-
-class ChipVias(Desc, PWM):
-    def __init__(self, address=0x40, pines=[], minimo = 1200, freq=60, debug=False):
+class ChipViasGenerico(Desc):
+    def __init__(self, address=0x40, pines=[], minimo = 1200, freq=60, debug=False, pwmclass=PWM, numpines=16):
         try:
-          PWM.__init__(self, address=address, debug=debug)
+          self.pwm = pwmclass(address=address, debug=debug)
           self.real = True
         except IOError:
+          self.pwm = DummyPWM(address=address, debug=debug)
           self.real = False
-        self.desc = hex(self.address)
-        self.pines = pines
+        self.desc = hex(self.pwm.address)
+        self.pines = [None]*numpines
+        if len(pines) > numpines: raise ValueError("Más pines que los soportados por el chip")
+        self.pines[:len(pines)]=pines
         self.minimo = minimo
         self.maximo = 4095
-        self.setPWMFreq(freq)
+        self.pwm.setPWMFreq(freq)
+        self.debug = debug
 
         for n in range(len(pines)):
-            if pines[n]:
-                pines[n].inv.registrar_chip_vias(self,n)
-                pines[n].registrar_chip_vias(self,n)
+            self.registrar(n, pines[n])
 
         Maqueta.chips_vias.append(self)
 
+    def registrar(self, n, tramo):
+        if n>len(self.pines) or n<0: raise ValueError("Pin fuera de rango")
+        print(self.pines)
+        print(n)
+        print(tramo)
+        self.pines[n]=tramo
+        if tramo:
+            tramo.inv.registrar_chip_vias(self,n)
+            tramo.registrar_chip_vias(self,n)
+
+
+class ChipVias(ChipViasGenerico):
+    def __init__(self, address=0x40, pines=[], minimo = 1200, freq=60, debug=False):
+        ChipViasGenerico.__init__(self, address=address, pines=pines, minimo=minimo, freq=freq, debug=debug, pwmclass=PWM, numpines=16)
+
     def stop(self, pin):
-        print("**** STOP **** " + str(self) + " --> "+str(self.pines[pin]))
         pin_f = pin * 2
         pin_r = pin_f + 1
-        self.setPWM(pin_f, 0, 4096)
-        self.setPWM(pin_r, 0, 4096)
+        self.pwm.setPWM(pin_f, 0, 4096)
+        self.pwm.setPWM(pin_r, 0, 4096)
 
     def poner_velocidad(self, pin, polaridad, val, minimo=None):
         if val < -100:
@@ -319,6 +347,120 @@ class ChipVias(Desc, PWM):
             print("Pin: " + str(pin) + "    Polaridad: " + str(polaridad))
             print("chip: " + str(self) + "    pin_act: " + str(pin_act) + " - pin_des: " + str(pin_des))
             print("Val: " + str(val) + "    Valor: " + str(valor))
-        self.setPWM(pin_des, 0, 4096)
-        self.setPWM(pin_act, 0, valor)
+        self.pwm.setPWM(pin_des, 0, 4096)
+        self.pwm.setPWM(pin_act, 0, valor)
+
+class ChipViasDetector(ChipViasGenerico):
+    def __init__(self, address=0x40, pines=[], minimo = 1200, freq=60, debug=False):
+        ChipViasGenerico.__init__(self, address=address, pines=pines, minimo=minimo, freq=freq, debug=debug, pwmclass=CustomPWM, numpines=8)
+
+        self.lastDebounceTime = [ 0.0 ] * 8
+        self.lastState = [ None ] * 8
+        self.state = [ None ] * 8
+        self.debounceDelay = 0.1 # seconds
+        if(self.debug):
+            print("lastDebounceTime")
+            print(self.lastDebounceTime)
+            print("lastState")
+            print(self.lastState)
+            print("state")
+            print(self.state)
+        
+        Maqueta.chips_detectores.append(self)
+
+        print("INIT ChipViasDetector.")
+        if not (self.pwm.i2c and self.pwm.i2c.bus):
+            print("dummy")
+            Maqueta.modo_dummy = True
+
+    def stop(self, pin):
+        self.pwm.setPWM(pin, 0)
+
+    def poner_velocidad(self, pin, polaridad, val, minimo=None):
+        if val < -100:
+          val = -100
+        if val > 100:
+          val = 100
+
+        mi = self.minimo
+        if minimo!=None:
+            mi = int(minimo)
+        valor = int((self.maximo - mi) * val / 100.0)
+        if valor > 0:
+            valor = valor + mi
+        elif valor < 0:
+            valor = valor - mi
+        else:
+            valor = 1 # Pulsos muy estrechos para permitir la deteccion
+        if(self.debug):
+            print("Pin: {} chip: {} val: {} valor: {}"%(str(pin),str(self),str(val),str(valor)))
+        self.pwm.setPWM(pin, valor)
+
+    def detectar(self):
+        changed = False
+
+        if(self.pwm.i2c and self.pwm.i2c.bus):
+          ab = self.i2c.readU16(0xFF)
+        else:
+          ab = 0
+
+        # La siguiente linea pinta el valor de cada deteccion. Esta comentada porque es mucho ruido incluso en modo debug
+        #print(hex(self.pwm.address) + " " + str(ab))
+
+        now = time.time()
+
+        # read the state into a local variable:
+        reading = [False]*8
+        for n in range(8):
+          reading[n]= bool(ab>>n&0x0101) # De momento, OR de ambos bytes
+
+          # check to see if input just changed
+          # (i.e. the input went from LOW to HIGH),  and you've waited
+          # long enough since the last change to ignore any noise:
+
+          # If the switch changed, due to noise or pressing:
+          if (reading[n] != self.lastState[n]):
+            # reset the debouncing timer
+            self.lastDebounceTime[n] = now
+
+          if (self.state[n]):
+              dd = self.debounceDelay * 3/2
+          else:
+              dd = self.debounceDelay
+          t = (now - self.lastDebounceTime[n])    
+          if (t > dd):
+            # whatever the reading is at, it's been there for longer
+            # than the debounce delay, so take it as the actual current state:
+
+            # if the state has changed:
+            if (reading[n] != self.state[n]):
+              desc_tramo="--"
+              if self.pines[n]:
+                  desc_tramo = self.pines[n].desc
+              if self.debug: print("ChipViasDetector<" + hex(self.address) +">: Cambiado "+ str(n) + " (" + desc_tramo + ") de " + str(self.state[n]) + " a " + str(reading[n]))
+              self.state[n] = reading[n]
+              changed = True
+
+          # save the reading.  Next time through the loop,
+          # it'll be the lastState:
+          self.lastState[n] = reading[n]
+
+        if(changed):
+          print("ChipViasDetector<"+hex(self.pwm.address)+">.detectar returns " + str(changed))
+          if(self.debug):
+              #print("lastDebounceTime")
+              #print(self.lastDebounceTime)
+              #print("lastState")
+              #print(self.lastState)
+              print("state")
+              print(self.state)
+          for i in range(8):
+            tramo = self.pines[i]
+            if tramo:
+              if(self.debug):
+                  print(str(tramo) + ": " + str(self.state[i]))
+              tramo.deteccion(self.state[i])
+
+        return changed
+
 

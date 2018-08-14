@@ -215,7 +215,9 @@ class DesvioHandler(tornado.web.RequestHandler):
         val = self.get_argument("id", None)
         color = self.get_argument("color", "verde")
 
-        desvio = Maqueta.desvios[int(val)]
+        if val in Maqueta.desvios: desvio = Maqueta.desvios[val]
+        elif int(val) in Maqueta.desvios: desvio = Maqueta.desvios[int(val)]
+
         estado = Desvio.colores[color]
         print("Poniendo " + str(desvio.desc) + " a " + str(estado) + "=" + color)
         desvio.cambiar(estado)
@@ -2991,6 +2993,7 @@ def setup():
     #t = Tren(maqueta.tramos["I2"].inv)
 
 def simulacion():
+    print("************* SIMULACION *****************")
     import time
     import random
     Tramo.debug = True
@@ -3000,9 +3003,9 @@ def simulacion():
     time.sleep(1)
     maqueta.detectar()
 
-    maqueta.tramos["M2"].inv.deteccion(True)
-    maqueta.tramos["M3"].inv.deteccion(True)
-    maqueta.tramos["M5"].deteccion(True)
+    maqueta.tramos["D4"].inv.deteccion(True)
+    #maqueta.tramos["M3"].inv.deteccion(True)
+    maqueta.tramos["A1"].deteccion(True)
 
     for t in Tren.trenes:
         t.poner_clase(random.choice(list(maqueta.locomotoras.keys())))
@@ -3021,6 +3024,7 @@ def start():
     print("******************************     S  T  A  R  T     **********************************")
     print("***************************************************************************************")
     print("***************************************************************************************")
+    print(Maqueta.modo_dummy)
     if Maqueta.modo_dummy: simulacion()
 
     app = make_app()
