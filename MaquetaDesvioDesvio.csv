@@ -1,8 +1,8 @@
 Conexiones desvío-desvío,,,,
 ,,,,
 Origen,RamaO,Destino,RamaD,Comentario
-2B2,R,2B6,R,Frontal exterior izquierda a puerto interior
-2B1,V,2B6,V,Frontal interior izquierda a puerto interior
+2B5,R,2B3,R,Frontal exterior izquierda a puerto interior
+2B4,V,2B3,V,Frontal interior izquierda a puerto interior
 3A5,V,3A6,C,Desvío triple subida
 3A6,R,3A4,R,Desvío triple a subida exterior
 1A1,V,1A2,V,Rodeo montaña a metro interior

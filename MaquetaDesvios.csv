@@ -17,25 +17,25 @@ Inicial",Comentario,Pasado
 1,B,3,1B3,E2,,C3,X,C1,X,,Estación interior exterior hacia montaña y detrás montaña,X
 1,B,4,1B4,,,,,,,,,
 1,B,5,1B5,,,D3,X,E1,X,,Estación rampa hacia puente,Falta centro
-1,B,6,1B6,A2,,F2,,F1,,,Metro interior izquierda hacia estación interior,
-2,A,1,2A1,F4,,E2,,E3,,,Estación interior izquierda fondo hacia tunel,
-2,A,2,2A2,E4,X,F2,X,F3,,,Estación interior izquierda frontal hacia tunel y metro,
-2,A,3,2A3,,,A1,X,F1,X,,Triple metro motor interior,
+1,B,6,1B6,A2,,F2,,F1,,,Metro interior izquierda hacia estación interior,X
+2,A,1,2A1,F4,,E2,,E3,,,Estación interior izquierda fondo hacia tunel,X
+2,A,2,2A2,E4,X,F2,X,F3,,,Estación interior izquierda frontal hacia tunel y metro,X
+2,A,3,2A3,,,A1,X,F1,X,,Triple metro motor interior,X
 2,A,4,2A4,,,,,,,,,
 2,A,5,2A5,,,J1,,G1,,,Playa,Falta centro
-2,A,6,2A6,G2,X,F3,X,,,,Triple metro motor exterior,
-2,B,1,2B1,G3,,H1,,,,,Frontal interior izquierda a puerto y ciudad,
-2,B,2,2B2,G2,,,,H3,,,Frontal exterior izquierda a puerto ext e int,
-2,B,3,2B3,J1,,G1,X,G4,X,,Ciudad interior,
-2,B,4,2B4,F4,X,G4,,G3,,,Tunel bajo estacion a frontales exterior e interior,
-2,B,5,2B5,H4,X,H1,X,H2,X,,Izquierda a puerto y ciudad,
-2,B,6,2B6,H2,X,,,,,,Puerto interior derecha,
+2,A,6,2A6,G2,X,F3,X,,,,Triple metro motor exterior,X
+2,B,1,2B1,F4,X,G4,,G3,,,Tunel bajo estacion a frontales exterior e interior,X
+2,B,2,2B2,H4,X,H1,X,H2,X,,Izquierda a puerto y ciudad,X
+2,B,3,2B3,H2,X,,,,,,Puerto interior derecha,X
+2,B,4,2B4,G3,,H1,,,,,Frontal interior izquierda a puerto y ciudad,X
+2,B,5,2B5,G2,,,,H3,,,Frontal exterior izquierda a puerto ext e int,X
+2,B,6,2B6,J1,,G1,X,G4,X,,Ciudad interior,X
 3,A,1,3A1,,,,,,,,,
 3,A,2,3A2,,,,,,,,,
-3,A,3,3A3,,,,,J3,X,,Rampa izquierda puente,
-3,A,4,3A4,,,,,H3,X,,Rampa exterior izquierda,
-3,A,5,3A5,H4,,,,,,,Triple rampa motor izquierdo,
-3,A,6,3A6,,,,,J3,,,Triple rampa motor derecho,
+3,A,3,3A3,,,,,J3,X,,Rampa izquierda puente,X
+3,A,4,3A4,,,,,H3,X,,Rampa exterior izquierda,X
+3,A,5,3A5,H4,,,,,,,Triple rampa motor izquierdo,X
+3,A,6,3A6,,,,,J3,,,Triple rampa motor derecho,X
 3,B,1,3B1,,,,,,,,,
 3,B,2,3B2,,,,,,,,,
 3,B,3,3B3,,,,,,,,,
