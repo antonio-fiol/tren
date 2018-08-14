@@ -1,0 +1,56 @@
+Desvíos,,,,,,,,,,,,
+,,,,,,,,,,,,
+"Placa/
+Zona",C,Par,Ref,Centro,"C
+Inv",Rojo,"R
+Inv",Verde,"V
+Inv","Estado
+Inicial",Comentario,Pasado
+1,A,1,1A1,A2,X,A4,X,,,,Metro interior derecha hacia estación interior,X
+1,A,2,1A2,A3,X,,,,,,Metro hacia detras montaña,X
+1,A,3,1A3,A1,X,,,,,R,Metro exterior hacia otra maqueta,X
+1,A,4,1A4,C3,X,A3,X,,,R,Detrás montaña hacia otra maqueta,X
+1,A,5,1A5,B2,,,,C2,,,Salida de la bajada exterior montaña,X
+1,A,6,1A6,D1,,D3,,E1,,,Arriba estación rampa,X
+1,B,1,1B1,E4,,,,A4,,,Estación interior interior hacia metro y montaña,X
+1,B,2,1B2,C2,,,,E3,X,,Estación interior centro hacia montaña,X
+1,B,3,1B3,E2,,C3,X,C1,X,,Estación interior exterior hacia montaña y detrás montaña,X
+1,B,4,1B4,,,,,,,,,
+1,B,5,1B5,,,D3,X,E1,X,,Estación rampa hacia puente,Falta centro
+1,B,6,1B6,A2,,F2,,F1,,,Metro interior izquierda hacia estación interior,
+2,A,1,2A1,F4,,E2,,E3,,,Estación interior izquierda fondo hacia tunel,
+2,A,2,2A2,E4,X,F2,X,F3,,,Estación interior izquierda frontal hacia tunel y metro,
+2,A,3,2A3,,,A1,X,F1,X,,Triple metro motor interior,
+2,A,4,2A4,,,,,,,,,
+2,A,5,2A5,,,J1,,G1,,,Playa,Falta centro
+2,A,6,2A6,G2,X,F3,X,,,,Triple metro motor exterior,
+2,B,1,2B1,G3,,H1,,,,,Frontal interior izquierda a puerto y ciudad,
+2,B,2,2B2,G2,,,,H3,,,Frontal exterior izquierda a puerto ext e int,
+2,B,3,2B3,J1,,G1,X,G4,X,,Ciudad interior,
+2,B,4,2B4,F4,X,G4,,G3,,,Tunel bajo estacion a frontales exterior e interior,
+2,B,5,2B5,H4,X,H1,X,H2,X,,Izquierda a puerto y ciudad,
+2,B,6,2B6,H2,X,,,,,,Puerto interior derecha,
+3,A,1,3A1,,,,,,,,,
+3,A,2,3A2,,,,,,,,,
+3,A,3,3A3,,,,,J3,X,,Rampa izquierda puente,
+3,A,4,3A4,,,,,H3,X,,Rampa exterior izquierda,
+3,A,5,3A5,H4,,,,,,,Triple rampa motor izquierdo,
+3,A,6,3A6,,,,,J3,,,Triple rampa motor derecho,
+3,B,1,3B1,,,,,,,,,
+3,B,2,3B2,,,,,,,,,
+3,B,3,3B3,,,,,,,,,
+3,B,4,3B4,,,,,,,,,
+3,B,5,3B5,,,,,,,,,
+3,B,6,3B6,,,,,,,,,
+4,A,1,4A1,,,,,,,,,
+4,A,2,4A2,,,,,,,,,
+4,A,3,4A3,,,,,,,,,
+4,A,4,4A4,,,,,,,,,
+4,A,5,4A5,,,,,,,,,
+4,A,6,4A6,,,,,,,,,
+4,B,1,4B1,,,,,,,,,
+4,B,2,4B2,,,,,,,,,
+4,B,3,4B3,,,,,,,,,
+4,B,4,4B4,,,,,,,,,
+4,B,5,4B5,,,,,,,,,
+4,B,6,4B6,,,,,,,,,
