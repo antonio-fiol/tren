@@ -7,15 +7,15 @@ Inv","CW
 Tramo","CCW
 Inv","CCW
 %",Descripción
-M,EMI,B3,,80,B3,X,80,Montaña Interior
-M,EME,B4,,80,B4,X,80,Montaña Exterior
-R,ERE,D4,X,80,D4,,80,Rampa Exterior
-R,ERC,E1,X,80,E1,,80,Rampa Centro
-R,ERI,D3,X,80,D3,,80,Rampa Interior
-I,EIE,E2,,80,E2,X,80,Interior Exterior
-I,EIC,E3,,80,E3,X,80,Interior Centro
-I,EII,E4,,80,E4,X,80,Interior Interior
-P,EPE,H3,,40,H3,X,80,Puerto Exterior
-P,EPI,H2,,80,H2,X,80,Puerto Interior
-P,ECE,H1,,80,H1,X,80,Ciudad Exterior
-P,ECI,J1,X,30,J1,,90,Ciudad Interior
+M,EMI,B2,,80,B2,X,80,Montaña Interior
+M,EME,B1,,80,B1,X,80,Montaña Exterior
+R,ERE,D1,X,80,D1,,80,Rampa Exterior
+R,ERC,E4,X,80,E4,,80,Rampa Centro
+R,ERI,D2,X,80,D2,,80,Rampa Interior
+I,EIE,E3,,80,E3,X,80,Interior Exterior
+I,EIC,E2,,80,E2,X,80,Interior Centro
+I,EII,E1,,80,E1,X,80,Interior Interior
+P,EPE,H2,,40,H2,X,80,Puerto Exterior
+P,EPI,H3,,80,H3,X,80,Puerto Interior
+P,ECE,H4,,80,H4,X,80,Ciudad Exterior
+P,ECI,J4,X,30,J4,,90,Ciudad Interior
