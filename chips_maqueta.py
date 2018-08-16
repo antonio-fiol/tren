@@ -383,6 +383,7 @@ class ChipViasDetector(ChipViasGenerico):
           val = -100
         if val > 100:
           val = 100
+        if polaridad < 0: val = -val
 
         mi = self.minimo
         if minimo!=None:
@@ -393,9 +394,9 @@ class ChipViasDetector(ChipViasGenerico):
         elif valor < 0:
             valor = valor - mi
         else:
-            valor = 1 # Pulsos muy estrechos para permitir la deteccion
+            valor = 10 # Pulsos muy estrechos para permitir la deteccion
         if(self.debug):
-            print("Pin: {} chip: {} val: {} valor: {}"%(str(pin),str(self),str(val),str(valor)))
+            print("Pin: {} chip: {} val: {} valor: {}".format(str(pin),str(self),str(val),str(valor)))
         self.pwm.setPWM(pin, valor)
 
     def detectar(self):
