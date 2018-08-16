@@ -440,7 +440,7 @@ class ChipViasDetector(ChipViasGenerico):
               desc_tramo="--"
               if self.pines[n]:
                   desc_tramo = self.pines[n].desc
-              if self.debug: print("ChipViasDetector<" + hex(self.address) +">: Cambiado "+ str(n) + " (" + desc_tramo + ") de " + str(self.state[n]) + " a " + str(reading[n]))
+              if self.debug: print("ChipViasDetector<" + hex(self.pwm.address) +">: Cambiado "+ str(n) + " (" + desc_tramo + ") de " + str(self.state[n]) + " a " + str(reading[n]))
               self.state[n] = reading[n]
               changed = True
 
