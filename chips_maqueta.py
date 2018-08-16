@@ -351,6 +351,8 @@ class ChipVias(ChipViasGenerico):
         self.pwm.setPWM(pin_act, 0, valor)
 
 class ChipViasDetector(ChipViasGenerico):
+    __PRESENCE = 0xfb
+
     def __init__(self, address=0x40, pines=[], minimo = 1200, freq=60, debug=False):
         ChipViasGenerico.__init__(self, address=address, pines=pines, minimo=minimo, freq=freq, debug=debug, pwmclass=CustomPWM, numpines=8)
 
@@ -400,7 +402,7 @@ class ChipViasDetector(ChipViasGenerico):
         changed = False
 
         if(self.pwm.i2c and self.pwm.i2c.bus):
-          ab = self.i2c.readU16(0xFF)
+          ab = self.pwm.i2c.readU16(self.__PRESENCE)
         else:
           ab = 0
 
