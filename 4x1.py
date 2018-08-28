@@ -58,12 +58,13 @@ if __name__ == "__main__":
     #semaforos["I2"].limites.append(lc1)
 
     CONECTORES_VIAS = "ABCDEFGHJK" # Añadir siempre de 2 en 2, ordenados segun conexion a las placas
+    CONECTORES_VIAS = "ABCDEF" # Añadir siempre de 2 en 2, ordenados segun conexion a las placas
     BASE_CVD = 0x10                # Direccion base de la primera placa. Se asume que las siguientes suman 1.
 
     mapa={}
     ChipOffset = namedtuple("ChipOffset", [ "chip", "offset" ])
     for d,(a,b) in enumerate(re.findall(r"(..)",CONECTORES_VIAS)):
-        c = ChipViasDetector(BASE_CVD+d)
+        c = ChipViasDetector(BASE_CVD+d,debug=True)
         mapa[a] = ChipOffset(c,-1)
         mapa[b] = ChipOffset(c,3)
 
@@ -79,7 +80,8 @@ if __name__ == "__main__":
                 ref = row["Ref"]
                 letra, numero = ref
                 t = Tramo(ref, float(longitud))
-                mapa[letra].chip.registrar(int(numero) + mapa[letra].offset, t)
+                try: mapa[letra].chip.registrar(int(numero) + mapa[letra].offset, t)
+                except: print("ERROR: No puedo registrar "+str(t))
 
     with open("MaquetaTramoTramo.csv") as csvfile:
         csvfile.readline()
