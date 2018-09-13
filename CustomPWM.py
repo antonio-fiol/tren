@@ -10,7 +10,7 @@ from Antonio_I2C import Adafruit_I2C
 
 class CustomPWM :
   # Registers/etc.
-  __FREQ              = 0xfc
+  __FREQ              = 0x10
 
   def __init__(self, address=0x40, debug=False, i2cdebug=False):
     self.i2c = Adafruit_I2C(address)
@@ -26,5 +26,5 @@ class CustomPWM :
 
   def setPWM(self, channel, duty):
     "Sets a single PWM channel"
-    self.i2c.write16(channel, duty)
+    self.i2c.write16(channel<<1, duty)
 

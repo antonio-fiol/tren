@@ -352,7 +352,7 @@ class ChipVias(ChipViasGenerico):
         self.pwm.setPWM(pin_act, 0, valor)
 
 class ChipViasDetector(ChipViasGenerico):
-    __PRESENCE = 0xfb
+    __PRESENCE = 0x30
     RegistroMac.instance("ChipViasDetector").key(lambda c: c.pwm.address)
 
     def __init__(self, address=0x40, pines=[], minimo = 1200, freq=60, debug=False):
