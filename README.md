@@ -60,7 +60,11 @@ sudo apt-get install libttspico-utils sox
 
 Y además hay que instalar módulos directamente en Python3 (que no están disponibles en versiones adecuadas como paquetes de la distribución):
 ```
-python3 -m pip install pyalsaaudio cffi sounddevice numpy Adafruit_PureIO --user
+python3 -m pip install pyalsaaudio cffi sounddevice Adafruit_PureIO --user
+```
+En distribuciones que no incluyan el numpy por defecto (no aplica a Raspbian):
+```
+python3 -m pip install numpy --user
 ```
 
 En la distribución OSMC (no es aplicable a Raspbian) es conveniente desactivar el servicio "mediacenter":
@@ -79,6 +83,10 @@ de lo contrario, se puede descargar el fichero ZIP desde github y descomprimirlo
 Para evitar que el log se escriba en la tarjeta SD, y con ello se reduzca su vida útil, podemos redirigir el log a algún directorio montado en un tmpfs. En OSMC, el directorio /run está montado en tmpfs y tiene permisos de escritura para cualquier usuario. Así pues:
 ```
 ln -s /run/tren.log ~/tren/tren.log
+```
+En raspbian, el usuario pi no tiene permisos en /run, así que podemos usar:
+```
+ln -s /run/user/1000/tren.log ~/tren/tren.log
 ```
 
 ## Personalización
