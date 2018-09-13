@@ -84,7 +84,7 @@ Para evitar que el log se escriba en la tarjeta SD, y con ello se reduzca su vid
 ```
 ln -s /run/tren.log ~/tren/tren.log
 ```
-En raspbian, el usuario pi no tiene permisos en /run, así que podemos usar:
+En raspbian el directorio /run no tiene permisos de escritura para el usuario pi. Utilizaremos:
 ```
 ln -s /run/user/1000/tren.log ~/tren/tren.log
 ```
