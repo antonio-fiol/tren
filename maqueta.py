@@ -2,6 +2,7 @@ import logging
 import tornado.ioloop
 import tornado.web
 import tornado.httpserver
+import ssl
 import os.path
 import math
 import datetime
@@ -23,6 +24,7 @@ import audio_maqueta as audio
 from tira import Tira, TiraHandler
 from weather import Weather, WeatherHandler
 from tts import TTS
+from registro import RegistroMac
 
 # Making this a non-singleton is left as an exercise for the reader.
 global_message_buffer = MessageBuffer()
@@ -37,6 +39,20 @@ class DrawingHandler(tornado.web.RequestHandler):
     def get(self):
         self.write(dict(path="/static/"+self.name))
 
+class ReportAddressHandler(tornado.web.RequestHandler):          
+    @gen.coroutine
+    def get(self):                                         
+        print(self.request.uri)
+        print(self.request.query)
+        print(self.get_argument("addr", None))
+        val = self.get_argument("val", None)
+        print(val)
+        mac = self.get_argument("mac", None)
+        print(mac)
+        chip = yield RegistroMac.instance("ChipViasDetector").valmac(val, mac)
+        print("Sending "+str(chip)+" to "+mac+" (val="+val+")")
+        self.write(bytes([chip.pwm.address]))        
+ 
 # URL para recibir las actualizaciones de forma asincrona (long poll)
 class UpdateHandler(tornado.web.RequestHandler):
     @gen.coroutine
@@ -353,6 +369,7 @@ def make_app():
         (r"/shell", ShellHandler),
         (r"/tira", TiraHandler),
         (r"/weather", WeatherHandler),
+        (r"/report-address", ReportAddressHandler),
         ],
     static_path=os.path.join(os.path.dirname(__file__), "static"),
     debug=True,
@@ -2961,6 +2978,7 @@ def sig_handler(sig, frame):
 def shutdown():
     print("Parando servidor http...")
     server.stop()
+    server_s.stop()
 
     print('Iniciando parada...')
     io_loop = tornado.ioloop.IOLoop.instance()
@@ -3028,15 +3046,19 @@ def start():
     if Maqueta.modo_dummy: simulacion()
 
     app = make_app()
-    global server
+    global server, server_s
     server = tornado.httpserver.HTTPServer(app)
     server.listen(8888)
+    ssl_ctx = ssl.create_default_context(ssl.Purpose.CLIENT_AUTH)
+    ssl_ctx.load_cert_chain( "cert.pem", "key.pem", "qwerty")
+    server_s = tornado.httpserver.HTTPServer( app,  ssl_options = ssl_ctx )
+    server_s.listen(8070)
 
     signal.signal(signal.SIGTERM, sig_handler)
     signal.signal(signal.SIGINT, sig_handler)
 
 
-    timer = tornado.ioloop.PeriodicCallback(maqueta.accion_periodica,30)
+    timer = tornado.ioloop.PeriodicCallback(maqueta.accion_periodica,300)
     timer.start()
 
     # Descomentar las siguientes 4 lineas si se sospecha una fuga de memoria

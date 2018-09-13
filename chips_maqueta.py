@@ -6,6 +6,7 @@ from CustomPWM import CustomPWM
 from maqueta import Maqueta
 from representacion import Desc
 from collections import namedtuple
+from registro import RegistroMac
 
 class ChipDesvios(MCP23017):
     """ Placa de desvíos y luces basada en un MCP23017.
@@ -146,24 +147,24 @@ class SistemaDesvios(MCP23017):
         self.working = False
 
     def activar(self, pines):
-        print("activar "+str(pines))
-        print("DE: "+fbin(self.estado_gpio) + " " + fbin(self.estado_dir))
+        if self.debug: print("activar "+str(pines))
+        if self.debug: print("DE: "+fbin(self.estado_gpio) + " " + fbin(self.estado_dir))
         self.estado_gpio |= pines.arriba
         self.estado_gpio &= ~pines.abajo # Deberia ser redundante, pero por si acaso lo dejo
         self.estado_dir &= ~pines.arriba
         self.estado_dir &= ~pines.abajo
-        print(" A: "+fbin(self.estado_gpio) + " " + fbin(self.estado_dir))
+        if self.debug: print(" A: "+fbin(self.estado_gpio) + " " + fbin(self.estado_dir))
         if self.debug: print("Chip desvios "+ hex(self.address) + " - nuevo estado: " + bin(self.estado_gpio) + " " + bin(self.estado_dir))
         self.i2c.write16(self.GPIOA, self.estado_gpio)
         self.i2c.write16(self.DIRA, self.estado_dir)
 
     def desactivar(self, pines):
-        print("desactivar "+str(pines))
-        print("DE: "+fbin(self.estado_gpio) + " " + fbin(self.estado_dir))
+        if self.debug: print("desactivar "+str(pines))
+        if self.debug: print("DE: "+fbin(self.estado_gpio) + " " + fbin(self.estado_dir))
         self.estado_gpio &= ~pines.arriba
         self.estado_dir |= pines.arriba
         self.estado_dir |= pines.abajo
-        print(" A: "+fbin(self.estado_gpio) + " " + fbin(self.estado_dir))
+        if self.debug: print(" A: "+fbin(self.estado_gpio) + " " + fbin(self.estado_dir))
         if self.debug: print("Chip desvios "+ hex(self.address) + " - nuevo estado: " + bin(self.estado_gpio) + " " + bin(self.estado_dir))
         self.i2c.write16(self.DIRA, self.estado_dir)
         self.i2c.write16(self.GPIOA, self.estado_gpio)
@@ -352,10 +353,12 @@ class ChipVias(ChipViasGenerico):
 
 class ChipViasDetector(ChipViasGenerico):
     __PRESENCE = 0xfb
+    RegistroMac.instance("ChipViasDetector").key(lambda c: c.pwm.address)
 
     def __init__(self, address=0x40, pines=[], minimo = 1200, freq=60, debug=False):
         ChipViasGenerico.__init__(self, address=address, pines=pines, minimo=minimo, freq=freq, debug=debug, pwmclass=CustomPWM, numpines=8)
 
+        self.mac = None
         self.lastDebounceTime = [ 0.0 ] * 8
         self.lastState = [ None ] * 8
         self.state = [ None ] * 8
@@ -369,6 +372,8 @@ class ChipViasDetector(ChipViasGenerico):
             print(self.state)
         
         Maqueta.chips_detectores.append(self)
+
+        RegistroMac.instance("ChipViasDetector").registrar(self)
 
         print("INIT ChipViasDetector.")
         if not (self.pwm.i2c and self.pwm.i2c.bus):
@@ -402,7 +407,7 @@ class ChipViasDetector(ChipViasGenerico):
     def detectar(self):
         changed = False
 
-        if(self.pwm.i2c and self.pwm.i2c.bus):
+        if(self.pwm.i2c and self.pwm.i2c.bus and self.mac):
           ab = self.pwm.i2c.readU16(self.__PRESENCE)
         else:
           ab = 0
