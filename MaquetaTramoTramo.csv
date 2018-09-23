@@ -2,7 +2,7 @@ Conexiones tramo-tramo,,,
 ,,,
 Origen,Inv,Destino,Comentario
 D3,,D1,Entrada a estación en rampa
-D1,,,Salida de estación en rampa
+D1,,K1,Salida de estación en rampa
 B4,,C4,Corte bajada espiral interior
 B1,X,D3,Entrada a estación montaña exterior
 B1,,B3,Salida de estación montaña exterior
