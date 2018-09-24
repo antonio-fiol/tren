@@ -16,7 +16,7 @@ Inicial",Comentario,Pasado
 1,B,2,1B2,C3,,,,E2,X,,Estación interior centro hacia montaña,X
 1,B,3,1B3,E3,,C2,X,C4,X,,Estación interior exterior hacia montaña y detrás montaña,X
 1,B,4,1B4,,,,,,,,,
-1,B,5,1B5,K2,X,D2,X,E4,X,,Estación rampa hacia puente,Falta centro
+1,B,5,1B5,K2,X,D2,X,E4,X,,Estación rampa hacia puente,X
 1,B,6,1B6,A3,,F3,,F4,,,Metro interior izquierda hacia estación interior,X
 2,A,1,2A1,F1,,E3,,E2,,,Estación interior izquierda fondo hacia tunel,X
 2,A,2,2A2,E1,X,F3,X,F2,,,Estación interior izquierda frontal hacia tunel y metro,X
@@ -32,7 +32,7 @@ Inicial",Comentario,Pasado
 2,B,6,2B6,J4,,G4,X,G1,X,,Ciudad interior,X
 3,A,1,3A1,,,,,,,,,
 3,A,2,3A2,,,,,,,,,
-3,A,3,3A3,,,,,J2,X,,Rampa izquierda puente,X
+3,A,3,3A3,,,J2,X,,,,Rampa izquierda puente,X
 3,A,4,3A4,K1,,,,H2,X,,Rampa exterior izquierda,X
 3,A,5,3A5,H1,,,,,,,Triple rampa motor izquierdo,X
 3,A,6,3A6,,,,,J2,,,Triple rampa motor derecho,X
