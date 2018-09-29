@@ -7,6 +7,7 @@ from maqueta import Maqueta
 from representacion import Desc
 from collections import namedtuple
 from registro import RegistroMac
+from zcenabled import ZCEnabled
 
 class ChipDesvios(MCP23017):
     """ Placa de desvíos y luces basada en un MCP23017.
@@ -351,7 +352,7 @@ class ChipVias(ChipViasGenerico):
         self.pwm.setPWM(pin_des, 0, 4096)
         self.pwm.setPWM(pin_act, 0, valor)
 
-class ChipViasDetector(ChipViasGenerico):
+class ChipViasDetector(ChipViasGenerico, ZCEnabled):
     __PRESENCE = 0x30
     RegistroMac.instance("ChipViasDetector").key(lambda c: c.pwm.address)
 
@@ -379,6 +380,8 @@ class ChipViasDetector(ChipViasGenerico):
         if not (self.pwm.i2c and self.pwm.i2c.bus):
             print("dummy")
             Maqueta.modo_dummy = True
+
+        self.start_browse()
 
     def stop(self, pin):
         self.pwm.setPWM(pin, 0)
@@ -470,5 +473,4 @@ class ChipViasDetector(ChipViasGenerico):
               tramo.deteccion(self.state[i])
 
         return changed
-
 
