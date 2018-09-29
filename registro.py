@@ -37,11 +37,11 @@ class Registro(object):
 
        if len(self.__mapa) == len(self.__lista):                                               
            for k, obj in zip( sorted(self.__mapa, reverse=True), # k alto = primero                                           
-                              sorted(self.__lista, key=self.__key) ):         
+                              sorted(self.__lista, key=self.__key) ):
               print("k: "+str(k))
               print("obj: "+str(obj))
               v = self.__mapa[k][0]
-              print("v: "+v)                                                 
+              print("v: "+v)
               print("future: "+str(self.__mapa[k][1]))
               self.result(self.__mapa[k][1], obj, v)
                                                                                                 
