@@ -1,10 +1,12 @@
 from tornado.concurrent import Future
-class RegistroMac(object):
-    __registro = {}
+class Registro(object):
+    __registro = None
+
     @classmethod
     def instance(cls, name):
+        cls.__registro = cls.__registro or {}
         if name in cls.__registro: return cls.__registro[name]
-        else: return RegistroMac(name)
+        else: return cls(name)
 
     def __init__(self, name):
         self.__registro[name] = self
@@ -12,7 +14,7 @@ class RegistroMac(object):
         self.__lista = [] # obj                                                                       
         self.__key = lambda x: x
         self.__mapa = {} # val => (mac, future)                                                          
-        self.__mapafinal = {} # mac => obj
+        self.mapafinal = {} # mac => obj
 
     def registrar(self, obj):
         self.__lista.append(obj)
@@ -20,32 +22,45 @@ class RegistroMac(object):
     def key(self, k):
         self.__key = k
 
-    def valmac(self, val, mac):                                                                  
-       print("valmac({},{})".format(val,mac))
+    def result(self, future, obj, v):
+        future.set_result(obj)
+        self.mapafinal[v]=obj
+
+    def kv(self, k, v):
+       print("kv({},{})".format(k,v))
        ret = Future()                                                                           
-       if mac in self.__mapafinal:
-           ret.set_result(self.__mapafinal[mac])
+       if v in self.mapafinal:
+           ret.set_result(self.mapafinal[v])
            return ret
 
-       self.__mapa[int(val)] = (mac, ret)                                                        
-
-       print(len(self.__mapa))
-       print(self.__mapa)
-
-       print(len(self.__lista))
-       print(self.__lista)
+       self.__mapa[k] = (v, ret)
 
        if len(self.__mapa) == len(self.__lista):                                               
-           for val, obj in zip( sorted(self.__mapa, reverse=True), # Val alto = primero                                           
-                                 sorted(self.__lista, key=self.__key) ):         
-              print("val: "+str(val))                                                           
-              print("obj: "+str(obj))                                                     
-              mac = self.__mapa[val][0]
-              print("mac: "+mac)                                                 
-              print("future: "+str(self.__mapa[val][1]))                                              
-              self.__mapa[val][1].set_result(obj)                                             
-              self.__mapafinal[mac]=obj
-              obj.mac = mac
+           for k, obj in zip( sorted(self.__mapa, reverse=True), # k alto = primero                                           
+                              sorted(self.__lista, key=self.__key) ):         
+              print("k: "+str(k))
+              print("obj: "+str(obj))
+              v = self.__mapa[k][0]
+              print("v: "+v)                                                 
+              print("future: "+str(self.__mapa[k][1]))
+              self.result(self.__mapa[k][1], obj, v)
                                                                                                 
        return ret                                                                               
- 
+
+class RegistroMac(Registro):
+    def valmac(self, val, mac):
+        return self.kv(int(val), mac)
+
+    def result(self, future, obj, v):
+        future.set_result(obj)
+        self.mapafinal[v]=obj
+        obj.mac = v
+
+class RegistroIP(Registro):
+    def ip(self, addr):
+        return self.kv(addr, addr)
+
+    def result(self, future, obj, v):
+        future.set_result(v)
+        self.mapafinal[v]=v
+
