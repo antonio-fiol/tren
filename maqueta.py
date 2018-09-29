@@ -3021,7 +3021,7 @@ def simulacion():
     time.sleep(1)
     maqueta.detectar()
 
-    maqueta.tramos["D4"].inv.deteccion(True)
+    #maqueta.tramos["D4"].inv.deteccion(True)
     #maqueta.tramos["M3"].inv.deteccion(True)
     maqueta.tramos["A1"].deteccion(True)
 
@@ -3035,16 +3035,8 @@ def simulacion():
 
     #PistaMedicion().puede_medir(maqueta.tramos["E1"].tren)
 
-def start():
-    setup()
-    print("***************************************************************************************")
-    print("***************************************************************************************")
-    print("******************************     S  T  A  R  T     **********************************")
-    print("***************************************************************************************")
-    print("***************************************************************************************")
-    print(Maqueta.modo_dummy)
-    if Maqueta.modo_dummy: simulacion()
-
+def start_webserver():
+    print("Starting Webserver")
     app = make_app()
     global server, server_s
     server = tornado.httpserver.HTTPServer(app)
@@ -3053,6 +3045,18 @@ def start():
     ssl_ctx.load_cert_chain( "cert.pem", "key.pem", "qwerty")
     server_s = tornado.httpserver.HTTPServer( app,  ssl_options = ssl_ctx )
     server_s.listen(8070)
+    print("Started")
+
+def start():
+    setup()
+    print("***************************************************************************************")
+    print("***************************************************************************************")
+    print("******************************     S  T  A  R  T     **********************************")
+    print("***************************************************************************************")
+    print("***************************************************************************************")
+    print("dummy={}".format(Maqueta.modo_dummy))
+    if Maqueta.modo_dummy: simulacion()
+
 
     signal.signal(signal.SIGTERM, sig_handler)
     signal.signal(signal.SIGINT, sig_handler)
@@ -3066,6 +3070,8 @@ def start():
     #tr = tracker.SummaryTracker()
     #timer2 = tornado.ioloop.PeriodicCallback(tr.print_diff,60000)
     #timer2.start()
+
+    tornado.ioloop.IOLoop.current().add_callback(start_webserver)
 
     tornado.ioloop.IOLoop.current().start()
 
