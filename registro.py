@@ -34,7 +34,7 @@ class Registro(object):
            return ret
 
        self.__mapa[k] = (v, ret)
-
+       print( "{}: mapa: {} lista: {}".format(self.__class__.__name__, len(self.__mapa), len(self.__lista)) )
        if len(self.__mapa) == len(self.__lista):                                               
            for k, obj in zip( sorted(self.__mapa, reverse=True), # k alto = primero                                           
                               sorted(self.__lista, key=self.__key) ):
