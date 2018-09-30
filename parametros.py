@@ -6,6 +6,14 @@ from singleton import singleton
 from eventos import Evento
 from representacion import Desc
 from collections import defaultdict
+import logging
+
+log = logging.getLogger(__name__)
+log.addHandler(logging.NullHandler())
+
+if log.level == logging.NOTSET:
+    log.setLevel(logging.WARN)
+
 
 class EventoParametros(Evento):
     """ Un parametro ha cambiado en la seccion que emite el evento. El evento incluye cual y el nuevo valor. """
@@ -26,7 +34,7 @@ class Parametros(object):
        except: return None
 
    def set(self, cl, name, val, doc=None):
-       print("Parametros.set("+str(cl)+","+str(name)+","+str(val)+","+str(doc)+")")
+       log.info("Parametros.set("+str(cl)+","+str(name)+","+str(val)+","+str(doc)+")")
        if cl not in self.d:
            Seccion(cl)
        self.d[cl][name]=val
@@ -87,9 +95,9 @@ class expuesto(object):
        p = Parametros()
        retval = p.get(self.cl, self.wrapped.__name__)
        if retval == None:
-           #print("expuesto calling wrapped")
+           #log.debug("expuesto calling wrapped")
            retval = self.wrapped()
-           #print("retval="+str(retval))
+           #log.debug("retval="+str(retval))
            if retval != None:
                p.set(self.cl, self.wrapped.__name__, retval, self.wrapped.__doc__)
        return retval

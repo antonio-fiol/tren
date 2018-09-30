@@ -1,6 +1,13 @@
 from singleton import singleton
 import tornado.ioloop
 from datetime import timedelta
+import logging
+
+log = logging.getLogger(__name__)
+log.addHandler(logging.NullHandler())
+
+if log.level == logging.NOTSET:
+    log.setLevel(logging.WARN)
 
 class Suscripcion(object):
     def __init__(self, suscriptor,emisor=None):
@@ -28,7 +35,7 @@ class SuscriptorEvento(object):
             self.emisor = emisor
             self.t_publicacion = None
             self.evento_original = evento_original
-            print(self)
+            log.info(self)
 
     activables = []
 
@@ -51,7 +58,7 @@ class SuscriptorEvento(object):
            if not hasattr(self, "activo") or not self.activo or self.activo(evento):
               if hasattr(self, "retardo") and self.retardo:
                   def rr():
-                      print("propagacion retardada: "+str(evento))
+                      log.info("propagacion retardada: "+str(evento))
                       self.recibir(evento)
                   tornado.ioloop.IOLoop.current().add_timeout(timedelta(seconds=self.retardo), rr)
               else:
@@ -144,7 +151,7 @@ class GestorEventos(object):
         self.suscriptores = {}
 
     def propagar(self, evento):
-        print("Propagando "+str(evento))
+        log.debug("Propagando "+str(evento))
         for tipo in self.suscriptores:
             if issubclass(type(evento),tipo):
                 for s in self.suscriptores[tipo]:
@@ -159,7 +166,7 @@ class GestorEventos(object):
             self.suscriptores[tipo]=[Suscripcion(suscriptor,emisor)]
 
     def eliminar_suscriptor(self, suscriptor):
-        print("eliminar_suscriptor: suscriptor="+str(suscriptor))
+        log.info("eliminar_suscriptor: suscriptor="+str(suscriptor))
         for sr in self.suscriptores.values():
             [ sr.remove(sn) for sn in sr if sn.suscriptor == suscriptor ]
 
