@@ -10,7 +10,7 @@ from registro import RegistroIP
 
 class ZCEnabled(object):
     logging.basicConfig(level=logging.DEBUG)
-    logging.getLogger('zeroconf').setLevel(logging.DEBUG)
+    #logging.getLogger('zeroconf').setLevel(logging.DEBUG)
     zeroconf = Zeroconf()
     browsing = None
 
@@ -24,7 +24,10 @@ class ZCEnabled(object):
 
     @classmethod
     def cb(cls, future):
-        print("*****************************************************************************************************************************************************************************************************")
+        print("************************************************")
+        print("*************************************************")
+        print("**************************************************")
+        print("**************************************************")
         print("{}.cb({})".format(cls.__name__, future))
         print(future.result())
         cls.retrieve("http://{}/reset".format(future.result()))
@@ -37,7 +40,8 @@ class ZCEnabled(object):
            if state_change is ServiceStateChange.Added:
               info = zeroconf.get_service_info(service_type, name)
               if info:
-                  print("  Address: %s:%d" % (socket.inet_ntoa(cast(bytes, info.address)), cast(int, info.port)))
+                  ip_port = "%s:%d" % (socket.inet_ntoa(cast(bytes, info.address)), cast(int, info.port))
+                  print("  IP:Port: %s" % ip_port)
                   print("  Weight: %d, priority: %d" % (info.weight, info.priority))
                   print("  Server: %s" % (info.server,))
                   if info.properties:
@@ -46,20 +50,19 @@ class ZCEnabled(object):
                           print("    %s: %s" % (key, value))
                   else:
                       print("  No properties")
-                  fut = RegistroIP.instance(cls.__name__).ip(socket.inet_ntoa(cast(bytes, info.address)))
+                  fut = RegistroIP.instance(cls.__name__).ip(ip_port)
                   ioloop.IOLoop.current().add_future(fut, cls.cb)
               else:
                   print("  No info")
               print('\n')
         return on_service_state_change
 
-    @classmethod
-    def start_browse(cls):
+    def start_browse(self, service="_http._tcp"):
         print("start_browse")
-        RegistroIP.instance(cls.__name__)
-        if not cls.browsing:
+        RegistroIP.instance(self.__class__.__name__).registrar(self)
+        if not self.__class__.browsing:
             print("Arrancando Browse")
-            cls.browsing = ServiceBrowser(cls.zeroconf, "_workstation._tcp.local.", handlers=[cls.ossc()])
+            self.__class__.browsing = ServiceBrowser(self.__class__.zeroconf, service+".local.", handlers=[self.__class__.ossc()])
 
     @classmethod
     def end_browse(cls):
