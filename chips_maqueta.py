@@ -382,7 +382,7 @@ class ChipViasDetector(ChipViasGenerico, ZCEnabled):
             print("dummy")
             Maqueta.modo_dummy = True
 
-        self.start_browse()
+        self.start_browse("_tren._tcp")
 
     def stop(self, pin):
         self.pwm.setPWM(pin, 0)
