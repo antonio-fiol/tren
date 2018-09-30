@@ -8,6 +8,13 @@ from representacion import Desc
 from collections import namedtuple
 from registro import RegistroMac
 from zcenabled import ZCEnabled
+import logging
+
+log = logging.getLogger(__name__)
+log.addHandler(logging.NullHandler())
+
+if log.level == logging.NOTSET:
+    log.setLevel(logging.WARN)
 
 class ChipDesvios(MCP23017):
     """ Placa de desvíos y luces basada en un MCP23017.
@@ -37,7 +44,7 @@ class ChipDesvios(MCP23017):
     BL_NARANJA_D2=32768
 
     def __init__(self, address=0x40, desvios=[], verde=MARRON_D2, rojo=BL_MARRON_D2, debug=False, i2cdebug=False, chip_rv=None):
-        MCP23017.__init__(self, address=address, debug=debug, i2cdebug=debug)
+        MCP23017.__init__(self, address=address, i2cdebug=debug)
         self.rojo = rojo
         self.verde = verde
         self.chip_rv = (chip_rv or self)
@@ -55,12 +62,12 @@ class ChipDesvios(MCP23017):
 
     def activar(self, pines):
         self.estado |= pines
-        if self.debug: print("Chip desvios "+ hex(self.address) + " - nuevo estado: " + bin(self.estado))
+        log.debug("Chip desvios "+ hex(self.address) + " - nuevo estado: " + bin(self.estado))
         self.estado_a_chip()
 
     def desactivar(self, pines):
         self.estado &= ~pines
-        if self.debug: print("Chip desvios "+ hex(self.address) + " - nuevo estado: " + bin(self.estado))
+        log.debug("Chip desvios "+ hex(self.address) + " - nuevo estado: " + bin(self.estado))
         self.estado_a_chip()
 
     def estado_a_chip(self):
@@ -120,7 +127,7 @@ class SistemaDesvios(MCP23017):
     """
 
     def __init__(self, address=0x40, desvios=[], debug=False, i2cdebug=False):
-        MCP23017.__init__(self, address=address, debug=debug, i2cdebug=debug)
+        MCP23017.__init__(self, address=address, i2cdebug=debug)
         self.rojo = SalidaDesvio(0x8000,0)   # El bit que controla la salida roja es el MSB
         self.verde = SalidaDesvio(0x4000,0)  # El bit que controla la salida verde es el MSB-1
         self.chip_rv = self  # El rojo y verde se gestionan dentro del propio sistema
@@ -133,11 +140,9 @@ class SistemaDesvios(MCP23017):
             # porque el desvío sólo tiene que devolvernos ese valor al activarse.
             d.registrar_chip_desvios(self, pin=desvios[d], chip_rv=self.chip_rv)
 
-        print("INIT",self)
-        print(self.i2c)
-        print(self.i2c.bus)
+        log.info("INIT {} - i2c={}".format(self, self.i2c))
         if not (self.i2c and self.i2c.bus):
-            print("dummy")
+            log.info("No hay bus - modo dummy")
             Maqueta.modo_dummy = True
 
     def pulso(self, pines, duracion_pulso=None):
@@ -148,25 +153,25 @@ class SistemaDesvios(MCP23017):
         self.working = False
 
     def activar(self, pines):
-        if self.debug: print("activar "+str(pines))
-        if self.debug: print("DE: "+fbin(self.estado_gpio) + " " + fbin(self.estado_dir))
+        log.debug("activar "+str(pines))
+        log.debug("DE: "+fbin(self.estado_gpio) + " " + fbin(self.estado_dir))
         self.estado_gpio |= pines.arriba
         self.estado_gpio &= ~pines.abajo # Deberia ser redundante, pero por si acaso lo dejo
         self.estado_dir &= ~pines.arriba
         self.estado_dir &= ~pines.abajo
-        if self.debug: print(" A: "+fbin(self.estado_gpio) + " " + fbin(self.estado_dir))
-        if self.debug: print("Chip desvios "+ hex(self.address) + " - nuevo estado: " + bin(self.estado_gpio) + " " + bin(self.estado_dir))
+        log.debug(" A: "+fbin(self.estado_gpio) + " " + fbin(self.estado_dir))
+        log.debug("Chip desvios "+ hex(self.address) + " - nuevo estado: " + bin(self.estado_gpio) + " " + bin(self.estado_dir))
         self.i2c.write16(self.GPIOA, self.estado_gpio)
         self.i2c.write16(self.DIRA, self.estado_dir)
 
     def desactivar(self, pines):
-        if self.debug: print("desactivar "+str(pines))
-        if self.debug: print("DE: "+fbin(self.estado_gpio) + " " + fbin(self.estado_dir))
+        log.debug("desactivar "+str(pines))
+        log.debug("DE: "+fbin(self.estado_gpio) + " " + fbin(self.estado_dir))
         self.estado_gpio &= ~pines.arriba
         self.estado_dir |= pines.arriba
         self.estado_dir |= pines.abajo
-        if self.debug: print(" A: "+fbin(self.estado_gpio) + " " + fbin(self.estado_dir))
-        if self.debug: print("Chip desvios "+ hex(self.address) + " - nuevo estado: " + bin(self.estado_gpio) + " " + bin(self.estado_dir))
+        log.debug(" A: "+fbin(self.estado_gpio) + " " + fbin(self.estado_dir))
+        log.debug("Chip desvios "+ hex(self.address) + " - nuevo estado: " + bin(self.estado_gpio) + " " + bin(self.estado_dir))
         self.i2c.write16(self.DIRA, self.estado_dir)
         self.i2c.write16(self.GPIOA, self.estado_gpio)
 
@@ -177,7 +182,7 @@ class ChipDetector(MCP23017):
     # $GET $CHIP 0x12 w
 
     def __init__(self, address=0x40, pines=[], sim=[], debug=False, i2cdebug=False):
-        MCP23017.__init__(self, address=address, debug=debug, i2cdebug=i2cdebug)
+        MCP23017.__init__(self, address=address, i2cdebug=i2cdebug)
         self.pines = pines
         self.sim = sim
 
@@ -197,8 +202,6 @@ class ChipDetector(MCP23017):
         Maqueta.chips_detectores.append(self)
 
         print("INIT ChipDetector.")
-        print(self.i2c)
-        print(self.i2c.bus)
         if not (self.i2c and self.i2c.bus):
             print("dummy")
             Maqueta.modo_dummy = True
@@ -299,9 +302,7 @@ class ChipViasGenerico(Desc):
 
     def registrar(self, n, tramo):
         if n>len(self.pines) or n<0: raise ValueError("Pin fuera de rango")
-        print(self.pines)
-        print(n)
-        print(tramo)
+        log.debug("pines={} antes de registrar({}, {})".format(self.pines, n, tramo))
         self.pines[n]=tramo
         if tramo:
             tramo.inv.registrar_chip_vias(self,n)
@@ -448,7 +449,7 @@ class ChipViasDetector(ChipViasGenerico, ZCEnabled):
               desc_tramo="--"
               if self.pines[n]:
                   desc_tramo = self.pines[n].desc
-              if self.debug: print("ChipViasDetector<" + hex(self.pwm.address) +">: Cambiado "+ str(n) + " (" + desc_tramo + ") de " + str(self.state[n]) + " a " + str(reading[n]))
+              log.debug("ChipViasDetector<" + hex(self.pwm.address) +">: Cambiado "+ str(n) + " (" + desc_tramo + ") de " + str(self.state[n]) + " a " + str(reading[n]))
               self.state[n] = reading[n]
               changed = True
 

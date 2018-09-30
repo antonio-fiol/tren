@@ -19,17 +19,14 @@ class MCP23017(Desc, object):
     POL_NORMAL = 0x00
     POL_INVERT = 0xff
 
-    def __init__(self, address=0x40, debug=False, i2cdebug=False):
+    def __init__(self, address=0x40, i2cdebug=False):
         self.i2c = Adafruit_I2C(address)
         self.i2c.debug = i2cdebug
         self.address = address
-        self.debug = debug
         self.desc = hex(address)
 
     def inicializar(self, dir=IN_NO_PULL, pol=POL_NORMAL):
         if self.i2c:
-            if self.debug:
-                print("inicializar() "+str(self))
             # Todo entradas (es el valor por defecto)
             # IODIR=1 - Apartado 1.6.1 - pagina 12
             self.i2c.write8(self.__IODIRA, dir[0])
