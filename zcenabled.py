@@ -30,7 +30,7 @@ class ZCEnabled(object):
         print("**************************************************")
         print("{}.cb({})".format(cls.__name__, future))
         print(future.result())
-        cls.retrieve("http://{}/reset".format(future.result()))
+        cls.retrieve("http://{}/reboot".format(future.result()))
 
     @classmethod
     def ossc(cls):
