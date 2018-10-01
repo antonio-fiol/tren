@@ -60,7 +60,7 @@ sudo apt-get install libttspico-utils sox
 
 Y además hay que instalar módulos directamente en Python3 (que no están disponibles en versiones adecuadas como paquetes de la distribución):
 ```
-python3 -m pip install pyalsaaudio cffi sounddevice Adafruit_PureIO --user
+python3 -m pip install pyalsaaudio cffi sounddevice Adafruit_PureIO zeroconf Adafruit_GPIO --user
 ```
 En distribuciones que no incluyan el numpy por defecto (no aplica a Raspbian):
 ```
