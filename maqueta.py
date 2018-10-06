@@ -944,18 +944,12 @@ class Semaforo(Tramo,Coloreado):
             for c,l in list(self.luz.items()):
                 l.estado(c==estado,pub=pub)
             self.estado = estado
-            self.notificar_cambio_a_trenes()
             if Semaforo.debug:
                 print("Semaforo "+self.desc+": cambiar: get_limites()-->"+str(self.get_limites()))
             if pub:
                 self.EventoCambiado(self).publicar()
                 maqueta.pedir_publicar_semaforos()
         return True
-
-    def notificar_cambio_a_trenes(self):
-        for t in Tren.trenes:
-            # Lllamar a t.semaforo_cambiado(self) en la siguiente iteracion del bucle
-            tornado.ioloop.IOLoop.current().add_callback(t.semaforo_cambiado,self)
 
     def stop(self, pub=True):
         Tramo.stop(self, pub)
@@ -1539,10 +1533,6 @@ class Tren(Id, object):
 
         # Y pasamos la velocidad a los tramos, solo para cambiar la del siguiente
         self.pasar_velocidad_a_tramos()
-
-    def semaforo_cambiado(self, semaforo):
-        # De momento, ignoramos
-        pass
 
     def add_sta(self, estacion):
         """ Agregar una estacion al final de la lista de estaciones. """
