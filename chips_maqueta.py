@@ -75,6 +75,17 @@ class ChipDesvios(MCP23017):
         #self.i2c.write8(self.GPIOB, self.estado >> 8)
         self.i2c.write16(self.GPIOA, self.estado)
 
+class ChipLuces595(ChainOf595):
+    """ Placa de luces basada en una cadena de 74xx595.
+    """
+
+    def activar(self, pines):
+        self.set_bit(pines, True)
+
+    def desactivar(self, pines):
+        self.set_bit(pines, False)
+
+
 SalidaDesvio = namedtuple("SalidaDesvio", [ "arriba", "abajo" ])
 
 def PlacaSalida(placa, salida):
