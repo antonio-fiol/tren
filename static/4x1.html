@@ -1392,8 +1392,10 @@ var updater = {
             $('#SEM-'+id.replace(" ","_")+" g").each( function () {
               if(sem[id]=="rojo") {
                   this.parentNode.estado = 0;
-              } else {
+              } else if(sem[id]=="verde") {
                   this.parentNode.estado = 1;
+              } else {
+                  this.parentNode.estado = 2;
               }
 
               $('path',this).css('visibility','hidden');
