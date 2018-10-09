@@ -566,11 +566,18 @@ class Desvio(Desc, Coloreado):
 
 
 class Tramo(Nodo):
-    class EventoQuitarTren(Evento):
-        """ El tramo ha quitado el tren, por deteccion u otro motivo. """
-        def __init__(self, tramo, tren):
+    class EventoCambioPresencia(Evento):
+        """ Se ha producido un cambio de presencia en el tramo. """
+        def __init__(self, tramo, presencia):
             Evento.__init__(self, tramo)
             self.tramo = tramo
+            self.presencia = presencia
+            print("{}({},{}) **********************************************".format(__class__.__name__,tramo,presencia))
+
+    class EventoQuitarTren(EventoCambioPresencia):
+        """ El tramo ha quitado el tren, por deteccion u otro motivo. """
+        def __init__(self, tramo, tren):
+            super().__init__(tramo, False)
             self.tren = tren
 
     debug = False
@@ -639,6 +646,7 @@ class Tramo(Nodo):
                         print("Movido tren " + str(self.tren) + " a " + str(self))
                     else:
                         print("Movido tren (no movida cabecera) " + str(self.tren) + " a " + str(self))
+                    Tramo.EventoCambioPresencia(self, True).publicar()
                 else:
                     tren_encontrado_en_inv, tramo_encontrado = self.inv.buscar_tren_en_tramo_anterior()
                     if tren_encontrado_en_inv:
