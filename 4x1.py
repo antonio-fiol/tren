@@ -157,6 +157,27 @@ if __name__ == "__main__":
                     estaciones = mapa_estaciones[ref][sentido]
                     if estaciones:
                         AsociacionEstaciones(ref, sentido, estaciones, desc)
+
+    placa_semaforos = ChipLuces595()
+    with open("MaquetaSemaforos.csv") as csvfile:
+        csvfile.readline()
+        csvfile.readline()
+        reader = csv.DictReader(csvfile, dialect="excel")
+        for row in reader:
+            if(debug_config): print(row)
+            ref, desc_tramo, inv, porc = row["Ref"], row["Tramo"], row["Inv"], int(row["%"] or 90)
+            if not ref or not desc_tramo: continue
+            tramo = tr(desc_tramo, inv)
+            # desvio, color = row["Desvio"], row["C"]
+            s = Semaforo(ref, tramo, porc)
+            s.luz[Semaforo.ROJO].registrar_chip(placa_semaforos, placa_semaforos.salida(ref, alto=False))
+            s.luz[Semaforo.VERDE].registrar_chip(placa_semaforos, placa_semaforos.salida(ref, alto=True))
+            #if desvio and color:
+            #    d = Maqueta.desvios[ref]
+            #    if d:
+            #        PermitirEstado(s, Semaforo.VERDE).si(d, inv=(color=="R"))
+            #        CambiarSemaforo(s, Semaforo.CAMBIANDO_A_VERDE).cuando(EventoCambiado, d).
+            #            si(lambda: d.estado_a_bool()!=(color=="R"))
     
     # Listado de tramos de la maqueta (el orden no importa)
     # DESC: Tramo(DESC, longitud)
