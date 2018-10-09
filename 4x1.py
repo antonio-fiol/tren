@@ -9,7 +9,7 @@ import re
 from collections import defaultdict
 
 if __name__ == "__main__":
-
+    debug_config = True
     #from change_monitor import ChangeMonitor
     #ChangeMonitor(Tren)
 
@@ -74,7 +74,7 @@ if __name__ == "__main__":
         csvfile.readline()
         reader = csv.DictReader(csvfile, dialect="excel")
         for row in reader:
-            print(row)
+            if(debug_config): print(row)
             longitud = row["Longitud\n(metros)"]
             if(longitud):
                 ref = row["Ref"]
@@ -88,7 +88,7 @@ if __name__ == "__main__":
         csvfile.readline()
         reader = csv.DictReader(csvfile, dialect="excel")
         for row in reader:
-            print(row)
+            if(debug_config): print(row)
             origen, destino, inv = row["Origen"], row["Destino"], row["Inv"]
             if(origen and destino):
                 conexion(tr(origen,inv), tr(destino, False))
@@ -99,7 +99,7 @@ if __name__ == "__main__":
         csvfile.readline()
         reader = csv.DictReader(csvfile, dialect="excel")
         for row in reader:
-            print(row)
+            if(debug_config): print(row)
             ref = row["Ref"]
             centro, rojo, verde = row["Centro"], row["Rojo"], row["Verde"]
             c_inv, r_inv, v_inv = row["C\nInv"], row["R\nInv"], row["V\nInv"]
@@ -116,7 +116,7 @@ if __name__ == "__main__":
         csvfile.readline()
         reader = csv.DictReader(csvfile, dialect="excel")
         for row in reader:
-            print(row)
+            if(debug_config): print(row)
             origen, rama_o, destino, rama_d = row["Origen"], row["RamaO"], row["Destino"], row["RamaD"]
             if(origen and destino and rama_o and rama_d):
                 if(rama_o=="C" and rama_d=="C"): raise Error("No se pueden conectar dos desvios por sus centros sin un tramo")
