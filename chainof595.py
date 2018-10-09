@@ -78,13 +78,16 @@ class ChainOf595:
        """ Detect the length of the chain.
            QH' of the last chip must be connected to MISO.
        """
-       lots_of_zeros = [0] * MAX_CHIPS
-       out = self.spi.transfer(lots_of_zeros)
-       out = self.spi.transfer([255]+lots_of_zeros)
-       num = out.index(255)
-       assert num > 0, "Chain not detected or shorted."
-       out[num] = 0
-       assert out == bytearray(MAX_CHIPS + 1), "Unexpected returned value. Likely chain not closed."
+       if self.spi:
+           lots_of_zeros = [0] * MAX_CHIPS
+           out = self.spi.transfer(lots_of_zeros)
+           out = self.spi.transfer([255]+lots_of_zeros)
+           num = out.index(255)
+           assert num > 0, "Chain not detected or shorted."
+           out[num] = 0
+           assert out == bytearray(MAX_CHIPS + 1), "Unexpected returned value. Likely chain not closed."
+       else:
+           num = 6 # Arbitrary number in dummy mode
        self.set_qty(num)
        return num
 
