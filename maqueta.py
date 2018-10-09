@@ -2382,6 +2382,19 @@ class LimiteSemaforoRojo(ForzadoAPartirDe):
         self._inv = LimiteVelocidad(100.0)
         self._inv._inv = self  # Aunque no creo que sea necesario...
 
+class LimiteSiSemaforoRojo(LimiteCondicional):
+    def __init__(self, semaforo, limite_aplicable):
+        self.semaforo = semaforo
+        LimiteCondicional.__init__(self, self.semaforo_esta_rojo, limite_aplicable, LimiteVelocidad(100) )
+        self._inv = LimiteVelocidad(100)
+
+    def semaforo_esta_rojo(self, maqueta, tren):
+        return self.semaforo.estado in [ Semaforo.ROJO, Semaforo.CAMBIANDO_A_VERDE ]
+
+    def __repr__(self):
+        return "{}({},{})".format(type(self).__name__,self.semaforo,self.limite_true)
+
+
 class LimiteAcercamiento(ForzadoAPartirDe):
     def __init__(self, velocidad_inicio, forzar_en, limite_velocidad):
         #                               velocidad_inicio, inicio_forzado, forzar_en, limite_velocidad
