@@ -1823,8 +1823,9 @@ class Tren(Id, object):
                 limites.append(LimiteDesvioGirado())
         else: # No hay nada que restrinja la velocidad
             pass
-        
-        limite_en_el_punto = min([l.calcular_limite(self) for l in limites])
+
+        limite_limitante = min(limites, key=lambda l: l.calcular_limite(self))
+        limite_en_el_punto = limite_limitante.calcular_limite(self)
 
         # Nunca limitar a menos de 1.0... salvo que sea cero
         if limite_en_el_punto > 0.0 and limite_en_el_punto < 1.0:
@@ -1833,7 +1834,8 @@ class Tren(Id, object):
         inc = copysign(1,self.velocidad) # Era 2.
         if limite_en_el_punto < abs(self.velocidad_efectiva): # Vamos demasiado rapido. Frenar.
             self.velocidad_efectiva = limite_en_el_punto * copysign(1,self.velocidad)
-            print("Tren "+str(self.id)+" frenando: limite: "+str(limite_en_el_punto)+" velocidad_efectiva: "+str(self.velocidad_efectiva))
+            print("Tren {} en {} frenando: limite: {}->{} velocidad_efectiva: {}".format(self.id, self.tramo, limite_limitante, limite_en_el_punto, self.velocidad_efectiva))
+            #print("Tren "+str(self.id)+" frenando: limite: "+str(limite_en_el_punto)+" velocidad_efectiva: "+str(self.velocidad_efectiva))
         elif limite_en_el_punto > abs(self.velocidad_efectiva+inc) and not (self.estado_colision == Tren.MODO_MANUAL or self.estado_colision == Tren.MIDIENDO): # Vamos demasiado lento. Acelerar.
             self.velocidad_efectiva = self.velocidad_efectiva + inc
             print("Tren "+str(self.id)+" acelerando: limite: "+str(limite_en_el_punto)+" velocidad_efectiva: "+str(self.velocidad_efectiva))
