@@ -992,13 +992,16 @@ class Luz(Desc, object):
         if registrar:
             Maqueta.luces.update({self.desc:self})
 
-    def registrar_chip_desvios(self, chip, pin, chip_rv):
+    def registrar_chip(self, chip, pin):
         print("Registrando " + str(chip) + " en " + self.desc)
         self.chip = chip
         self.pin = pin
         # Enviar al chip el estado actual, porque se habia incializado
         # al crear el objeto pero el chip no estaba registrado
         self.estado(self.encendida, pub=False)
+
+    def registrar_chip_desvios(self, chip, pin, chip_rv):
+        self.registrar_chip(chip, pin)
 
     def estado(self,encendida,pub=True,forzar=False):
         # No permite cambios si esta controlada por deteccion
