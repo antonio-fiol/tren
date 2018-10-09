@@ -783,9 +783,6 @@ class Tramo(Nodo):
             Maqueta().pedir_publicar_velocidades()
 
     def poner_velocidad(self, val=0.0, minimo=None, pub=True):
-        if not self.chip_vias:
-            print("ALERTA: Tramo " + self.desc + " no tiene chip de vias !!!")
-            return
         v_antigua = self.velocidad
         v_compartidos_antigua = { t:t.velocidad for t in self.tramos_compartiendo_chip }
 
@@ -796,8 +793,11 @@ class Tramo(Nodo):
             t.stopped = False
 
         if(v_antigua != self.velocidad or v_compartidos_antigua != { t:t.velocidad for t in self.tramos_compartiendo_chip }):
-            print("Tramo " + self.desc + " poniendo velocidad " + str(val) + " en el chip")
-            self.chip_vias.poner_velocidad(self.chip_vias_pin, self.polaridad, val, minimo=minimo)
+            print("Tramo " + self.desc + " poniendo velocidad " + str(val))
+            if self.chip_vias:
+                self.chip_vias.poner_velocidad(self.chip_vias_pin, self.polaridad, val, minimo=minimo)
+            else:
+                print("ALERTA: Tramo " + self.desc + " no tiene chip de vias !!!")
             if pub:
                 Maqueta().pedir_publicar_velocidades()
 
