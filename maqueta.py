@@ -502,7 +502,7 @@ class Desvio(Desc, Coloreado):
             self.notificar_cambio_a_trenes()
             if pub:
                 self.EventoCambiado(self).publicar()
-                maqueta.pedir_publicar_desvios()
+                Maqueta().pedir_publicar_desvios()
         return True
 
     def reservar(self, reserva):
@@ -513,12 +513,12 @@ class Desvio(Desc, Coloreado):
                 self.reserva = None
                 self.t_reserva = None
                 self.EventoLiberado(self, por_cambio=True).publicar()
-                maqueta.pedir_publicar_desvios()
+                Maqueta().pedir_publicar_desvios()
         if reserva:
             print("Reservado desvio "+self.desc+" para "+str(reserva.id))
             self.reserva = reserva
             self.t_reserva = tornado.ioloop.IOLoop.current().time()
-            maqueta.pedir_publicar_desvios()
+            Maqueta().pedir_publicar_desvios()
 
     def liberar(self, tren, estado=None, pub=True):
         if self.reserva == tren:
@@ -532,7 +532,7 @@ class Desvio(Desc, Coloreado):
                     a.liberar(tren, pub=pub)
 
             if pub: self.EventoLiberado(self, por_tren=tren).publicar()
-            maqueta.pedir_publicar_desvios()
+            Maqueta().pedir_publicar_desvios()
 
     def id_tren_reserva(self):
         if self.reserva: return self.reserva.id
@@ -648,7 +648,8 @@ class Tramo(Nodo):
                             print("... y debe ser nuevo")
                         self.tren = Tren(self)
                         print("Nuevo tren " + str(self.tren) + " en " + str(self))
-                maqueta.pedir_publicar_deteccion()
+                        Tramo.EventoCambioPresencia(self, True).publicar()
+                Maqueta().pedir_publicar_deteccion()
         else:
             if self.tren:
                 tornado.ioloop.IOLoop.current().add_callback(self.tren_no_esta)
@@ -672,7 +673,7 @@ class Tramo(Nodo):
             print("Quitando tren "+str(tren.id)+" de " + self.desc)
             self.tren = None
             Tramo.EventoQuitarTren(self, tren).publicar()
-            maqueta.pedir_publicar_deteccion()
+            Maqueta().pedir_publicar_deteccion()
             tornado.ioloop.IOLoop.current().add_callback(maqueta.revisar_trenes_eliminados)
         if (self.velocidad != None):
             self.poner_velocidad(0.0)
@@ -771,7 +772,7 @@ class Tramo(Nodo):
             t.stopped = True
 
         if pub:
-            maqueta.pedir_publicar_velocidades()
+            Maqueta().pedir_publicar_velocidades()
 
     def poner_velocidad(self, val=0.0, minimo=None, pub=True):
         if not self.chip_vias:
@@ -790,7 +791,7 @@ class Tramo(Nodo):
             print("Tramo " + self.desc + " poniendo velocidad " + str(val) + " en el chip")
             self.chip_vias.poner_velocidad(self.chip_vias_pin, self.polaridad, val, minimo=minimo)
             if pub:
-                maqueta.pedir_publicar_velocidades()
+                Maqueta().pedir_publicar_velocidades()
 
     def tren_en_tramo_fisico(self):
         return self.tren or self.inv.tren
@@ -863,7 +864,7 @@ class TramosConDeteccionCompartida(ColeccionTramos):
                 else:
                     nuevo_tramo = self.tramos[0]
                 ret = nuevo_tramo.deteccion(t)
-                maqueta.pedir_publicar_deteccion()
+                Maqueta().pedir_publicar_deteccion()
         else:
             if tr:
                 tornado.ioloop.IOLoop.current().add_callback(fisico.tren_no_esta)
@@ -950,7 +951,8 @@ class Semaforo(Tramo,Coloreado):
                 print("Semaforo "+self.desc+": cambiar: get_limites()-->"+str(self.get_limites()))
             if pub:
                 self.EventoCambiado(self).publicar()
-                maqueta.pedir_publicar_semaforos()
+                Maqueta().pedir_publicar_semaforos()
+        #print("Listo. Ahora cambiando_a_verde={}".format(self.cambiando_a_verde))
         return True
 
     def stop(self, pub=True):
@@ -1005,7 +1007,7 @@ class Luz(Desc, object):
                 self.chip.desactivar(self.pin)
         if pub:
             self.EventoCambiado(self).publicar()
-            maqueta.pedir_publicar_luces()
+            Maqueta().pedir_publicar_luces()
 
     def deteccion(self, d):
         self.controlada_por_deteccion = True
