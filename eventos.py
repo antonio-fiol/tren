@@ -13,6 +13,8 @@ class Suscripcion(object):
     def __init__(self, suscriptor,emisor=None):
         self.suscriptor = suscriptor
         self.emisor = emisor
+    def __repr__(self):
+        return "Suscripcion({}-->{})".format(self.emisor,self.suscriptor)
 
 class Evento(object):
     def __init__(self, emisor):
@@ -24,6 +26,10 @@ class Evento(object):
         if args: self.args = list(args)
         if kwargs: self.kwargs = kwargs
         GestorEventos().propagar(self)
+
+    def republicar(self, emisor, *args, **kwargs):
+        self.emisor = emisor
+        self.publicar(*args, **kwargs)
 
     def __repr__(self):
         return type(self).__name__+": "+str(self.__dict__)
@@ -118,6 +124,12 @@ class SuscriptorGenerico(SuscriptorEvento):
 
     def recibir(self, evento):
         self.metodo_recibir(evento)
+
+class AgregadorEventos(SuscriptorEvento):
+        def recibir(self, evento):
+            evento.republicar(self)
+        def escuchar(self, emisor, clase=Evento):
+            self.cuando(clase, emisor)
 
 class DescartarConcurrencia(SuscriptorEvento):
     def __init__(self, delegado, max_concurrencia = 1):
