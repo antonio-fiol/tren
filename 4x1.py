@@ -140,17 +140,17 @@ if __name__ == "__main__":
         csvfile.readline()
         reader = csv.DictReader(csvfile, dialect="excel")
         for row in reader:
-            print(row)
+            if(debug_config): print(row)
             crea_estacion(row["Ref"], "cw",  row["CW\nTramo"],  row["CW\nInv"],  row["CW\n%"],  row["Descripción"], row["Estación"])
             crea_estacion(row["Ref"], "ccw", row["CCW\nTramo"], row["CCW\nInv"], row["CCW\n%"], row["Descripción"], row["Estación"])
-    print(mapa_estaciones)
+    if(debug_config): print(mapa_estaciones)
 
     with open("MaquetaEstaciones.csv") as csvfile:
         csvfile.readline()
         csvfile.readline()
         reader = csv.DictReader(csvfile, dialect="excel")
         for row in reader:
-            print(row)
+            if(debug_config): print(row)
             ref, desc = row["Ref"], row["Descripción"]
             if ref:
                 for sentido in ("cw","ccw"):
