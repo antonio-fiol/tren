@@ -584,7 +584,7 @@ class Tramo(Nodo):
     POL_F = 1
     POL_R = -1
 
-    def __init__(self, desc=None, longitud=0.05, desvio=None, inv=None, limites=[], registrar=True):
+    def __init__(self, desc=None, longitud=0.05, desvio=None, inv=None, limites=None, registrar=True):
         Nodo.__init__(self)
         self.desvio = desvio
         self.desc = desc
@@ -592,7 +592,7 @@ class Tramo(Nodo):
         self.tren = None
         self.velocidad = None
         self.stopped = False
-        self.limites = limites
+        self.limites = limites or []
 
         self.chip_vias = None
         self.chip_vias_pin = None
@@ -604,9 +604,9 @@ class Tramo(Nodo):
         else:
             self.polaridad=Tramo.POL_F
             if desc:
-                self.inv = type(self)(desc=(desc+" invertido"), longitud=longitud, desvio=desvio, inv=self, limites=[l.inv() for l in limites], registrar=False)
+                self.inv = type(self)(desc=(desc+" invertido"), longitud=longitud, desvio=desvio, inv=self, limites=[l.inv() for l in self.limites], registrar=False)
             else:
-                self.inv = type(self)(longitud=longitud, desvio=desvio, inv=self, limites=[l.inv() for l in limites], registrar=False)
+                self.inv = type(self)(longitud=longitud, desvio=desvio, inv=self, limites=[l.inv() for l in self.limites], registrar=False)
         self.tramos_compartiendo_chip = set([self.inv])
         if registrar:
             Maqueta.tramos.update({self.desc:self})
