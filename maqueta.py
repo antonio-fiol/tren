@@ -564,7 +564,6 @@ class Desvio(Desc, Coloreado):
             return Coloreado.ROJO
         return None
 
-
 class Tramo(Nodo):
     class EventoCambioPresencia(Evento):
         """ Se ha producido un cambio de presencia en el tramo. """
@@ -925,52 +924,164 @@ class TramoX(Tramo):
             valid = False
         return valid
 
-
-class Semaforo(Tramo,Coloreado):
+class Semaforo(Desc,Coloreado):
     debug = False
+    CAMBIANDO_A_VERDE = Coloreado.ROJO | Coloreado.VERDE
+    colores = Coloreado.colores
+    colores["cambiando_a_verde"]=CAMBIANDO_A_VERDE
+    cambios_estado = Coloreado.cambios_estado
+    cambios_estado[CAMBIANDO_A_VERDE]=Coloreado.ROJO
 
     class EventoCambiado(Evento):
         """ El semaforo ha cambiado de color (o se ha apagado) """
         pass
 
-    def __init__(self, desc=None, longitud=0.05, desvio=None, inv=None, limites=[], limites_rojo=[], limites_verde=[], registrar=True):
-        Tramo.__init__(self, desc, longitud, desvio, inv, limites, registrar)
-        self.luz= { Semaforo.ROJO: Luz(registrar=False), Semaforo.VERDE: Luz(registrar=False) }
-        self.limites_rojo = limites_rojo
-        self.limites_verde = limites_verde
-        self.validaciones = { Coloreado.VERDE: [], Coloreado.ROJO: [] }
-        self.cambiar(Semaforo.VERDE, pub=False, forzar=True) # FIXME: Deberia ser None en lugar de VERDE
+    class ValidadorCambiandoAVerde(object):
+        def validar_cambio(self, semaforo, estado):
+            return semaforo.estado == Coloreado.ROJO or semaforo.estado == Semaforo.CAMBIANDO_A_VERDE
+
+    @expuesto
+    def TIEMPO_DESVIO_A_SEMAFORO_VERDE_S():
+        """ Tiempo desde que cambia un desvío que controla un semáforo hasta que el semáforo se pone verde. """
+        return 3
+
+    def __init__(self, desc, tramo, porcentaje):
+        self.desc = desc
+        self.tramo = tramo
+        # Añadir límite condicional al tramo
+        lssr = LimiteSiSemaforoRojo(self, LimiteSemaforoRojo(maximo=100, porcentaje=porcentaje, inicio_forzado=0, debug=False))
+        self.tramo.limites.append(lssr)
+        self.cambiando_a_verde = None
+        luz_roja = Luz(registrar=False)
+        luz_verde = Luz(registrar=False)
+        self.luz = { Semaforo.ROJO: luz_roja, Semaforo.VERDE: luz_verde, Semaforo.CAMBIANDO_A_VERDE: luz_roja }
+        self.validaciones = {
+            Semaforo.VERDE: [],
+            Semaforo.ROJO: [],
+            Semaforo.CAMBIANDO_A_VERDE: [ Semaforo.ValidadorCambiandoAVerde() ]
+        }
+        self.estado = None
+        self.cambiar(Semaforo.VERDE, pub=False, forzar=True)
+
         Maqueta.semaforos.update({self.desc:self})
 
-    def get_limites(self):
+        self.configurar_cambio_automatico()
+
+    def configurar_cambio_automatico(self):
+        conjunto_control = set()
+        iterar_ahora = self.tramo.nodos_siguientes(1)
+        iterar_despues = []
+        while iterar_ahora:
+            #print("iterar_ahora={}".format(iterar_ahora))
+            for nodo in iterar_ahora:
+                if not isinstance(nodo, Tramo): continue
+                #print("Iterando {}".format(nodo))
+                if nodo.desvio:
+                    d = nodo.desvio
+                    color_rama = d.color_rama(nodo)
+                    if not color_rama: # Centro
+                        lista_de_listas = [n.nodos_siguientes(1) for n in nodo.nodos_siguientes(1)]
+                        lista_plana = [item for sublist in lista_de_listas for item in sublist]
+                        #print("lista_plana={}".format(lista_plana))
+                        iterar_despues.extend(lista_plana)
+                        if any(isinstance(x,Tramo) and x.desvio for x in lista_plana):
+                            conjunto_control.add(d)
+                    else: # Rojo, Verde
+                        conjunto_control.add(d)
+                else: # Es un tramo. Escuchar presencia.
+                    conjunto_control.add(nodo)
+                    continue
+            iterar_ahora = iterar_despues
+            iterar_despues = []
+        print("{} controlado por {}".format(self, conjunto_control))
+        if conjunto_control:
+            if len(conjunto_control)>1:
+                agregador = AgregadorEventos()
+                for d in conjunto_control:
+                    if isinstance(d,Desvio): agregador.escuchar(d, Desvio.EventoCambiado)
+                    if isinstance(d,Tramo):  agregador.escuchar(d, Tramo.EventoCambioPresencia)
+            else:
+                (agregador,) = conjunto_control # Único elemento, no requiere agregador
+            PermitirEstado(self, Semaforo.VERDE).si(agregador, self.via_libre).comprobar_ahora()
+            PermitirEstado(self, Semaforo.CAMBIANDO_A_VERDE).si(agregador, self.via_libre).comprobar_ahora()
+            CambiarSemaforo(self, Semaforo.CAMBIANDO_A_VERDE).cuando(Evento, agregador).si(self.via_libre)
+
+    def via_libre(self, *args):
+        ret = False
+        iterar_ahora = self.tramo.nodos_siguientes(1)
+        iterar_despues = []
+        while iterar_ahora:
+            print("{} - iterar_ahora={}".format(self, iterar_ahora))
+            for nodo in iterar_ahora:
+                if not isinstance(nodo, Tramo): continue
+                print("Iterando {}".format(nodo))
+                if nodo.desvio:
+                    d = nodo.desvio
+                    color_rama = d.color_rama(nodo)
+                    if not color_rama: # Centro
+                        # Continuamos a partir del tramo activo.
+                        iterar_despues.extend(d.tramo_activo(nodo).nodos_siguientes(1))
+                    else: # Rojo, Verde.
+                        if d.tramo_activo(d.centro_correspondiente(nodo)) == nodo:
+                            # Si es el tramo activo podemos seguir explorando.
+                            iterar_despues.extend(d.centro_correspondiente(nodo).nodos_siguientes(1))
+                        else:
+                            # Hemos llegado a un tramo de desvío no activo.
+                            print("Rama no activa.")
+                            return False
+                else:
+                    # ¿Está ocupado el tramo?
+                    if nodo.tren_en_tramo_fisico():
+                        print("Tramo ocupado.")
+                        return False
+            iterar_ahora = iterar_despues
+            iterar_despues = []
+        print("Vía libre!")
+        return True # No hemos encontrado tramo no activo
+
+    def old_get_limites(self):
         return self.limites + (self.limites_rojo if self.estado == Semaforo.ROJO else self.limites_verde)
 
     def cambiar(self, estado, pub=True, forzar=False):
-        if(estado != Semaforo.ROJO and estado != Semaforo.VERDE and estado != None):
+        print("{}.cambiar({}) desde {}".format(self,estado, self.estado))
+        if estado not in [ Semaforo.ROJO, Semaforo.VERDE, Semaforo.CAMBIANDO_A_VERDE, None ]:
             return False
         if estado and not all(a.validar_cambio(self, estado) for a in self.validaciones[estado]):
             return False
+        print("Cambio válido")
+        #print("cambiando_a_verde={}".format(self.cambiando_a_verde))
+        if self.cambiando_a_verde and estado != Semaforo.CAMBIANDO_A_VERDE:
+            tornado.ioloop.IOLoop.current().remove_timeout(self.cambiando_a_verde)
+            self.cambiando_a_verde = None
 
         if(forzar or estado != self.estado):
-            for c,l in list(self.luz.items()):
-                l.estado(c==estado,pub=pub)
+            for l in self.luz.values(): l.estado(False, pub=pub)
+            if estado in self.luz: self.luz[estado].estado(True, pub=pub)
             self.estado = estado
-            if Semaforo.debug:
-                print("Semaforo "+self.desc+": cambiar: get_limites()-->"+str(self.get_limites()))
+            if self.estado == Semaforo.CAMBIANDO_A_VERDE and not self.cambiando_a_verde:
+                print("cambiar_a_verde en un rato")
+                # Cambiar a verde en un rato
+                self.cambiando_a_verde = tornado.ioloop.IOLoop.current().add_timeout(timedelta(seconds=Semaforo.TIEMPO_DESVIO_A_SEMAFORO_VERDE_S), self.cambiar_a_verde)
             if pub:
                 self.EventoCambiado(self).publicar()
                 Maqueta().pedir_publicar_semaforos()
         #print("Listo. Ahora cambiando_a_verde={}".format(self.cambiando_a_verde))
         return True
 
-    def stop(self, pub=True):
-        Tramo.stop(self, pub)
+    def cambiar_a_verde(self):
+        print("cambiar_a_verde")
+        self.cambiar(Semaforo.VERDE)
+
+    def stop(self, pub=True):       # TODO: Llamar al parar.
         self.cambiar(None, pub=pub)
 
-    def poner_velocidad(self, val=0.0, minimo=None, pub=True):
+    def poner_velocidad(self, val=0.0, minimo=None, pub=True):   # TODO: Como enterarse de que ha arrancado?
         Tramo.poner_velocidad(self, val=val, minimo=minimo, pub=pub)
         if self.estado == None:
             self.cambiar(Semaforo.VERDE, pub) or self.cambiar(Semaforo.ROJO, pub)
+
+    def __repr__(self):
+        return "{} ({})".format(self.desc,self.tramo)
 
 class Luz(Desc, object):
     luces = []
