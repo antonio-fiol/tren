@@ -418,13 +418,15 @@ class Coloreado(object):
     ROJO = 2
     colores = { "verde": VERDE, "rojo": ROJO }
     cambios_estado = {VERDE:ROJO, ROJO:VERDE}
+    # https://stackoverflow.com/questions/2568673/inverse-dictionary-lookup-in-python
+    # ivd = {v: k for k, v in d.items()}    TODO!!!
+    # key = next(key for key, value in dd.items() if value == 'value')
 
     def color(self):
-        if(self.estado == Coloreado.VERDE):
-            return "verde"
-        if(self.estado == Coloreado.ROJO):
-            return "rojo"
-        return None
+        try:
+            return next(key for key, value in self.colores.items() if value == self.estado)
+        except StopIteration:
+            return None
 
     def intercambiar_estado(self):
         self.cambiar(self.cambios_estado.get(self.estado, None))
