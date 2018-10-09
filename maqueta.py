@@ -1039,9 +1039,6 @@ class Semaforo(Desc,Coloreado):
         print("Vía libre!")
         return True # No hemos encontrado tramo no activo
 
-    def old_get_limites(self):
-        return self.limites + (self.limites_rojo if self.estado == Semaforo.ROJO else self.limites_verde)
-
     def cambiar(self, estado, pub=True, forzar=False):
         print("{}.cambiar({}) desde {}".format(self,estado, self.estado))
         if estado not in [ Semaforo.ROJO, Semaforo.VERDE, Semaforo.CAMBIANDO_A_VERDE, None ]:
