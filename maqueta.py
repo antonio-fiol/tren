@@ -1039,30 +1039,43 @@ class PermitirEstado(SuscriptorEvento):
         self.cambiable = cambiable
         self.estado = estado
         self.estado_vuelta = None
-        self.controlador = True
+        self.controlador = None
         self.repr = "PermitirEstado "+str(self.cambiable)+" "+str(self.estado)
         self.cambiable.validaciones[self.estado].append(self)
 
     def si(self, objeto_bool, inv=False):
         self.ya_no()
         self.controlador = objeto_bool
-        self.inv = inv
+        if isinstance(inv, bool):
+            self.inv = inv
+            self.func = self.controlador.estado_a_bool
+        else:
+            self.inv = False
+            self.func = inv
         self.cuando(Evento, self.controlador)
+        return self
 
     def si_no(self, objeto_bool):
-        self.si(objeto_bool, inv=True)
+        return self.si(objeto_bool, inv=True)
 
     def con_vuelta_a(self, estado_vuelta):
         self.estado_vuelta = estado_vuelta
+        return self
 
     def validar_cambio(self, cambiable, estado):
         # Restringir cambios solo para el objeto y estado configurados, unicamente en modo real
-        if self.cambiable == cambiable and self.estado == estado and not Maqueta.modo_dummy:
-            return self.controlador.estado_a_bool() != self.inv  # Equivalente XOR
+        if self.cambiable == cambiable and self.estado == estado :# and not Maqueta.modo_dummy:
+            ret = self.func() != self.inv
+            if not ret: print("{}: Cambio de {} de {} a {} no válido".format(self, cambiable, cambiable.estado, estado))
+            return ret
         else:
             return True
 
     def recibir(self, evento):
+        #print("{}.recibir({})".format(self, evento))
+        self.comprobar_ahora()
+
+    def comprobar_ahora(self):
         if not self.validar_cambio(self.cambiable, self.cambiable.estado):
             if self.estado_vuelta:
                 self.cambiable.cambiar(self.estado_vuelta)
