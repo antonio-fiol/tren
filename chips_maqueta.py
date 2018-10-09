@@ -8,6 +8,7 @@ from representacion import Desc
 from collections import namedtuple
 from registro import RegistroMac
 from zcenabled import ZCEnabled
+from chainof595 import ChainOf595
 import logging
 
 log = logging.getLogger(__name__)
@@ -78,6 +79,25 @@ class ChipDesvios(MCP23017):
 class ChipLuces595(ChainOf595):
     """ Placa de luces basada en una cadena de 74xx595.
     """
+
+    def salida(self, ref, alto=False):
+        # Notacion: S1A1..S1A3, S1B1..S1B3, S1C1..S1C3, S1D1..S1D3, S2B1..S2B6, ...
+        if ref[0] == "S": ref = ref[1:]
+        conectores = "ABCD"
+        parts = re.split("([A-Z])",ref)
+        placa = int(parts[0])-1
+        assert placa >= 0, "Placa inválida"
+        conector = conectores.index(parts[1])
+        assert conector >= 0, "Conector inválido"
+        bit = (int(parts[2])-1) << 1
+        assert bit >= 0 and bit <= 4, "Salida inválida"
+        if(alto): bit |= 1
+        bit += conector * 6
+        bit += placa * 24
+
+        return bit
+
+
 
     def activar(self, pines):
         self.set_bit(pines, True)
