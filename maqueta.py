@@ -17,7 +17,7 @@ from polyregress        import Pair, PolySolve
 from singleton          import singleton
 from parametros         import expuesto, Parametros, ParametroHandler, EventoParametros, Seccion
 from representacion     import Desc, Id, IdDesc, iniciales
-from eventos import Evento, SuscriptorEvento, GestorEventos
+from eventos import Evento, SuscriptorEvento, GestorEventos, AgregadorEventos
 from filtros import FiltroInercia
 from timed import timed_avg_and_freq
 import audio_maqueta as audio
