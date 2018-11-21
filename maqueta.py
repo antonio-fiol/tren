@@ -99,6 +99,11 @@ class ViaHandler(tornado.web.RequestHandler):
               # Boton de poner tension, les damos una pasada a los desvios
               for idd in Maqueta.desvios:
                  Maqueta.desvios[idd].cambiar(Maqueta.desvios[idd].estado,forzar=True)
+              # Y a los semáforos
+              for s in Maqueta.semaforos:
+                 if not Maqueta.semaforos[s].estado == Semaforo.ROJO:
+                     Maqueta.semaforos[s].cambiar(Semaforo.ROJO)
+                     Maqueta.semaforos[s].cambiar(Semaforo.VERDE)
 
         # Identificamos los tramos a los que hace referencia la peticion, buscando por nombre
         tramos=[]
@@ -938,7 +943,7 @@ class Semaforo(Desc,Coloreado):
 
     class ValidadorCambiandoAVerde(object):
         def validar_cambio(self, semaforo, estado):
-            return semaforo.estado == Coloreado.ROJO or semaforo.estado == Semaforo.CAMBIANDO_A_VERDE
+            return semaforo.estado == Coloreado.ROJO or semaforo.estado == Semaforo.CAMBIANDO_A_VERDE or not semaforo.estado
 
     @expuesto
     def TIEMPO_DESVIO_A_SEMAFORO_VERDE_S():
@@ -1002,7 +1007,7 @@ class Semaforo(Desc,Coloreado):
                     if isinstance(d,Tramo):  agregador.escuchar(d, Tramo.EventoCambioPresencia)
             else:
                 (agregador,) = conjunto_control # Único elemento, no requiere agregador
-            PermitirEstado(self, Semaforo.VERDE).si(agregador, self.via_libre).comprobar_ahora()
+            PermitirEstado(self, Semaforo.VERDE).si(agregador, self.via_libre).con_vuelta_a(Semaforo.ROJO).comprobar_ahora()
             PermitirEstado(self, Semaforo.CAMBIANDO_A_VERDE).si(agregador, self.via_libre).comprobar_ahora()
             CambiarSemaforo(self, Semaforo.CAMBIANDO_A_VERDE).cuando(Evento, agregador).si(self.via_libre)
 
@@ -1184,11 +1189,15 @@ class PermitirEstado(SuscriptorEvento):
         self.comprobar_ahora()
 
     def comprobar_ahora(self):
+        #print("comprobar_ahora")
         if not self.validar_cambio(self.cambiable, self.cambiable.estado):
             if self.estado_vuelta:
+                #print("estado_vuelta {}".format(self.estado_vuelta))
                 self.cambiable.cambiar(self.estado_vuelta)
             else:
+                #print("sin estado_vuelta")
                 self.cambiable.intercambiar_estado()
+        #print("fin comprobar_ahora")
 
 class Muerta(Nodo):
     def __init__(self, inv=None):
@@ -3013,6 +3022,9 @@ class Maqueta:
         # Quitar tension en tramos
         for t in self.tramos.values():
             t.stop()
+        # Parar semáforos
+        for s in self.semaforos.values():
+            s.stop()
         # Apagar las luces
         for l in self.luces:
             self.luces[l].estado(False)
@@ -3203,7 +3215,7 @@ def start():
     signal.signal(signal.SIGINT, sig_handler)
 
 
-    timer = tornado.ioloop.PeriodicCallback(maqueta.accion_periodica,300)
+    timer = tornado.ioloop.PeriodicCallback(maqueta.accion_periodica,30)
     timer.start()
 
     # Descomentar las siguientes 4 lineas si se sospecha una fuga de memoria
