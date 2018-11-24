@@ -1135,10 +1135,10 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="1.0801056"
-     inkscape:cx="1341.6749"
+     inkscape:cx="1156.5078"
      inkscape:cy="315.47684"
      inkscape:document-units="px"
-     inkscape:current-layer="layer1"
+     inkscape:current-layer="layer3"
      showgrid="true"
      inkscape:window-width="1535"
      inkscape:window-height="876"
@@ -1188,36 +1188,36 @@
     <image
        sodipodi:absref="/home/fiol/git/tren/static/fondo_maqueta.jpg"
        xlink:href="fondo_maqueta.jpg"
-       clip-path="url(#clipPath6943)"
-       transform="translate(105.69385,-201.07565)"
-       y="201.07565"
-       x="-105.69385"
+       style="display:inline"
+       width="1018"
+       height="509"
        id="st1"
-       height="509"
-       width="1018"
-       style="display:inline" />
+       x="-105.69385"
+       y="201.07565"
+       transform="translate(105.69385,-201.07565)"
+       clip-path="url(#clipPath6943)" />
     <image
        sodipodi:absref="/home/fiol/git/tren/static/fondo_maqueta.jpg"
        xlink:href="fondo_maqueta.jpg"
-       clip-path="url(#clipPath7724)"
-       y="201.07565"
-       x="-105.69385"
+       transform="translate(105.69385,-201.07565)"
+       style="display:inline"
+       width="1018"
+       height="509"
        id="st2"
-       height="509"
-       width="1018"
-       style="display:inline"
-       transform="translate(105.69385,-201.07565)" />
+       x="-105.69385"
+       y="201.07565"
+       clip-path="url(#clipPath7724)" />
     <image
        sodipodi:absref="/home/fiol/git/tren/static/fondo_maqueta.jpg"
        xlink:href="fondo_maqueta.jpg"
-       clip-path="url(#clipPath7735)"
-       width="1018"
-       height="509"
-       id="st1e"
-       x="-105.69385"
-       y="201.07565"
+       transform="translate(105.69385,-209.07565)"
        style="display:inline"
-       transform="translate(105.69385,-209.07565)" />
+       y="201.07565"
+       x="-105.69385"
+       id="st1e"
+       height="509"
+       width="1018"
+       clip-path="url(#clipPath7735)" />
   </g>
   <g
      inkscape:label="desvios"
@@ -3764,14 +3764,17 @@
          d="M 623.24059,270.8658 1118.5901,376.37429"
          style="fill:none;stroke:#000000;stroke-width:1.5px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
     </g>
-    <path
-       style="fill:none;stroke:#000000;stroke-width:1.5px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-       d="m 662.70539,263.77199 442.85921,93.67318"
-       id="M4"
-       inkscape:connector-curvature="0"
-       transform="translate(2.34375e-6,3.0761719e-6)"
-       sodipodi:nodetypes="cc"
-       inkscape:label="#M4" />
+    <g
+       id="M4">
+      <path
+         inkscape:label=""
+         sodipodi:nodetypes="cc"
+         transform="translate(2.34375e-6,3.0761719e-6)"
+         inkscape:connector-curvature="0"
+         id="pathM4"
+         d="m 662.70539,263.77199 442.85921,93.67318"
+         style="fill:none;stroke:#000000;stroke-width:1.5px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
+    </g>
     <g
        id="L1"
        inkscape:label="#L1">
