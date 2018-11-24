@@ -1,21 +1,27 @@
-,Andenes,,,,,,,
-,,,,,,,,
+,Andenes,,,,,,,,
+,,,,,,,,,
 Estación,Ref,"CW
 Tramo","CW
 Inv","CW
 %","CCW
 Tramo","CCW
 Inv","CCW
-%",Descripción
-M,EMI,B2,,80,B2,X,80,Montaña Interior
-M,EME,B1,,80,B1,X,80,Montaña Exterior
-R,ERE,D1,X,80,D1,,80,Rampa Exterior
-R,ERC,E4,X,80,E4,,80,Rampa Centro
-R,ERI,D2,X,80,D2,,80,Rampa Interior
-I,EIE,E3,,80,E3,X,80,Interior Exterior
-I,EIC,E2,,80,E2,X,80,Interior Centro
-I,EII,E1,,80,E1,X,80,Interior Interior
-P,EPE,H2,,40,H2,X,80,Puerto Exterior
-P,EPI,H3,,80,H3,X,80,Puerto Interior
-P,ECE,H4,,80,H4,X,80,Ciudad Exterior
-P,ECI,J4,X,30,J4,,90,Ciudad Interior
+%",Descripción,
+M,EMI,B2,,80,B2,X,80,Montaña Interior,
+M,EME,B1,,80,B1,X,80,Montaña Exterior,
+R,ERE,D1,X,80,D1,,80,Rampa Exterior,
+R,ERC,E4,X,80,E4,,80,Rampa Centro,
+R,ERI,D2,X,80,D2,,80,Rampa Interior,
+I,EIE,E3,,80,E3,X,80,Interior Exterior,
+I,EIC,E2,,80,E2,X,80,Interior Centro,
+I,EII,E1,,80,E1,X,80,Interior Interior,
+P,EPE,H2,,40,H2,X,80,Puerto Exterior,
+P,EPI,H3,,80,H3,X,80,Puerto Interior,
+P,ECE,H4,,80,H4,X,80,Ciudad Exterior,
+P,ECI,J4,X,30,J4,,90,Ciudad Interior,
+C,EC1,L4,X,80,L4,,80,Central vía 1,exterior
+C,EC2,L3,X,80,L3,,80,Central vía 2,
+C,EC3,L2,X,80,L2,,80,Central vía 3,
+C,EC4,M4,X,80,M4,,80,Central vía 4,
+C,EC5,L1,X,80,L1,,80,Central vía 5,interior
+C,ECM,M3,X,80,,,,Vía muerta,
