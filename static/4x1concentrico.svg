@@ -1135,10 +1135,10 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="1.0801056"
-     inkscape:cx="934.30729"
-     inkscape:cy="241.41"
+     inkscape:cx="1341.6749"
+     inkscape:cy="315.47684"
      inkscape:document-units="px"
-     inkscape:current-layer="layer3"
+     inkscape:current-layer="layer1"
      showgrid="true"
      inkscape:window-width="1535"
      inkscape:window-height="876"
@@ -2350,8 +2350,8 @@
     <g
        style="display:inline"
        transform="matrix(-0.33268666,-0.04601277,-0.04025967,0.29108997,1425.8344,375.48013)"
-       id="desvio3B1"
-       inkscape:label="#desvio3B1">
+       id="desvio3B2"
+       inkscape:label="#desvio3B2">
       <path
          style="fill:none;stroke:#ff0000;stroke-width:3;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
          d="m 5.8288879,801.11666 c 57.6163551,-0.20809 88.1934541,26.4275 88.1934541,26.4275"
@@ -2387,8 +2387,8 @@
     <g
        style="display:inline"
        transform="matrix(0.33270716,0.04586432,0.04012978,-0.2911079,1293.9327,849.8987)"
-       id="desvio3B2"
-       inkscape:label="#desvio3B2">
+       id="desvio3B1"
+       inkscape:label="#desvio3B1">
       <path
          style="fill:none;stroke:#ff0000;stroke-width:3;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
          d="m 5.8288879,801.11666 c 57.6163551,-0.20809 88.1934541,26.4275 88.1934541,26.4275"
