@@ -386,6 +386,7 @@ class ChipVias(ChipViasGenerico):
 
 class ChipViasDetector(ChipViasGenerico, ZCEnabled):
     __PRESENCE = 0x30
+    __READINGS = 0x20
     RegistroMac.instance("ChipViasDetector").key(lambda c: c.pwm.address)
 
     def __init__(self, address=0x40, pines=[], minimo = 1200, freq=60, debug=False):
@@ -444,6 +445,7 @@ class ChipViasDetector(ChipViasGenerico, ZCEnabled):
 
         if(self.pwm.i2c and self.pwm.i2c.bus and self.mac):
           ab = self.pwm.i2c.readU16(self.__PRESENCE)
+          #self.lectura_detallada()
         else:
           ab = 0
 
@@ -506,3 +508,9 @@ class ChipViasDetector(ChipViasGenerico, ZCEnabled):
 
         return changed
 
+    def lectura_detallada(self):
+      with open("/tmp/lectura_detallada.csv", "a") as f:
+        readings = [0]*8
+        for ch in range(8):
+            readings[ch] = self.pwm.i2c.readU16(self.__READINGS+(ch<<1)) 
+        f.write("{},{}\n".format(self, ",".join(map(str, readings))))
