@@ -3203,7 +3203,7 @@ def start():
     signal.signal(signal.SIGINT, sig_handler)
 
 
-    timer = tornado.ioloop.PeriodicCallback(maqueta.accion_periodica,300)
+    timer = tornado.ioloop.PeriodicCallback(maqueta.accion_periodica,30)
     timer.start()
 
     # Descomentar las siguientes 4 lineas si se sospecha una fuga de memoria
