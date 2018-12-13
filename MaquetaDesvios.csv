@@ -34,7 +34,7 @@ Inicial",Comentario,Pasado,
 3,A,2,3A2,,,,,,,,,,
 3,A,3,3A3,K2,,J2,X,K3,X,,Rampa izquierda puente,X,
 3,A,4,3A4,K1,,,,H2,X,,Rampa exterior izquierda,X,
-3,A,5,3A5,H1,,,,,,,Triple rampa motor izquierdo,X,Ojo estaban al reves
+3,A,5,3A5,H1,,J1,X,,,,Triple rampa motor izquierdo,X,Ojo estaban al reves
 3,A,6,3A6,,,,,J2,,,Triple rampa motor derecho,X,
 3,B,1,3B1,M2,X,,,C1,X,,Entrada estacion +65 derecha via exterior desvio curva a via desvio interior,X,
 3,B,2,3B2,J3,X,,,M1,X,,Entrada estacion +65 derecha via interior desvio curva a via desvio exterior,X,
