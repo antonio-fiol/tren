@@ -857,6 +857,11 @@ class ColeccionTramos(Desc, object):
         self.desc = iniciales(type(self).__name__)+str([ t.desc for t in self.tramos ])
         self.inv = self
 
+    def append(self, t):
+        self.tramos.append(t)
+        self.desc = iniciales(type(self).__name__)+str([ t.desc for t in self.tramos ])
+
+
 class TramosConDeteccionCompartida(ColeccionTramos):
     def deteccion(self, t):
         ret = None
