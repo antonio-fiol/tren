@@ -58,8 +58,22 @@ if __name__ == "__main__":
     #semaforos["I2"].limites.append(lc1)
 
     CONECTORES_VIAS = "ABCDEFGHJK" # Añadir siempre de 2 en 2, ordenados segun conexion a las placas
-    CONECTORES_VIAS = "ABCDEF" # Añadir siempre de 2 en 2, ordenados segun conexion a las placas
+    CONECTORES_VIAS = "UVWXYZ" # Añadir siempre de 2 en 2, ordenados segun conexion a las placas
     BASE_CVD = 0x10                # Direccion base de la primera placa. Se asume que las siguientes suman 1.
+    AGREGADOS = { # MA CD EH FJ GK BL
+        "U": [ "M", "A" ],
+        "V": [ "C", "D" ],
+        "W": [ "E", "H" ],
+        "X": [ "F", "J" ],
+        "Y": [ "G", "K" ],
+        "Z": [ "B", "L" ],
+    }
+    print(AGREGADOS)
+    # [item for sublist in list for item in sublist]
+    AGREGADOS_PLANO = set([item for sublist in AGREGADOS.values() for item in sublist])
+    print(AGREGADOS_PLANO)
+    AGREGADOS_INVERSO = { x: y  for x in AGREGADOS_PLANO for y in AGREGADOS if x in AGREGADOS[y] }
+    print(AGREGADOS_INVERSO)
 
     mapa={}
     ChipOffset = namedtuple("ChipOffset", [ "chip", "offset" ])
@@ -67,6 +81,9 @@ if __name__ == "__main__":
         c = ChipViasDetector(BASE_CVD+d,debug=True)
         mapa[a] = ChipOffset(c,-1)
         mapa[b] = ChipOffset(c,3)
+
+    class TADC(TramosConDeteccionCompartida, TramosConAlimentacionCompartida):
+        pass
 
     tr = lambda ref, inv: Maqueta.tramos[ref].inv if inv else Maqueta.tramos[ref]
     with open("MaquetaTramos.csv") as csvfile:
@@ -80,8 +97,21 @@ if __name__ == "__main__":
                 ref = row["Ref"]
                 letra, numero = ref
                 t = Tramo(ref, float(longitud))
-                try: mapa[letra].chip.registrar(int(numero) + mapa[letra].offset, t)
-                except: print("ERROR: No puedo registrar "+str(t))
+                if letra in mapa:
+                    try: mapa[letra].chip.registrar(int(numero) + mapa[letra].offset, t)
+                    except: print("ERROR: No puedo registrar "+str(t))
+                elif letra in AGREGADOS_PLANO:
+                    letra = AGREGADOS_INVERSO[letra]
+                    if letra+str(numero) in Maqueta.tramos:
+                        ag = Maqueta.tramos[letra+str(numero)]
+                        ag.append(t)
+                    else:
+                        ag = TADC(t)
+                    try:
+                        mapa[letra].chip.registrar(int(numero) + mapa[letra].offset, ag)
+                        print("Registrado "+str(ag))
+                    except: print("ERROR: No puedo registrar "+str(ag))
+    print(Maqueta.tramos)
 
     with open("MaquetaTramoTramo.csv") as csvfile:
         csvfile.readline()
@@ -129,6 +159,54 @@ if __name__ == "__main__":
                 trd = lambda d,r: d.centro if r=="C" else d.rojo if r=="R" else d.verde if r=="V" else None
                 trdi = lambda d,r: trd(d,r) if r=="C" else trd(d,r).inv
                 conexion(trd(desvio_origen,rama_o), trdi(desvio_destino, rama_d))
+
+    INCOMPAT = defaultdict(set)
+    for t in Maqueta.tramos:
+        letra = t[0]
+        t = Maqueta.tramos[t]
+        for tx in t.a+t.b:
+            if tx.desvio:
+                pass
+            else:
+                letrax = tx.desc[0]
+                INCOMPAT[letra].add(letrax)
+                INCOMPAT[letrax].add(letra)
+
+    def recorrer(d, visitados, tramos):
+        if d in visitados: return
+        print("recorriendo "+str(d))
+        visitados.add(d)
+        print(d.rojo)
+        print(d.rojo.b)
+        print(d.verde)
+        print(d.verde.b)
+        print(d.centro)
+        print(d.centro.a)
+        it = [d.rojo.b, d.verde.b, d.centro.a]
+        it = [ x[0] for x in it if x ]
+        for dd in it:
+            print("-->"+str(dd))
+            if dd.desvio:
+                print("es desvio "+str(dd.desvio))
+                recorrer(dd.desvio, visitados, tramos)
+            else:
+                print("es tramo "+dd.desc)
+                tramos.add(dd.desc)
+
+    for d in Maqueta.desvios:
+        d = Maqueta.desvios[d]
+        tramos = set()
+        recorrer(d, set(), tramos)
+        letras = set([ t[0] for t in tramos ])
+        for l in letras:
+            INCOMPAT[l].update(letras)
+
+    print(INCOMPAT)
+    TODAS=set("ABCDEFGHJKLM")
+    COMPAT={ k: TODAS.difference(INCOMPAT[k]) for k in INCOMPAT }
+    print("-----------")
+    for key in COMPAT.keys():
+        print(key+": "+str(COMPAT[key]))
 
     mapa_estaciones = defaultdict(lambda:defaultdict(list))
     def crea_estacion(nombre, sentido, tramo, inv, porc, desc, asoc):
