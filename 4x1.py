@@ -102,11 +102,13 @@ if __name__ == "__main__":
                     except: print("ERROR: No puedo registrar "+str(t))
                 elif letra in AGREGADOS_PLANO:
                     letra = AGREGADOS_INVERSO[letra]
-                    if letra+str(numero) in Maqueta.tramos:
-                        ag = Maqueta.tramos[letra+str(numero)]
+                    if letra+str(numero) in ColeccionTramos.registro:
+                        ag = ColeccionTramos.registro[letra+str(numero)]
                         ag.append(t)
+                        ag.append(t.inv)
+                        print("Ahora es "+str(ag))
                     else:
-                        ag = TADC(t)
+                        ag = TADC(t, id=letra+str(numero))
                     try:
                         mapa[letra].chip.registrar(int(numero) + mapa[letra].offset, ag)
                         print("Registrado "+str(ag))

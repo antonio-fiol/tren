@@ -849,12 +849,16 @@ class Tramo(Nodo):
         return p
 
 class ColeccionTramos(Desc, object):
+    registro = {}
+
     def __init__(self, *args, **kwargs):
         if "tramos" in kwargs:
             self.tramos = kwargs["tramos"]
         else:
             self.tramos = list(args) + [ t.inv for t in args ]
         self.desc = iniciales(type(self).__name__)+str([ t.desc for t in self.tramos ])
+        if "id" in kwargs:
+            ColeccionTramos.registro[kwargs["id"]] = self
         self.inv = self
 
     def append(self, t):
