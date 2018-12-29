@@ -24,4 +24,4 @@ C,EC2,L3,X,80,L3,,80,Central vía 2,
 C,EC3,L2,X,80,L2,,80,Central vía 3,
 C,EC4,M4,X,80,M4,,80,Central vía 4,
 C,EC5,L1,X,80,L1,,80,Central vía 5,interior
-C,ECM,M3,X,80,,,,Vía muerta,
+V,ECM,M3,X,80,,,,Vía muerta,
