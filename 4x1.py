@@ -136,12 +136,15 @@ if __name__ == "__main__":
             centro, rojo, verde = row["Centro"], row["Rojo"], row["Verde"]
             c_inv, r_inv, v_inv = row["C\nInv"], row["R\nInv"], row["V\nInv"]
             estado_inicial = Coloreado.ROJO if row["Estado\nInicial"] == "R" else Coloreado.VERDE
+            tres_salidas = row["Asociado\n3salidas"]
             if(centro or rojo or verde):
                 d=Desvio(ref, estado_inicial=estado_inicial)
                 d.registrar_chip_desvios(sd, pin=SalidaRef(ref), chip_rv=sd)
                 if centro: conexion(tr(centro, c_inv), d.centro)
                 if rojo: conexion(d.rojo, tr(rojo, r_inv))
                 if verde: conexion(d.verde, tr(verde, v_inv))
+            if(tres_salidas and (tres_salidas in Maqueta.desvios)):
+                DesvioTresSalidas(d, Maqueta.desvios[tres_salidas])
 
     with open("MaquetaDesvioDesvio.csv") as csvfile:
         csvfile.readline()
