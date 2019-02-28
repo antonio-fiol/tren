@@ -442,7 +442,9 @@ if __name__ == "__main__":
     #[0.06339493671304784, 0.006563136444433814, -3.546151812489586e-05] 700
     #Locomotora(id="talgo", desc="Talgo", coeffs=[0.0705067098, 0.0085391554, -4.4265621878004e-5  ], minimo=1000, muestras_inercia=10)
     Locomotora(id="talgo", desc="Talgo", coeffs=[0.06269762207713507, 0.006847887396690622, -4.1256003045953165e-05], minimo=320, muestras_inercia=10)
-    Locomotora(id="comsa", desc="Comsa", coeffs=[0.12077762631211575, 0.003107459392643413, -1.0492061779321495e-05], minimo=1600, muestras_inercia=50)
+    #Locomotora(id="comsa", desc="Comsa", coeffs=[0.12077762631211575, 0.003107459392643413, -1.0492061779321495e-05], minimo=1600, muestras_inercia=50)
+    #Locomotora(id="comsa", desc="Comsa", coeffs=[0.13057829437971877, 0.005269850361426482, -2.3089013689095517e-05], minimo=1228, muestras_inercia=50)
+    Locomotora(id="comsa", desc="Comsa", coeffs=[0.12942278843144692, 0.005611320242577969, -2.8021741807909094e-05], minimo=1228, muestras_inercia=50)
     Locomotora(id="ef-55", desc="EF-55 (Kato)", coeffs=[0.01958548268810128, 0.00478287434306379, -2.5501116465710806e-05], minimo=780, muestras_inercia=10)
     Locomotora(id="cercanias", desc="Cercanías", coeffs=[0.031261934662692115, 0.006996998827739664, -3.528356235287542e-05], minimo=550, muestras_inercia=20)
     Locomotora(id="c61-006", desc="SNCF C61-006 V", coeffs=[0.061291493686289084, 0.005144162475490486, -3.1719614648088305e-05], minimo=1060, muestras_inercia=2) # 3N
