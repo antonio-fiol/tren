@@ -71,6 +71,7 @@ class ChainOf595:
 
    def send(self):
        """ Send the current state to the chips. """
+       if(self.debug): print("SEND:"+self.binstates())
        if self.spi:
            self.spi.transfer(self.states) # Ignore old data coming back
 
