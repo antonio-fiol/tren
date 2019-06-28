@@ -959,7 +959,7 @@ $(function() {
     var svg = $('#svgbasics').svg('get');
     svg.load(path, {addTo: false, changeSize: true, onLoad: loadDone});
     $(window).resize(function() {
-      resetSize(svg, '100%', $(window).height()-$("#antipopup").height());
+      resetSize(svg, '100%', $(window).height()-$("#antipopup").height()-$("#master-controls").height());
     });
   });
 
