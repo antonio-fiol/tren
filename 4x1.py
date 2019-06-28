@@ -261,7 +261,20 @@ if __name__ == "__main__":
             #        PermitirEstado(s, Semaforo.VERDE).si(d, inv=(color=="R"))
             #        CambiarSemaforo(s, Semaforo.CAMBIANDO_A_VERDE).cuando(EventoCambiado, d).
             #            si(lambda: d.estado_a_bool()!=(color=="R"))
-    
+
+    with open("MaquetaLimpieza.csv") as csvfile:
+        csvfile.readline()
+        csvfile.readline()
+        reader = csv.DictReader(csvfile, dialect="excel")
+        tmpdict = defaultdict(list)
+        for row in reader:
+            if(debug_config): print(row)
+            ref, desc_tramo, inv = row["Ref"], row["Tramo"], row["Inv"]
+            tramo = tr(desc_tramo, inv)
+            tmpdict[ref].append(tramo)
+        for ref in tmpdict:
+            Limpieza(ref, tmpdict[ref])
+
     # Listado de tramos de la maqueta (el orden no importa)
     # DESC: Tramo(DESC, longitud)
     # Puentes

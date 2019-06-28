@@ -1259,7 +1259,14 @@ class Demo(IdDesc):
             "estaciones": [ e.diccionario_atributos() for e in self.estaciones ],
         }
 
-
+class Limpieza(Demo):
+    def __init__(self, id, tramos):
+        self.id = int(id) if str(id).isdigit() else hash(str(id))
+        self.desc = "Limpieza "+str(id)
+        Maqueta.demos.update({self.id:self})
+        self.estaciones = tramos
+        print(self.desc)
+        print(self.id.__class__)
 
 class DatosVelocidad(object):
     COEFFS_INICIO = {
