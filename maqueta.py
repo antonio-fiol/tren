@@ -848,6 +848,14 @@ class Tramo(Nodo):
 
         return p
 
+    def diccionario_atributos(self):
+        return {
+            "id": self.desc,
+            "nombre": self.desc,
+            #"sentido": "",
+        }
+
+
 class ColeccionTramos(Desc, object):
     registro = {}
 
@@ -1700,7 +1708,7 @@ class Tren(Id, object):
 
     def remove_sta(self, id_estacion):
         """ Eliminar todas las ocurrencias de una estacion de la lista. """
-        self.sta = [ s for s in self.sta if s.id != id_estacion ]
+        self.sta = [ s for s in self.sta if s!=id_estacion and ((not hasattr(s,"id")) or s.id != id_estacion) ]
         if not self.sta: self.set_auto(False) # Si no quedan estaciones, quitamos automatico
         self.recalcular_ruta()
         self.EventoAtributosModificados(self).publicar()
@@ -1776,14 +1784,15 @@ class Tren(Id, object):
             else:
                 #print("Tren "+str(self.id)+" buscando camino mas corto hacia "+s0.tramo.desc)
                 #sp = shortestPath(Maqueta().graph, self.tramo, s0.tramo)
-                print("Tren "+str(self.id)+" buscando camino mas corto hacia "+s0.nombre+"-"+s0.sentido)
+                #print("Tren "+str(self.id)+" buscando camino mas corto hacia "+s0.nombre+"-"+s0.sentido)
+                print("Tren "+str(self.id)+" buscando camino mas corto hacia "+str(s0))
                 sp = shortestPath(Maqueta().graph, self.tramo, s0)
 
             print([ p.desc for p in sp ])
 
             # Al rotar estaciones interesa recalcular la ruta pero no reservar los desvios.
             # Ya se reservaran al salir de la estacion.
-            if not reservar: return
+            if not reservar and not isinstance(s0, Tramo): return
 
             # Intentar reservar el primer grupo de desvios que hay que atravesar
             desvioEncontrado = False
