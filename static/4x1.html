@@ -347,15 +347,30 @@ legend {
     min-height: 4.5em;
     padding-bottom: 0.4em;
 }
+.estaciones .activas {
+    height: 4em;
+    max-width: 400px;
+    overflow: hidden;
+}
 .estacion {
     display: inline-block;
-    width: 6em;
+    width: 4em;
     height: 4em;
     border: 1px solid #555;
     position: relative;
     background-position: center;
     vertical-align: top;
 }
+.no_estacion {
+    font-size: xx-small;
+    display: inline-block;
+    max-width: 2em;
+    vertical-align: middle;
+    margin-right: .5ex;
+    line-height: .7;
+    padding: 1px;
+}
+
 .estacion .action {
     position: absolute;
     width: 50%;
@@ -366,6 +381,9 @@ legend {
 }
 .activas .estacion {
     width: 4em;
+}
+.activas .no_estacion {
+    height: 4em;
 }
 .estacion .action.left {
     left: 0;
@@ -897,7 +915,15 @@ $(function() {
       if(nombre_ruta) { ruta.append("<div class='nombre'>"+nombre_ruta+"</div>"); }
       var items = [];
       $.each( paradas_ruta, function( index, val ) {
-        items.push( "<div class='estacion "+val.sentido+"' style='background-image: url(estaciones/"+val.nombre+".jpg)'>" + estaciones[val.nombre].d + "<div class='action left'></div><div class='action right'></div></div>" );
+        if(estaciones[val.nombre]) {
+          items.push( "<div class='estacion "+val.sentido+"' style='background-image: url(estaciones/"+val.nombre+".jpg)'>" + estaciones[val.nombre].d + "<div class='action left'></div><div class='action right'></div></div>" );
+        } else {
+          var izq = "&#x2190;&nbsp;";
+          var der = "&nbsp;&#x2192;";
+          var n = val.nombre.replace("invertido",izq).trim();
+          if(!n.endsWith(izq)) { n = n + " " + der; }
+          items.push( "<div class='no_estacion'>"+n+"</div>" );
+        }
       });
       $( items.join( "" ) ).appendTo( ruta );
       ruta.appendTo( "#templates .control-tren .demo" );
@@ -1490,7 +1516,16 @@ var updater = {
                    lista_trenes[id].sta.forEach(function(e,i,a) {
                       var x = $( "#control-tren"+id+" .estaciones .todas").find('[name="'+e.nombre+'"]')
                       //console.log(x);
-                      x.clone().addClass(e.sentido).attr("idsta",e.id).click(function () {
+                      if(x.length > 0) {
+                          x = x.clone().addClass(e.sentido);
+                      } else {
+                          var izq = "&#x2190;&nbsp;";
+                          var der = "&nbsp;&#x2192;";
+                          var n = e.nombre.replace("invertido",izq);
+                          if(!n.endsWith(izq)) { n = n + " " + der; }
+                          x = $("<div class='no_estacion'>"+n+"</div>");
+                      }
+                      x.attr("idsta",e.id).click(function () {
                            $.get("/tren",{id: $(this).parents(".control").attr("idtren"), removeSta: $(this).attr("idsta"), sentido: e.sentido });
                            //$(this).remove();
                       }).appendTo(activas[0]);
