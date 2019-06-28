@@ -1598,6 +1598,8 @@ class Tren(Id, object):
 
         # Registrarse para saber cuando se ha parado en una estacion, y poder cambiar la ruta
         GestorEventos().suscribir_evento(Estacion.EventoTrenParado, self.recibir_evento_tren_parado)
+        # Registrarse para recibir sus propios movimientos y poder cambiar la ruta (limpieza)
+        GestorEventos().suscribir_evento(Tren.EventoMovido, self.recibir_evento_tren_movido)
         # Registrarse para saber cuando se ha parado en una estacion, y poder reservar los desvios
         GestorEventos().suscribir_evento(Estacion.EventoTrenArrancando, self.recibir_evento_tren_arrancando)
 
@@ -1922,6 +1924,12 @@ class Tren(Id, object):
               if not evento.por_tren == self:
                   print("recibir_evento_desvio_liberado: se cumplen todas las condiciones")
                   self.recalcular_ruta(aplicar_margen_seguridad=True)
+
+    def recibir_evento_tren_movido(self, evento):
+        if evento.tren == self:
+            print("recibir_evento_tren_movido")
+            if self.sta and (self.tramo == self.sta[0]):
+                self.remove_sta(self.sta[0])
 
     def recibir_evento_tren_parado(self, evento):
         if evento.tren == self:
